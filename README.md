@@ -1,68 +1,83 @@
-# GameLovers Frameworks (Unity)
+# Geuneda Frameworks (Unity)
 
-Unity 6 project used to **develop, test, and validate** GameLovers Unity Package Manager (UPM) packages.
+Unity 6 프로젝트로, Geuneda Unity Package Manager (UPM) 패키지들을 **개발, 테스트, 검증**하는 데 사용됩니다.
 
-Most packages in this repo live under `Packages/` as **git submodules** (see `.gitmodules`). Each package is intended to be usable as a standalone open-source Unity package.
+## 이 프로젝트의 구성
 
-## What you get here
+- **Unity 호스트 프로젝트**: 패키지 개발 시 샘플과 테스트를 실행하는 데 유용합니다
+- **내장 패키지**: 각각 UPM 패키지로, 독립적인 `package.json`, `README.md` 등을 가지고 있습니다
 
-- **A Unity “host” project**: useful for running samples and tests while developing packages.
-- **Embedded packages**: each one is a UPM package (has its own `package.json`, `README.md`, `CHANGELOG.md`, etc.).
+## 포함된 패키지
 
-## Packages in this repo
+| 패키지 | 설명 | 레포지토리 |
+|--------|------|-----------|
+| `com.geuneda.dataextensions` | 데이터 타입 확장 유틸리티 | [geuneda-dataextensions](https://github.com/geuneda/geuneda-dataextensions) |
+| `com.geuneda.services` | 게임 서비스 (DI, 메시지 브로커, 풀링 등) | [geuneda-services](https://github.com/geuneda/geuneda-services) |
+| `com.geuneda.uiservice` | UI 관리 서비스 | [geuneda-uiservice](https://github.com/geuneda/geuneda-uiservice) |
+| `com.geuneda.statechart` | 상태머신 (HFSM) | [geuneda-statechart](https://github.com/geuneda/geuneda-statechart) |
+| `com.geuneda.configsprovider` | 설정 제공자 | [geuneda-configsprovider](https://github.com/geuneda/geuneda-configsprovider) |
+| `com.geuneda.inputextensions` | 입력 확장 | [geuneda-inputextensions](https://github.com/geuneda/geuneda-inputextensions) |
+| `com.geuneda.nativeui` | 네이티브 UI 헬퍼 | [geuneda-nativeui](https://github.com/geuneda/geuneda-nativeui) |
+| `com.geuneda.notificationservice` | 알림 서비스 | [geuneda-notificationservice](https://github.com/geuneda/geuneda-notificationservice) |
+| `com.geuneda.googlesheetimporter` | 구글 시트 임포터 | [geuneda-googlesheetimporter](https://github.com/geuneda/geuneda-googlesheetimporter) |
+| `com.geuneda.assetsimporter` | 에셋 임포터 | [geuneda-assetsimporter](https://github.com/geuneda/geuneda-assetsimporter) |
 
-Packages are referenced as submodules:
+## 설치 방법
 
-| Package | Purpose | Links |
-| --- | --- | --- |
-| `com.gamelovers.uiservice` | UI orchestration service (presenters, layers, sets, Addressables loading, optional analytics, editor tooling) | [Repo](https://github.com/CoderGamester/com.gamelovers.uiservice) · [README](Packages/com.gamelovers.uiservice/README.md) |
-| `com.gamelovers.assetsimporter` | Asset import tooling | [Repo](https://github.com/CoderGamester/Unity-AssetsImporter) |
-| `com.gamelovers.configsprovider` | Configs provider utilities | [Repo](https://github.com/CoderGamester/Unity-ConfigsProvider) |
-| `com.gamelovers.dataextensions` | Data type extensions utilities | [Repo](https://github.com/CoderGamester/Unity-DataTypeExtensions) |
-| `com.gamelovers.googlesheetimporter` | Google Sheets importer | [Repo](https://github.com/CoderGamester/Unity-GoogleSheet-Importer) |
-| `com.gamelovers.inputextensions` | Input utilities/extensions | [Repo](https://github.com/CoderGamester/com.gamelovers.inputextensions) |
-| `com.gamelovers.nativeui` | Native UI helpers | [Repo](https://github.com/CoderGamester/com.gamelovers.nativeui) |
-| `com.gamelovers.notificationservice` | Notification service utilities | [Repo](https://github.com/CoderGamester/com.gamelovers.notificationservice) |
-| `com.gamelovers.services` | General services utilities | [Repo](https://github.com/CoderGamester/Services) |
-| `com.gamelovers.statechart` | Statechart / HFSM utilities | [Repo](https://github.com/CoderGamester/Statechart-HFSM) |
-
-Tip: if a package folder is empty on first clone, you likely forgot to fetch submodules.
-
-## Getting started (this repo)
-
-### Clone with submodules
+### 전체 프로젝트 클론
 
 ```bash
-git clone --recurse-submodules <this-repo-url>
+git clone https://github.com/geuneda/geuneda-frameworks.git
 ```
 
-Or, if you already cloned:
+### 개별 패키지 사용
 
-```bash
-git submodule update --init --recursive
+`Packages/manifest.json`에 필요한 패키지만 추가:
+
+```json
+{
+  "dependencies": {
+    "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git#v1.0.0",
+    "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git#v1.0.0"
+  }
+}
 ```
 
-### Open in Unity
+또는 Unity Package Manager에서:
+1. **Window → Package Manager** 열기
+2. **+** 버튼 → **Add package from git URL...**
+3. 패키지 URL 입력
 
-- **Unity**: 6000.0+
-- Open the project root in Unity Hub / Unity Editor.
+## 요구 사항
 
-## UiService (highlight)
+- Unity 6000.0 이상
+- Addressables 2.7.6+
+- UniTask
 
-`com.gamelovers.uiservice` is the most UI-centric package here. It provides:
+## 의존성 구조
 
-- A **`UiPresenter`** base class (+ `UiPresenter<TData>`) with lifecycle (`OnInitialized`, `OnOpened`, `OnClosed`, `OnSetData`).
-- An **`IUiService` / `UiService`** API to load/open/close/unload presenters (async via UniTask).
-- Optional **analytics** (`IUiAnalytics`) and **Editor tools** under `Tools/UI Service/*`.
+```
+dataextensions (기반)
+    ↓
+services (dataextensions 의존)
+    ↓
+uiservice (services, UniTask, Addressables 의존)
+```
 
-Read the full docs here: `Packages/com.gamelovers.uiservice/README.md`.
+## 프로젝트 구조
 
-## Contributing
+```
+geuneda-frameworks/
+├── Assets/
+│   └── Samples/          # 샘플 씬
+├── Packages/
+│   └── manifest.json     # 패키지 의존성
+├── ProjectSettings/
+└── README.md
+```
 
-- For package changes, contribute directly to the package repository (each `Packages/com.gamelovers.*` is a submodule).
-- When updating a package, also update its `README.md` / `CHANGELOG.md` if behavior or API changes.
-- See `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`.
+## 라이센스
 
-## License
+MIT License
 
-Licensing is defined per package. For example, UiService is MIT: `Packages/com.gamelovers.uiservice/LICENSE.md`.
+원본: GameLovers Frameworks by Miguel Tomas

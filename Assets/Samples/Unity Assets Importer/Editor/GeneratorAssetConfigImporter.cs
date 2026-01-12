@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameLoversEditor.AssetsImporter
+namespace GeunedaEditor.AssetsImporter
 {
 	public class GeneratorAssetConfigImporter : AssetsConfigsGeneratorImporter<GameObject>
 	{

@@ -1,7 +1,7 @@
-using GameLovers.AssetsImporter;
+using Geuneda.AssetsImporter;
 using UnityEngine;
 
-namespace GameLoversEditor.AssetsImporter
+namespace GeunedaEditor.AssetsImporter
 {
 	public enum GameObjectAssetType
 	{

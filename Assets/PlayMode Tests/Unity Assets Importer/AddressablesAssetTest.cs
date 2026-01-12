@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using Cysharp.Threading.Tasks;
-using GameLovers.AssetsImporter;
+using Geuneda.AssetsImporter;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -12,7 +12,7 @@ using UnityEngine.TestTools;
 
 // ReSharper disable once CheckNamespace
 
-namespace GameLoversEditor.AssetsImporter.Tests
+namespace GeunedaEditor.AssetsImporter.Tests
 {
 
 	public class AddressablesAssetTest
