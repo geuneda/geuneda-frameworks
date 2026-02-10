@@ -1,7 +1,7 @@
 # Frameworks (Unity Host Repo) - AI Agent Guide
 
 ## 1. Repo overview
-This repository is a **Unity 6 host project** used to develop, test, and validate multiple GameLovers UPM packages.
+This repository is a **Unity 6 host project** used to develop, test, and validate multiple Geuneda UPM packages.
 
 Most packages live under `Packages/` and are included as **git submodules** (see `.gitmodules`).
 
@@ -27,14 +27,14 @@ git submodule update --init --recursive
 
 When editing a package, treat it like its own repo:
 - Make changes inside `Packages/<package-name>/`
-- Update that package’s `README.md` / `CHANGELOG.md` when behavior or API changes
+- Update that package's `README.md` / `CHANGELOG.md` when behavior or API changes
 - Prefer contributing upstream to the package repository
 
 ## 5. Package-specific guides (source of truth)
 Some packages include their own `AGENTS.md`. When present, **that file is the source of truth** for that package.
 
 Examples:
-- `Packages/com.gamelovers.uiservice/AGENTS.md`
+- `Packages/com.geuneda.uiservice/AGENTS.md`
 
 ## 6. Documentation policy
 - Root `README.md` documents **this host repository** and links out to packages.

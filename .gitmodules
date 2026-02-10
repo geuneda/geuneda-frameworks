@@ -1,30 +1,30 @@
-[submodule "Packages/com.gamelovers.inputextensions"]
-	path = Packages/com.gamelovers.inputextensions
-	url = https://CoderGamester@github.com/CoderGamester/com.gamelovers.inputextensions.git
-[submodule "Packages/com.gamelovers.services"]
-	path = Packages/com.gamelovers.services
-	url = https://github.com/CoderGamester/Services.git
-[submodule "Packages/com.gamelovers.statechart"]
-	path = Packages/com.gamelovers.statechart
-	url = https://github.com/CoderGamester/Statechart-HFSM.git
-[submodule "Packages/com.gamelovers.uiservice"]
-	path = Packages/com.gamelovers.uiservice
-	url = https://CoderGamester@github.com/CoderGamester/com.gamelovers.uiservice.git
-[submodule "Packages/com.gamelovers.googlesheetimporter"]
-	path = Packages/com.gamelovers.googlesheetimporter
-	url = https://github.com/CoderGamester/Unity-GoogleSheet-Importer.git
-[submodule "Packages/com.gamelovers.notificationservice"]
-	path = Packages/com.gamelovers.notificationservice
-	url = https://github.com/CoderGamester/com.gamelovers.notificationservice
-[submodule "Packages/com.gamelovers.nativeui"]
-	path = Packages/com.gamelovers.nativeui
-	url = https://github.com/CoderGamester/com.gamelovers.nativeui.git
-[submodule "Packages/com.gamelovers.dataextensions"]
-	path = Packages/com.gamelovers.dataextensions
-	url = https://github.com/CoderGamester/Unity-DataTypeExtensions.git
-[submodule "Packages/com.gamelovers.assetsimporter"]
-	path = Packages/com.gamelovers.assetsimporter
-	url = https://github.com/CoderGamester/Unity-AssetsImporter.git
-[submodule "Packages/com.gamelovers.configsprovider"]
-	path = Packages/com.gamelovers.configsprovider
-	url = https://github.com/CoderGamester/Unity-ConfigsProvider.git
+[submodule "Packages/com.geuneda.inputextensions"]
+	path = Packages/com.geuneda.inputextensions
+	url = https://github.com/geuneda/geuneda-inputextensions.git
+[submodule "Packages/com.geuneda.services"]
+	path = Packages/com.geuneda.services
+	url = https://github.com/geuneda/geuneda-services.git
+[submodule "Packages/com.geuneda.statechart"]
+	path = Packages/com.geuneda.statechart
+	url = https://github.com/geuneda/geuneda-statechart.git
+[submodule "Packages/com.geuneda.uiservice"]
+	path = Packages/com.geuneda.uiservice
+	url = https://github.com/geuneda/geuneda-uiservice.git
+[submodule "Packages/com.geuneda.googlesheetimporter"]
+	path = Packages/com.geuneda.googlesheetimporter
+	url = https://github.com/geuneda/geuneda-googlesheetimporter.git
+[submodule "Packages/com.geuneda.notificationservice"]
+	path = Packages/com.geuneda.notificationservice
+	url = https://github.com/geuneda/geuneda-notificationservice.git
+[submodule "Packages/com.geuneda.nativeui"]
+	path = Packages/com.geuneda.nativeui
+	url = https://github.com/geuneda/geuneda-nativeui.git
+[submodule "Packages/com.geuneda.dataextensions"]
+	path = Packages/com.geuneda.dataextensions
+	url = https://github.com/geuneda/geuneda-dataextensions.git
+[submodule "Packages/com.geuneda.assetsimporter"]
+	path = Packages/com.geuneda.assetsimporter
+	url = https://github.com/geuneda/geuneda-assetsimporter.git
+[submodule "Packages/com.geuneda.configsprovider"]
+	path = Packages/com.geuneda.configsprovider
+	url = https://github.com/geuneda/geuneda-configsprovider.git

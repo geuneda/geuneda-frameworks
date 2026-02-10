@@ -1,13 +1,13 @@
 # Contributing
 
-Thanks for helping improve GameLovers packages.
+Thanks for helping improve Geuneda packages.
 
 This repository is a **Unity host project** that contains multiple UPM packages under `Packages/`, most of which are **git submodules**.
 
 ## Where to contribute
 
 - **Package changes**: contribute to the package repository (preferred). In this host repo, packages are typically mounted at:
-  - `Packages/com.gamelovers.*`
+  - `Packages/com.geuneda.*`
 - **Host-project changes**: contribute here if the change is about:
   - Unity project setup, sample scenes that live under `Assets/`, or project-level CI/docs
 
