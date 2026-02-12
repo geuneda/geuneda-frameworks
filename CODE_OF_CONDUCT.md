@@ -1,50 +1,48 @@
-# Code of Conduct
+# 행동 강령
 
-This project follows the **Contributor Covenant Code of Conduct**.
+이 프로젝트는 **Contributor Covenant 행동 강령**을 따릅니다.
 
-## Our pledge
+## 서약
 
-We pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
+우리는 나이, 신체 크기, 장애의 가시성 여부, 민족, 성별 특성, 성 정체성과 표현, 경험 수준, 교육, 사회경제적 지위, 국적, 외모, 인종, 종교, 또는 성적 정체성과 지향에 관계없이 모든 사람이 괴롭힘 없이 커뮤니티에 참여할 수 있도록 하겠습니다.
 
-We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.
+우리는 개방적이고 환영하며, 다양하고 포용적이며, 건강한 커뮤니티에 기여하는 방식으로 행동하고 소통하겠습니다.
 
-## Our standards
+## 행동 기준
 
-Examples of behavior that contributes to a positive environment include:
-- Demonstrating empathy and kindness toward other people
-- Being respectful of differing opinions, viewpoints, and experiences
-- Giving and gracefully accepting constructive feedback
-- Accepting responsibility and apologizing to those affected by our mistakes, and learning from the experience
-- Focusing on what is best not just for us as individuals, but for the overall community
+긍정적인 환경에 기여하는 행동 예시:
+- 다른 사람에 대한 공감과 친절함 보여주기
+- 다양한 의견, 관점, 경험을 존중하기
+- 건설적인 피드백을 주고 기꺼이 받아들이기
+- 실수로 영향을 받은 사람들에게 책임을 지고 사과하며, 경험에서 배우기
+- 개인뿐만 아니라 전체 커뮤니티에 가장 좋은 것에 집중하기
 
-Examples of unacceptable behavior include:
-- The use of sexualized language or imagery, and sexual attention or advances of any kind
-- Trolling, insulting or derogatory comments, and personal or political attacks
-- Public or private harassment
-- Publishing others' private information, such as a physical or email address, without their explicit permission
-- Other conduct which could reasonably be considered inappropriate in a professional setting
+용납할 수 없는 행동 예시:
+- 성적인 언어나 이미지 사용, 그리고 어떤 형태의 성적 관심이나 접근
+- 트롤링, 모욕적이거나 비하하는 댓글, 개인적 또는 정치적 공격
+- 공개적 또는 사적인 괴롭힘
+- 명시적 허가 없이 타인의 물리적 주소나 이메일 주소와 같은 개인정보 게시
+- 전문적인 환경에서 합리적으로 부적절하다고 간주될 수 있는 기타 행위
 
-## Enforcement responsibilities
+## 시행 책임
 
-Project maintainers are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.
+프로젝트 관리자는 허용 가능한 행동 기준을 명확히 하고 시행할 책임이 있으며, 부적절하거나 위협적이거나 불쾌하거나 해로운 행동에 대해 적절하고 공정한 시정 조치를 취합니다.
 
-Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.
+프로젝트 관리자는 이 행동 강령에 부합하지 않는 댓글, 커밋, 코드, 위키 편집, 이슈, 기타 기여를 삭제, 편집 또는 거부할 권리와 책임이 있으며, 적절한 경우 조정 결정의 이유를 전달합니다.
 
-## Scope
+## 적용 범위
 
-This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces.
+이 행동 강령은 모든 커뮤니티 공간에 적용되며, 개인이 공개적인 장소에서 커뮤니티를 공식적으로 대표하는 경우에도 적용됩니다.
 
-## Enforcement
+## 시행
 
-To report a Code of Conduct incident:
-- Use GitHub Issues (if appropriate), or
-- Start a private conversation with maintainers via GitHub (e.g., repository “Contact” options), or
-- If available, use the repository’s security reporting channel.
+행동 강령 위반 사항을 신고하려면:
+- GitHub Issues를 사용하거나 (적절한 경우),
+- GitHub를 통해 관리자와 비공개 대화를 시작하거나 (예: 저장소 "Contact" 옵션),
+- 가능한 경우, 저장소의 보안 신고 채널을 이용하세요.
 
-Reports will be reviewed and investigated promptly and fairly.
+신고 내용은 신속하고 공정하게 검토 및 조사됩니다.
 
-## Attribution
+## 출처
 
-This Code of Conduct is adapted from the Contributor Covenant, version 2.1.
-
-
+이 행동 강령은 Contributor Covenant 버전 2.1을 기반으로 작성되었습니다.

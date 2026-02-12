@@ -1,63 +1,61 @@
-# Contributing
+# 기여 가이드
 
-Thanks for helping improve Geuneda packages.
+Geuneda 패키지 개선에 참여해 주셔서 감사합니다.
 
-This repository is a **Unity host project** that contains multiple UPM packages under `Packages/`, most of which are **git submodules**.
+이 저장소는 `Packages/` 하위에 여러 UPM 패키지를 포함하는 **Unity 호스트 프로젝트**이며, 대부분의 패키지는 **git 서브모듈**로 관리됩니다.
 
-## Where to contribute
+## 기여 위치
 
-- **Package changes**: contribute to the package repository (preferred). In this host repo, packages are typically mounted at:
+- **패키지 변경**: 해당 패키지 저장소에 기여하는 것을 권장합니다. 이 호스트 저장소에서 패키지는 일반적으로 다음 경로에 마운트됩니다:
   - `Packages/com.geuneda.*`
-- **Host-project changes**: contribute here if the change is about:
-  - Unity project setup, sample scenes that live under `Assets/`, or project-level CI/docs
+- **호스트 프로젝트 변경**: 다음과 관련된 변경 사항은 이 저장소에 기여해 주세요:
+  - Unity 프로젝트 설정, `Assets/` 하위의 샘플 씬, 또는 프로젝트 수준의 CI/문서
 
-## Setup
+## 설정
 
-### Clone with submodules
+### 서브모듈과 함께 클론
 
 ```bash
 git clone --recurse-submodules <repo-url>
 ```
 
-If you already cloned:
+이미 클론한 경우:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-### Unity version
+### Unity 버전
 
-- Use **Unity 6000.0+** (see `ProjectSettings/ProjectVersion.txt`).
+- **Unity 6000.0+** 사용 (`ProjectSettings/ProjectVersion.txt` 참조).
 
-## Coding standards
+## 코딩 표준
 
 - **C#**: C# 9.0
-- **Namespaces**: explicit namespaces (no global usings)
+- **네임스페이스**: 명시적 네임스페이스 사용 (global usings 사용 금지)
 - **Runtime vs Editor**:
-  - Runtime code must not reference `UnityEditor`
-  - Editor tooling must live under `Editor/` and Editor assemblies
-- **Async**: prefer UniTask for packages that use async flows
+  - Runtime 코드에서 `UnityEditor`를 참조하면 안 됩니다
+  - Editor 도구는 `Editor/` 및 Editor 어셈블리에 위치해야 합니다
+- **비동기**: 비동기 흐름을 사용하는 패키지에서는 UniTask를 권장합니다
 
-## Documentation expectations
+## 문서화 요구 사항
 
-- If you change behavior/public API, update:
-  - Package `README.md` (usage / examples)
-  - `CHANGELOG.md` (user-facing changes)
-  - Any package `AGENTS.md` guidance if architecture or workflows changed
+- 동작이나 공개 API를 변경한 경우 다음을 업데이트하세요:
+  - 패키지 `README.md` (사용법 / 예제)
+  - `CHANGELOG.md` (사용자 대상 변경 사항)
+  - 아키텍처나 워크플로우가 변경된 경우 해당 패키지의 `AGENTS.md`
 
-Root `README.md` should stay focused on **this host repo** and link out to package docs.
+루트 `README.md`는 **이 호스트 저장소**에 대한 내용에 집중하고, 패키지 문서는 링크로 연결해야 합니다.
 
-## Pull requests
+## 풀 리퀘스트
 
-- Keep PRs focused and small when possible.
-- Include:
-  - Motivation / context
-  - What changed
-  - How to validate (steps, tests, screenshots if UI/editor related)
+- PR은 가능한 한 집중적이고 작은 단위로 유지하세요.
+- 다음 내용을 포함해 주세요:
+  - 동기 / 배경
+  - 변경 내용
+  - 검증 방법 (절차, 테스트, UI/에디터 관련인 경우 스크린샷)
 
-## Licensing
+## 라이선스
 
-- This repository is licensed per the root `LICENSE`.
-- Packages under `Packages/` may have their own licenses; those govern the package contents.
-
-
+- 이 저장소는 루트 `LICENSE`에 따라 라이선스가 적용됩니다.
+- `Packages/` 하위 패키지는 자체 라이선스를 가질 수 있으며, 해당 라이선스가 패키지 콘텐츠에 적용됩니다.
