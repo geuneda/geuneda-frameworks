@@ -145,6 +145,18 @@ geuneda-{패키지명}/
 - **SKILL.md**: Claude Code가 스킬 활성화 시 로드하는 핵심 문서. 패키지의 API, 사용 패턴, 주의사항을 포함합니다.
 - **references/api.md**: 소스코드에서 추출한 상세 API 레퍼런스. Claude Code가 필요에 따라 참조합니다.
 
+## CLAUDE.md (공용 규칙)
+
+프레임워크를 사용하는 모든 프로젝트에 적용되는 공통 규칙이 `CLAUDE.md`에 정리되어 있습니다:
+
+- 금지 패턴 (싱글톤, static mutable state 등)
+- CBD 설계 원칙 (MonoBehaviour 단일 책임, POCO 분리 등)
+- 권장 구조 (Model/View/Presenter/Config/Service)
+- 핵심 API 패턴 (ServiceAccessor, MessageBroker, PoolService)
+- 프레임워크 스킬 필수 규칙 (네임스페이스별 스킬 매핑)
+
+프로젝트별 CLAUDE.md에서 `"geuneda-frameworks CLAUDE.md 공용 규칙을 따른다"`로 참조하면 됩니다.
+
 ## 라이센스
 
 MIT License
