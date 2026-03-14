@@ -20,17 +20,17 @@
    +----+----+           +--------------+        +--------------+
         |
    +----v-------+
-   |dataextensions|
+   |  gamedata   |
    +----+--------+
         |
    +----v----+
    | uiservice|  <-- services + UniTask + Addressables
    +----------+
 
-   +-----------+     +------------------+     +-------------+
-   | statechart|     | configsprovider  |     |   nativeui  |
-   +-----------+     +------------------+     +-------------+
-   (독립)              (독립)                    (독립)
+   +-----------+     +-------------+
+   | statechart|     |   nativeui  |
+   +-----------+     +-------------+
+   (독립)              (독립)
 
    +---------------------+     +--------------------+
    | notificationservice |     | googlesheetimporter|
@@ -40,30 +40,36 @@
 
 ## 패키지별 상세 정보
 
-### 1. com.geuneda.dataextensions
+### 1. com.geuneda.gamedata
 
-**역할**: 데이터 타입 확장 유틸리티
-**의존성**: 없음 (기반 패키지)
+**역할**: 게임 데이터 (Observable, ConfigsProvider, floatP)
+**의존성**: Newtonsoft.Json, UniTask, TextMeshPro
 **의존하는 패키지**: services
 **네임스페이스**: `Geuneda.DataExtensions`
-**저장소**: `https://github.com/geuneda/geuneda-dataextensions.git`
-**서브모듈 경로**: `Packages/com.gamelovers.dataextensions`
+**어셈블리**: `Geuneda.GameData` (Runtime), `Geuneda.GameData.Editor` (Editor)
+**저장소**: `https://github.com/geuneda/geuneda-gamedata.git`
+**서브모듈 경로**: `Packages/com.geuneda.gamedata`
+
+> 참고: 기존 `com.geuneda.dataextensions`와 `com.geuneda.configsprovider`가 통합된 패키지이다.
 
 주요 기능:
-- Observable 컬렉션 (ObservableList, ObservableDictionary 등)
-- 데이터 타입 확장 메서드
-- 직렬화 유틸리티
+- Observable 컬렉션 (ObservableField, ObservableList, ObservableDictionary 등)
+- ComputedField (의존성 추적 기반 파생 값)
+- ConfigsProvider (타입 안전 설정 저장소)
+- ConfigsSerializer (JSON 직렬화/역직렬화)
+- floatP / MathfloatP (결정론적 부동소수점)
+- Unity 직렬화 헬퍼 (UnitySerializedDictionary, EnumSelector)
 
 ---
 
 ### 2. com.geuneda.services
 
 **역할**: 게임 서비스 (DI, 메시지 브로커, 오브젝트 풀링)
-**의존성**: dataextensions
+**의존성**: gamedata
 **의존하는 패키지**: uiservice
 **네임스페이스**: `Geuneda.Services`
 **저장소**: `https://github.com/geuneda/geuneda-services.git`
-**서브모듈 경로**: `Packages/com.gamelovers.services`
+**서브모듈 경로**: `Packages/com.geuneda.services`
 
 주요 기능:
 - 서비스 로케이터 / 의존성 주입
@@ -80,7 +86,7 @@
 **의존하는 패키지**: 없음 (최상위)
 **네임스페이스**: `Geuneda.UiService`, `Geuneda.UiService.Views`
 **저장소**: `https://github.com/geuneda/geuneda-uiservice.git`
-**서브모듈 경로**: `Packages/com.gamelovers.uiservice`
+**서브모듈 경로**: `Packages/com.geuneda.uiservice`
 
 주요 기능:
 - UI 프레젠터 생명주기 관리
@@ -99,7 +105,7 @@
 **의존하는 패키지**: 없음
 **네임스페이스**: `Geuneda.Statechart`
 **저장소**: `https://github.com/geuneda/geuneda-statechart.git`
-**서브모듈 경로**: `Packages/com.gamelovers.statechart`
+**서브모듈 경로**: `Packages/com.geuneda.statechart`
 
 주요 기능:
 - 상태 정의 및 전환
@@ -109,29 +115,14 @@
 
 ---
 
-### 5. com.geuneda.configsprovider
-
-**역할**: 설정 제공자
-**의존성**: 없음
-**의존하는 패키지**: 없음
-**네임스페이스**: `Geuneda.ConfigsProvider`
-**저장소**: `https://github.com/geuneda/geuneda-configsprovider.git`
-**서브모듈 경로**: `Packages/com.gamelovers.configsprovider`
-
-주요 기능:
-- ScriptableObject 기반 설정 관리
-- 설정 데이터 제공 시스템
-
----
-
-### 6. com.geuneda.inputextensions
+### 5. com.geuneda.inputextensions
 
 **역할**: Unity Input System 확장
 **의존성**: Unity Input System 1.17.0
 **의존하는 패키지**: 없음
 **네임스페이스**: `Geuneda.InputExtensions`
 **저장소**: `https://github.com/geuneda/geuneda-inputextensions.git`
-**서브모듈 경로**: `Packages/com.gamelovers.inputextensions`
+**서브모듈 경로**: `Packages/com.geuneda.inputextensions`
 
 주요 기능:
 - 포인터 드래그 처리
@@ -141,14 +132,14 @@
 
 ---
 
-### 7. com.geuneda.nativeui
+### 6. com.geuneda.nativeui
 
 **역할**: 네이티브 UI 헬퍼 (iOS/Android)
 **의존성**: 없음
 **의존하는 패키지**: 없음
 **네임스페이스**: `Geuneda.NativeUi`
 **저장소**: `https://github.com/geuneda/geuneda-nativeui.git`
-**서브모듈 경로**: `Packages/com.gamelovers.nativeui`
+**서브모듈 경로**: `Packages/com.geuneda.nativeui`
 
 주요 기능:
 - 네이티브 알림 다이얼로그
@@ -157,14 +148,14 @@
 
 ---
 
-### 8. com.geuneda.notificationservice
+### 7. com.geuneda.notificationservice
 
 **역할**: 알림 서비스 (로컬/푸시)
 **의존성**: Unity Mobile Notifications 2.4.2
 **의존하는 패키지**: 없음
 **네임스페이스**: `Geuneda.NotificationService`
 **저장소**: `https://github.com/geuneda/geuneda-notificationservice.git`
-**서브모듈 경로**: `Packages/com.gamelovers.notificationservice`
+**서브모듈 경로**: `Packages/com.geuneda.notificationservice`
 
 주요 기능:
 - 로컬 알림 예약/취소
@@ -173,14 +164,14 @@
 
 ---
 
-### 9. com.geuneda.googlesheetimporter
+### 8. com.geuneda.googlesheetimporter
 
 **역할**: Google Sheets 데이터 임포터 (Editor 전용)
 **의존성**: 없음
 **의존하는 패키지**: 없음
 **네임스페이스**: `Geuneda.GoogleSheetImporter`
 **저장소**: `https://github.com/geuneda/geuneda-googlesheetimporter.git`
-**서브모듈 경로**: `Packages/com.gamelovers.googlesheetimporter`
+**서브모듈 경로**: `Packages/com.geuneda.googlesheetimporter`
 
 주요 기능:
 - Google Sheets에서 게임 데이터 임포트
@@ -189,14 +180,14 @@
 
 ---
 
-### 10. com.geuneda.assetsimporter
+### 9. com.geuneda.assetsimporter
 
 **역할**: 에셋 임포터 (Addressables 기반)
 **의존성**: Unity Addressables 2.7.6+
 **의존하는 패키지**: 없음
 **네임스페이스**: `Geuneda.AssetsImporter`
 **저장소**: `https://github.com/geuneda/geuneda-assetsimporter.git`
-**서브모듈 경로**: `Packages/com.gamelovers.assetsimporter`
+**서브모듈 경로**: `Packages/com.geuneda.assetsimporter`
 
 주요 기능:
 - Addressables 에셋 로드/인스턴스화/언로드
@@ -210,63 +201,30 @@
 ```json
 {
   "dependencies": {
-    // Geuneda 패키지
-    "com.geuneda.dataextensions": "https://github.com/geuneda/geuneda-dataextensions.git",
+    "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
     "com.geuneda.statechart": "https://github.com/geuneda/geuneda-statechart.git",
-    "com.geuneda.configsprovider": "https://github.com/geuneda/geuneda-configsprovider.git",
     "com.geuneda.inputextensions": "https://github.com/geuneda/geuneda-inputextensions.git",
     "com.geuneda.nativeui": "https://github.com/geuneda/geuneda-nativeui.git",
     "com.geuneda.notificationservice": "https://github.com/geuneda/geuneda-notificationservice.git",
     "com.geuneda.googlesheetimporter": "https://github.com/geuneda/geuneda-googlesheetimporter.git",
     "com.geuneda.assetsimporter": "https://github.com/geuneda/geuneda-assetsimporter.git",
-    // 외부 의존성
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.unity.addressables": "2.7.6",
-    "com.unity.editorcoroutines": "1.0.1",
-    "com.unity.ext.nunit": "2.0.5",
-    "com.unity.ide.rider": "3.0.38",
-    "com.unity.ide.visualstudio": "2.0.26",
     "com.unity.inputsystem": "1.17.0",
     "com.unity.mobile.notifications": "2.4.2",
     "com.unity.test-framework": "1.6.0",
-    "com.unity.ugui": "2.0.0",
-    // Unity 모듈
-    "com.unity.modules.animation": "1.0.0",
-    "com.unity.modules.assetbundle": "1.0.0",
-    "com.unity.modules.audio": "1.0.0",
-    "com.unity.modules.imgui": "1.0.0",
-    "com.unity.modules.jsonserialize": "1.0.0",
-    "com.unity.modules.ui": "1.0.0",
-    "com.unity.modules.uielements": "1.0.0",
-    "com.unity.modules.unitywebrequest": "1.0.0"
+    "com.unity.ugui": "2.0.0"
   }
 }
 ```
-
-## 서브모듈 매핑
-
-`.gitmodules` 파일에 정의된 서브모듈과 manifest.json의 패키지 이름 매핑:
-
-| 서브모듈 경로 | 원본 저장소 (레거시) | manifest 패키지명 |
-|---------------|---------------------|-------------------|
-| `Packages/com.gamelovers.dataextensions` | Unity-DataTypeExtensions | `com.geuneda.dataextensions` |
-| `Packages/com.gamelovers.services` | Services | `com.geuneda.services` |
-| `Packages/com.gamelovers.uiservice` | com.gamelovers.uiservice | `com.geuneda.uiservice` |
-| `Packages/com.gamelovers.statechart` | Statechart-HFSM | `com.geuneda.statechart` |
-| `Packages/com.gamelovers.configsprovider` | Unity-ConfigsProvider | `com.geuneda.configsprovider` |
-| `Packages/com.gamelovers.inputextensions` | com.gamelovers.inputextensions | `com.geuneda.inputextensions` |
-| `Packages/com.gamelovers.nativeui` | com.gamelovers.nativeui | `com.geuneda.nativeui` |
-| `Packages/com.gamelovers.notificationservice` | com.gamelovers.notificationservice | `com.geuneda.notificationservice` |
-| `Packages/com.gamelovers.googlesheetimporter` | Unity-GoogleSheet-Importer | `com.geuneda.googlesheetimporter` |
-| `Packages/com.gamelovers.assetsimporter` | Unity-AssetsImporter | `com.geuneda.assetsimporter` |
 
 ## 패키지 카테고리별 분류
 
 ### 핵심 패키지 (Core)
 대부분의 프로젝트에서 사용:
-- `dataextensions` - 기반 유틸리티
+- `gamedata` - 기반 유틸리티 (Observable, ConfigsProvider, floatP)
 - `services` - DI, 메시지, 풀링
 - `uiservice` - UI 관리
 
@@ -274,7 +232,6 @@
 게임 로직에 직접 사용:
 - `statechart` - 상태 머신
 - `inputextensions` - 입력 처리
-- `configsprovider` - 설정 관리
 
 ### 인프라 패키지 (Infrastructure)
 빌드, 에셋, 데이터 파이프라인:
@@ -291,7 +248,7 @@
 ### 최소 구성 (기본 게임)
 ```json
 {
-  "com.geuneda.dataextensions": "...",
+  "com.geuneda.gamedata": "...",
   "com.geuneda.services": "..."
 }
 ```
@@ -299,7 +256,7 @@
 ### 표준 구성 (UI 포함 게임)
 ```json
 {
-  "com.geuneda.dataextensions": "...",
+  "com.geuneda.gamedata": "...",
   "com.geuneda.services": "...",
   "com.geuneda.uiservice": "...",
   "com.geuneda.statechart": "...",
@@ -310,7 +267,7 @@
 ### 풀 구성 (모바일 게임)
 ```json
 {
-  "com.geuneda.dataextensions": "...",
+  "com.geuneda.gamedata": "...",
   "com.geuneda.services": "...",
   "com.geuneda.uiservice": "...",
   "com.geuneda.statechart": "...",
@@ -318,7 +275,6 @@
   "com.geuneda.inputextensions": "...",
   "com.geuneda.nativeui": "...",
   "com.geuneda.notificationservice": "...",
-  "com.geuneda.configsprovider": "...",
   "com.geuneda.googlesheetimporter": "..."
 }
 ```

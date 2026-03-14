@@ -1,10 +1,9 @@
 {
   "dependencies": {
-    "com.geuneda.dataextensions": "https://github.com/geuneda/geuneda-dataextensions.git",
+    "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
     "com.geuneda.statechart": "https://github.com/geuneda/geuneda-statechart.git",
-    "com.geuneda.configsprovider": "https://github.com/geuneda/geuneda-configsprovider.git",
     "com.geuneda.inputextensions": "https://github.com/geuneda/geuneda-inputextensions.git",
     "com.geuneda.nativeui": "https://github.com/geuneda/geuneda-nativeui.git",
     "com.geuneda.notificationservice": "https://github.com/geuneda/geuneda-notificationservice.git",

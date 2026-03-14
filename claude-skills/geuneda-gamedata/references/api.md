@@ -1,4 +1,4 @@
-# Geuneda Data Extensions - API Reference
+# Geuneda GameData - API Reference
 
 네임스페이스: `Geuneda.DataExtensions`
 

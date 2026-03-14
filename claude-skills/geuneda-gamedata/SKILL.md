@@ -1,11 +1,11 @@
 ---
-name: geuneda-dataextensions
-description: Unity 게임용 핵심 데이터 유틸리티 및 설정 관리 패키지. Observable 반응형 데이터 타입, 타입 안전 설정 저장소(ConfigsProvider), 결정론적 부동소수점(floatP), JSON 직렬화, Unity 직렬화 헬퍼 관련 코드를 작성하거나 수정할 때 사용한다.
+name: geuneda-gamedata
+description: Unity 게임용 핵심 게임 데이터 패키지(com.geuneda.gamedata). Observable 반응형 데이터 타입, 타입 안전 설정 저장소(ConfigsProvider), 결정론적 부동소수점(floatP), JSON 직렬화, Unity 직렬화 헬퍼 관련 코드를 작성하거나 수정할 때 사용한다. 기존 DataExtensions와 ConfigsProvider가 통합된 패키지이다.
 ---
 
-# Geuneda Data Extensions
+# Geuneda GameData
 
-Unity 게임을 위한 핵심 데이터 유틸리티 및 설정 관리 패키지. Observable 반응형 데이터 타입, 의존성 추적 기반 ComputedField, 타입 안전 설정 저장소, 결정론적 수학, JSON 직렬화/역직렬화, Unity 인스펙터 직렬화 헬퍼를 제공한다.
+Unity 게임을 위한 핵심 게임 데이터 패키지. 기존 DataExtensions와 ConfigsProvider가 통합되었다. Observable 반응형 데이터 타입, 의존성 추적 기반 ComputedField, 타입 안전 설정 저장소, 결정론적 수학, JSON 직렬화/역직렬화, Unity 인스펙터 직렬화 헬퍼를 제공한다.
 
 ## 활성화 시점
 
@@ -22,7 +22,7 @@ Unity 게임을 위한 핵심 데이터 유틸리티 및 설정 관리 패키지
 
 - **네임스페이스**: `Geuneda.DataExtensions`
 - **패키지명**: `com.geuneda.gamedata`
-- **설치**: `https://github.com/geuneda/geuneda-dataextensions.git`
+- **설치**: `https://github.com/geuneda/geuneda-gamedata.git`
 - **Unity**: 6000.0+ (Unity 6)
 - **의존성**: Newtonsoft.Json (3.2.1), UniTask (2.5.10), TextMeshPro (3.0.6)
 - **어셈블리**: `Geuneda.GameData` (Runtime), `Geuneda.GameData.Editor` (Editor)

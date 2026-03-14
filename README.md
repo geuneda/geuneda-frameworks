@@ -11,11 +11,10 @@ Unity 6 프로젝트로, Geuneda Unity Package Manager (UPM) 패키지들을 **�
 
 | 패키지 | 설명 | 레포지토리 |
 |--------|------|-----------|
-| `com.geuneda.dataextensions` | 데이터 타입 확장 유틸리티 | [geuneda-dataextensions](https://github.com/geuneda/geuneda-dataextensions) |
+| `com.geuneda.gamedata` | 게임 데이터 (Observable, ConfigsProvider, floatP 등) | [geuneda-gamedata](https://github.com/geuneda/geuneda-gamedata) |
 | `com.geuneda.services` | 게임 서비스 (DI, 메시지 브로커, 풀링 등) | [geuneda-services](https://github.com/geuneda/geuneda-services) |
 | `com.geuneda.uiservice` | UI 관리 서비스 | [geuneda-uiservice](https://github.com/geuneda/geuneda-uiservice) |
 | `com.geuneda.statechart` | 상태머신 (HFSM) | [geuneda-statechart](https://github.com/geuneda/geuneda-statechart) |
-| `com.geuneda.configsprovider` | 설정 제공자 | [geuneda-configsprovider](https://github.com/geuneda/geuneda-configsprovider) |
 | `com.geuneda.inputextensions` | 입력 확장 | [geuneda-inputextensions](https://github.com/geuneda/geuneda-inputextensions) |
 | `com.geuneda.nativeui` | 네이티브 UI 헬퍼 | [geuneda-nativeui](https://github.com/geuneda/geuneda-nativeui) |
 | `com.geuneda.notificationservice` | 알림 서비스 | [geuneda-notificationservice](https://github.com/geuneda/geuneda-notificationservice) |
@@ -28,6 +27,7 @@ Unity 6 프로젝트로, Geuneda Unity Package Manager (UPM) 패키지들을 **�
 
 ```bash
 git clone https://github.com/geuneda/geuneda-frameworks.git
+git submodule update --init --recursive
 ```
 
 ### 개별 패키지 사용
@@ -57,9 +57,9 @@ git clone https://github.com/geuneda/geuneda-frameworks.git
 ## 의존성 구조
 
 ```
-dataextensions (기반)
+gamedata (기반)
     |
-services (dataextensions 의존)
+services (gamedata 의존)
     |
 uiservice (services, UniTask, Addressables 의존)
 ```
@@ -89,7 +89,7 @@ geuneda-frameworks/
 | 스킬 | 대상 패키지 | 설명 |
 |------|-----------|------|
 | `geuneda-assetsimporter` | com.geuneda.assetsimporter | Addressables 에셋 로딩/관리 API 지원 |
-| `geuneda-dataextensions` | com.geuneda.dataextensions | Observable, ConfigsProvider, floatP 등 데이터 유틸 |
+| `geuneda-gamedata` | com.geuneda.gamedata | Observable, ConfigsProvider, floatP 등 게임 데이터 |
 | `geuneda-frameworks` | (전체) | 프레임워크 구조, 의존성, 패키지 간 관계 파악 |
 | `geuneda-googlesheetimporter` | com.geuneda.googlesheetimporter | Google Sheets -> ScriptableObject 임포트 |
 | `geuneda-inputextensions` | com.geuneda.inputextensions | Input System 드래그/스와이프/탭 확장 |
