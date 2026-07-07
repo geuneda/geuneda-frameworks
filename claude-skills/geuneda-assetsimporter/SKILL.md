@@ -1,9 +1,11 @@
 ---
 name: geuneda-assetsimporter
-description: Unity Addressables 기반 에셋 로딩/관리 패키지. Unity 프로젝트에서 Addressables 에셋의 로드, 인스턴스화, 언로드, 씬 관리, 에셋 설정 임포트 관련 코드를 작성하거나 수정할 때 사용한다.
+description: (DEPRECATED, v2.1에서 geuneda-services에 흡수됨) Unity Addressables 기반 에셋 로딩/관리 패키지. 신규 코드는 /geuneda-services 스킬을 사용한다. 이 스킬은 assetsimporter를 별도 패키지로 유지하는 레거시 프로젝트에서만 참고한다.
 ---
 
 # Geuneda AssetsImporter
+
+> **DEPRECATED (v2.1)**: 이 패키지는 `com.geuneda.services` v2.1에 흡수되었습니다. `AssetResolverService`, `AssetsImporter`, `AddressableIds`는 이제 `com.geuneda.services`에서 제공되며 네임스페이스는 `Geuneda.Services` / `Geuneda.Services.AssetsImporter`입니다. **신규 프로젝트/코드는 별도 `com.geuneda.assetsimporter`를 추가하지 말고 `/geuneda-services` 스킬을 사용하세요.** (별도 패키지와 services를 함께 추가하면 타입 중복 정의로 컴파일이 깨집니다.) 아래 내용은 assetsimporter를 독립 패키지로 유지하는 레거시 프로젝트용 참고 자료입니다.
 
 Unity Addressables의 에셋 로딩 기능을 확장하는 패키지이다. 에셋 임포트 파이프라인을 확장하여 게임 내 모든 에셋의 약한 참조(weak link)를 타입별로 분리된 여러 ScriptableObject에 포함할 수 있다. Addressable 에셋 정보 자동 생성, 타입별 에셋 분류, 비동기 에셋/씬 로딩을 지원한다.
 

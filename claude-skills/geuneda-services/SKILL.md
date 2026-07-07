@@ -1,6 +1,6 @@
 ---
 name: geuneda-services
-description: Unity 게임 아키텍처를 위한 핵심 서비스 패키지. DI 컨테이너(MainInstaller), 메시지 브로커(Pub/Sub), 틱 서비스(업데이트 관리), 코루틴 서비스, 오브젝트 풀링, 데이터 영속성, 시간 관리, 결정론적 RNG, 커맨드 패턴, 버전 관리 관련 코드를 작성하거나 수정할 때 사용한다.
+description: Unity 게임 아키텍처를 위한 핵심 서비스 패키지. DI 컨테이너(MainInstaller), 메시지 브로커(Pub/Sub), 틱 서비스(업데이트 관리), 코루틴 서비스, 오브젝트 풀링, 데이터 영속성, 시간 관리, 결정론적 RNG, 커맨드 패턴, 버전 관리, 그리고 v2.1부터 흡수된 Addressables 에셋 로딩/임포트(AssetResolverService, AddressableIds) 관련 코드를 작성하거나 수정할 때 사용한다.
 ---
 
 # Geuneda Services
@@ -19,13 +19,17 @@ Unity 게임 아키텍처를 위한 핵심 서비스 패키지이다. DI 컨테�
 - 결정론적 난수 생성이 필요할 때 (RngService)
 - 커맨드 패턴을 구현할 때 (CommandService)
 - 빌드 버전/Git 메타데이터에 접근할 때 (VersionServices)
+- Addressables로 에셋/씬을 타입 안전하게 로드/언로드할 때 (AssetResolverService) — v2.1에서 assetsimporter 흡수
+- Addressable ID 열거형을 생성/사용할 때 (AddressableIds, AssetConfigsScriptableObject)
+- Services Explorer 에디터 창으로 서비스 상태를 점검할 때
 
 ## 패키지 정보
 
-- **네임스페이스**: `Geuneda.Services`
+- **네임스페이스**: `Geuneda.Services` (풀링: `Geuneda.Services.Pooling`, 에셋 임포터: `Geuneda.Services.AssetsImporter`)
 - **설치**: `https://github.com/geuneda/geuneda-services.git`
-- **의존성**: `com.geuneda.gamedata` >= 1.0.0
-- **최소 Unity 버전**: 6000.0
+- **의존성**: `com.geuneda.gamedata` >= 1.0.0, `com.unity.addressables`, `com.cysharp.unitask`
+- **최소 Unity 버전**: 6000.3
+- **버전**: 2.1.0 (upstream CoderGamester/Unity-Services v2.1 채택, assetsimporter 통합)
 
 ## 아키텍처 개요
 
@@ -40,6 +44,7 @@ MainInstaller (정적 서비스 로케이터)
     +-- ITimeService (시간 관리)
     +-- IRngService (결정론적 RNG)
     +-- ICommandService<T> (커맨드 패턴)
+    +-- IAssetResolverService (Addressables 에셋/씬 로딩) [v2.1 흡수]
 ```
 
 ## 핵심 API 요약
@@ -70,11 +75,13 @@ MainInstaller (정적 서비스 로케이터)
 - `StartDelayCall(Action, float delay)` - 지연 호출
 - `StopCoroutine(Coroutine)` / `StopAllCoroutines()` - 중지
 
-### IPoolService (풀링, IDisposable)
+### IPoolService (풀링, IDisposable) — 네임스페이스 `Geuneda.Services.Pooling` (v2.1)
+- `GetPool<T>()` - `IObjectPool<T>` 반환 (v2.1 신규)
+- `TryGetPool<T>(out IObjectPool<T> pool)` - 안전한 풀 조회 (v2.1 신규)
 - `AddPool<T>(IObjectPool<T>)` - 풀 추가
-- `Spawn<T>()` / `Spawn<T, TData>(TData)` - 스폰
+- `Spawn<T>()` / `Spawn<T, TData>(TData)` - 스폰 (TData는 `IPoolEntitySpawn<TData>`)
 - `Despawn<T>(T entity)` / `DespawnAll<T>()` - 디스폰
-- 풀 타입: `ObjectPool<T>`, `GameObjectPool`, `GameObjectPool<T>`
+- 풀 타입: `ObjectPool<T>`, `GameObjectPool`, `GameObjectPool<T>` (모두 `Geuneda.Services.Pooling`)
 
 ### IDataService (데이터 영속성)
 - `AddOrReplaceData<T>(T data)` - 메모리에 추가/교체
@@ -97,6 +104,15 @@ MainInstaller (정적 서비스 로케이터)
 ### ICommandService<TGameLogic> (커맨드 패턴)
 - `ExecuteCommand<TCommand>(TCommand command)` - 커맨드 실행
 - 커맨드는 `IGameCommand<TGameLogic>` 구현
+
+### IAssetResolverService (Addressables 에셋/씬 로딩, v2.1 흡수)
+- `RequestAsset<TId, TAsset>(TId id, bool loadAsynchronously = true, ...)` - UniTask<TAsset>, ID(enum)로 에셋 로드
+- `RequestAsset<TId, TAsset, TData>(TId id, TData data, ...)` - 로드 후 데이터 주입
+- `LoadAllAssets<TId, TAsset>(...)` - UniTask<List<Pair<TId, TAsset>>>, 타입별 전체 로드
+- `LoadSceneAsync<TId>(TId id, LoadSceneMode)` / `UnloadSceneAsync<TId>(TId id)` - 씬 로드/언로드
+- `UnloadAssets<TId, TAsset>(bool clearReferences, params TId[] ids)` - 언로드
+- `AddAsset<TId>` / `AddAssets<TId>` - AssetReference 등록
+- ID 열거형은 `AssetConfigsScriptableObject` + `AddressableIds` 제너레이터로 생성 (에디터: `GeunedaEditor` 네임스페이스)
 
 ## 사용 패턴
 
@@ -184,9 +200,11 @@ commandService.ExecuteCommand(new AttackCommand { TargetId = 42 });
 - `Publish` 중 `Subscribe`/`Unsubscribe`를 호출하면 `InvalidOperationException`이 발생한다. 이 경우 `PublishSafe`를 사용한다.
 - `TickService`와 `CoroutineService`는 DontDestroyOnLoad GameObject를 생성한다. 반드시 `Dispose()`로 정리해야 한다.
 - `DataService`는 `PlayerPrefs` + `Newtonsoft.Json`을 사용한다. 참조 타입만 저장 가능하다.
-- `RngService`는 `Geuneda.GameData`의 `floatP`(결정론적 부동소수점)를 사용한다.
-- `VersionServices.LoadVersionDataAsync()`는 앱 시작 시 한 번 호출해야 한다. Resources 폴더에 `version-data` TextAsset이 필요하다.
+- `RngService`는 `Geuneda.DataExtensions`의 `floatP`(결정론적 부동소수점)를 사용한다. (gamedata 패키지의 런타임 네임스페이스는 어셈블리명 `Geuneda.GameData`와 달리 `Geuneda.DataExtensions`이다.)
+- `VersionServices`(v2.1)는 `[RuntimeInitializeOnLoadMethod(SubsystemRegistration)]`로 자동 부트스트랩된다. 기본 흐름에서는 `LoadVersionData()`/`LoadVersionDataAsync()`를 명시 호출할 필요가 없으며, 프로퍼티(`VersionInternal`/`Branch`/`Commit`/`BuildNumber`) 최초 접근 시 지연 로드된다. Resources 폴더에 `version-data`가 없으면 예외 없이 `Application.version`/빈 문자열로 폴백한다.
 - 풀 서비스의 `GameObjectPool`은 스폰 시 `SetActive(true)`, 디스폰 시 `SetActive(false)`를 자동 호출한다.
+- v2.1에서 pooling이 `Geuneda.Services.Pooling` 네임스페이스로 이동했고 `IPoolService.GetPool<T>()`가 `IObjectPool<T>`를 반환하도록 변경됐다. 구 `Runtime/ObjectPool.cs`는 제거됐다.
+- 에셋 로딩(`AssetResolverService`)/임포트(`AssetsImporter`)는 v2.1에서 별도 `assetsimporter` 패키지를 흡수한 것이다. `com.geuneda.assetsimporter`를 별도로 추가하지 말 것(중복 정의 충돌).
 
 ## 참조 문서
 
