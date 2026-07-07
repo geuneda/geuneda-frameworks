@@ -12,14 +12,15 @@ Unity 6 프로젝트로, Geuneda Unity Package Manager (UPM) 패키지들을 **�
 | 패키지 | 설명 | 레포지토리 |
 |--------|------|-----------|
 | `com.geuneda.gamedata` | 게임 데이터 (Observable, ConfigsProvider, floatP 등) | [geuneda-gamedata](https://github.com/geuneda/geuneda-gamedata) |
-| `com.geuneda.services` | 게임 서비스 (DI, 메시지 브로커, 풀링 등) | [geuneda-services](https://github.com/geuneda/geuneda-services) |
+| `com.geuneda.services` | 게임 서비스 (DI, 메시지 브로커, 풀링, 에셋 로딩/임포트 등) | [geuneda-services](https://github.com/geuneda/geuneda-services) |
 | `com.geuneda.uiservice` | UI 관리 서비스 | [geuneda-uiservice](https://github.com/geuneda/geuneda-uiservice) |
 | `com.geuneda.statechart` | 상태머신 (HFSM) | [geuneda-statechart](https://github.com/geuneda/geuneda-statechart) |
 | `com.geuneda.inputextensions` | 입력 확장 | [geuneda-inputextensions](https://github.com/geuneda/geuneda-inputextensions) |
 | `com.geuneda.nativeui` | 네이티브 UI 헬퍼 | [geuneda-nativeui](https://github.com/geuneda/geuneda-nativeui) |
 | `com.geuneda.notificationservice` | 알림 서비스 | [geuneda-notificationservice](https://github.com/geuneda/geuneda-notificationservice) |
 | `com.geuneda.googlesheetimporter` | 구글 시트 임포터 | [geuneda-googlesheetimporter](https://github.com/geuneda/geuneda-googlesheetimporter) |
-| `com.geuneda.assetsimporter` | 에셋 임포터 | [geuneda-assetsimporter](https://github.com/geuneda/geuneda-assetsimporter) |
+
+> **참고**: `com.geuneda.assetsimporter`는 v2.1부터 `com.geuneda.services`에 통합되었습니다 (`AssetResolverService`, `AssetsImporter`, `AddressableIds`). 별도 패키지 대신 `com.geuneda.services`를 사용하세요.
 
 ## 설치 방법
 
@@ -88,14 +89,13 @@ geuneda-frameworks/
 
 | 스킬 | 대상 패키지 | 설명 |
 |------|-----------|------|
-| `geuneda-assetsimporter` | com.geuneda.assetsimporter | Addressables 에셋 로딩/관리 API 지원 |
 | `geuneda-gamedata` | com.geuneda.gamedata | Observable, ConfigsProvider, floatP 등 게임 데이터 |
 | `geuneda-frameworks` | (전체) | 프레임워크 구조, 의존성, 패키지 간 관계 파악 |
 | `geuneda-googlesheetimporter` | com.geuneda.googlesheetimporter | Google Sheets -> ScriptableObject 임포트 |
 | `geuneda-inputextensions` | com.geuneda.inputextensions | Input System 드래그/스와이프/탭 확장 |
 | `geuneda-nativeui` | com.geuneda.nativeui | iOS/Android 네이티브 알림/토스트 |
 | `geuneda-notificationservice` | com.geuneda.notificationservice | 모바일 로컬/원격 알림 관리 |
-| `geuneda-services` | com.geuneda.services | DI 컨테이너, 메시지 브로커, 풀링, 틱 서비스 |
+| `geuneda-services` | com.geuneda.services | DI, 메시지 브로커, 풀링, 틱, 에셋 로딩/임포트(AssetResolver) |
 | `geuneda-statechart` | com.geuneda.statechart | 계층적 상태 머신 (HFSM) 구성 |
 | `geuneda-uiservice` | com.geuneda.uiservice | MVP 패턴 UI 서비스, 피처 조합, UI Toolkit |
 

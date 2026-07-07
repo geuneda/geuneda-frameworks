@@ -19,9 +19,6 @@
 [submodule "Packages/com.geuneda.nativeui"]
 	path = Packages/com.geuneda.nativeui
 	url = https://github.com/geuneda/geuneda-nativeui.git
-[submodule "Packages/com.geuneda.assetsimporter"]
-	path = Packages/com.geuneda.assetsimporter
-	url = https://github.com/geuneda/geuneda-assetsimporter.git
 [submodule "Packages/com.geuneda.gamedata"]
 	path = Packages/com.geuneda.gamedata
 	url = https://github.com/geuneda/geuneda-gamedata.git

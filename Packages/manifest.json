@@ -8,7 +8,6 @@
     "com.geuneda.nativeui": "https://github.com/geuneda/geuneda-nativeui.git",
     "com.geuneda.notificationservice": "https://github.com/geuneda/geuneda-notificationservice.git",
     "com.geuneda.googlesheetimporter": "https://github.com/geuneda/geuneda-googlesheetimporter.git",
-    "com.geuneda.assetsimporter": "https://github.com/geuneda/geuneda-assetsimporter.git",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.unity.addressables": "2.7.6",
     "com.unity.editorcoroutines": "1.0.1",

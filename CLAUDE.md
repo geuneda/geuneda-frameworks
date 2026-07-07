@@ -68,9 +68,9 @@ Geuneda API 코드 작성/수정 전 반드시 해당 스킬을 invoke하여 API
 |-------------------|----------|
 | `Geuneda.DataExtensions` | `/geuneda-gamedata` |
 | `Geuneda.Services` | `/geuneda-services` |
+| `Geuneda.Services.AssetsImporter` | `/geuneda-services` |
 | `Geuneda.UiService` | `/geuneda-uiservice` |
 | `Geuneda.StatechartMachine` | `/geuneda-statechart` |
-| `Geuneda.AssetsImporter` | `/geuneda-assetsimporter` |
 | `Geuneda.GoogleSheetImporter` | `/geuneda-googlesheetimporter` |
 | `Geuneda.InputExtensions` | `/geuneda-inputextensions` |
 | `Geuneda.NativeUi` | `/geuneda-nativeui` |
