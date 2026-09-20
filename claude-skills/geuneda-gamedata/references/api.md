@@ -321,7 +321,7 @@ ComputedField의 의존성 자동 추적을 담당하는 정적 클래스.
 | GetConfig | `T GetConfig<T>()` | 싱글톤 설정 조회 |
 | GetConfigsList | `List<T> GetConfigsList<T>()` | 리스트로 반환 (할당 발생) |
 | GetConfigsDictionary | `IReadOnlyDictionary<int, T> GetConfigsDictionary<T>()` | 딕셔너리로 반환 |
-| EnumerateConfigs | `IEnumerable<T> EnumerateConfigs<T>()` | 제로 할당 열거 |
+| EnumerateConfigs | `IEnumerable<T> EnumerateConfigs<T>()` | 컬렉션 복사 없음, 열거자 박싱 1회 |
 | EnumerateConfigsWithIds | `IEnumerable<KeyValuePair<int, T>> EnumerateConfigsWithIds<T>()` | ID 포함 열거 |
 | GetAllConfigs | `IReadOnlyDictionary<Type, IEnumerable> GetAllConfigs()` | 모든 설정 반환 |
 
@@ -347,7 +347,7 @@ ComputedField의 의존성 자동 추적을 담당하는 정적 클래스.
 | GetConfig | `T GetConfig<T>()` | 싱글톤 조회 |
 | GetConfigsList | `List<T> GetConfigsList<T>()` | 리스트 반환 |
 | GetConfigsDictionary | `IReadOnlyDictionary<int, T> GetConfigsDictionary<T>()` | 딕셔너리 반환 |
-| EnumerateConfigs | `IEnumerable<T> EnumerateConfigs<T>()` | 제로 할당 열거 |
+| EnumerateConfigs | `IEnumerable<T> EnumerateConfigs<T>()` | 컬렉션 복사 없음, 열거자 박싱 1회 |
 | EnumerateConfigsWithIds | `IEnumerable<KeyValuePair<int, T>> EnumerateConfigsWithIds<T>()` | ID 포함 열거 |
 | AddSingletonConfig | `void AddSingletonConfig<T>(T config)` | 싱글톤 추가 |
 | AddConfigs | `void AddConfigs<T>(Func<T, int> idResolver, IEnumerable<T> configs)` | 컬렉션 추가 |

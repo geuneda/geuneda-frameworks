@@ -198,7 +198,7 @@ bool found = provider.TryGetConfig<ItemConfig>(42, out var config);
 // 컬렉션 접근
 var list = provider.GetConfigsList<ItemConfig>();                  // List<T> (할당)
 var dict = provider.GetConfigsDictionary<ItemConfig>();            // IReadOnlyDictionary
-foreach (var e in provider.EnumerateConfigs<EnemyConfig>()) { }   // 제로 할당 열거
+foreach (var e in provider.EnumerateConfigs<EnemyConfig>()) { }   // 컬렉션 복사 없음 (열거자 박싱 1회)
 foreach (var (id, e) in provider.EnumerateConfigsWithIds<EnemyConfig>()) { }
 
 // 버저닝
@@ -387,7 +387,7 @@ totalAtk.Observe((prev, curr) =>
 
 ## 주의사항
 
-- `GetConfigsList<T>()`는 매번 새 List를 할당한다. 핫 패스에서는 `EnumerateConfigs<T>()`를 사용할 것.
+- `GetConfigsList<T>()`는 호출할 때마다 새 List를 할당한다. `EnumerateConfigs<T>()`는 컬렉션을 복사하지 않지만 반환 타입이 `IEnumerable<T>`라 foreach마다 열거자가 박싱되어 1회 할당이 발생한다 (제로 할당이 아니다). 매 프레임 도는 루프라면 초기화 시점에 `GetConfigsList<T>()`로 한 번 캐싱해두고 캐싱된 `List<T>`를 인덱스 루프로 순회할 것.
 - `ObservableField.Value` setter에서 이전 값과 같으면 통지가 발생하지 않을 수 있다 (배치 모드 예외).
 - `ComputedField`는 사용 후 반드시 `Dispose()`를 호출하여 의존성 구독을 해제할 것.
 - `floatP`는 소프트웨어 에뮬레이션이므로 일반 float보다 느리다. 결정론이 필요한 로직에만 사용.
