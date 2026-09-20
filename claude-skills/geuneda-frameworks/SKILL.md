@@ -40,7 +40,7 @@ Geuneda Unity UPM 패키지들을 개발, 테스트, 검증하는 Unity 6 호스
 | **nativeui** | `com.geuneda.nativeui` | 네이티브 UI 헬퍼 | geuneda-nativeui |
 | **notificationservice** | `com.geuneda.notificationservice` | 알림 서비스 | geuneda-notificationservice |
 | **googlesheetimporter** | `com.geuneda.googlesheetimporter` | 구글 시트 임포터 | geuneda-googlesheetimporter |
-| **assetsimporter** | `com.geuneda.assetsimporter` | 에셋 임포터 | geuneda-assetsimporter |
+| **assetsimporter** | `com.geuneda.assetsimporter` | 에셋 임포터 (v2.1에서 services로 흡수) | geuneda-services |
 
 > 참고: 기존 `dataextensions`와 `configsprovider`는 `gamedata`로 통합되었다.
 
@@ -200,7 +200,7 @@ git pull origin main
 | 네이티브 다이얼로그/토스트 | nativeui |
 | 로컬/푸시 알림 | notificationservice |
 | Google Sheets 데이터 임포트 | googlesheetimporter |
-| Addressables 에셋 관리 | assetsimporter |
+| Addressables 에셋 관리 | services (v2.1 흡수) |
 
 ## 주의사항
 
@@ -222,4 +222,3 @@ git pull origin main
 - `geuneda-nativeui` 스킬
 - `geuneda-notificationservice` 스킬
 - `geuneda-googlesheetimporter` 스킬
-- `geuneda-assetsimporter` 스킬

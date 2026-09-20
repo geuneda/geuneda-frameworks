@@ -9,7 +9,6 @@ set -e
 SKILLS_DIR="${HOME}/.claude/skills"
 
 SKILLS=(
-    "geuneda-assetsimporter"
     "geuneda-gamedata"
     "geuneda-frameworks"
     "geuneda-googlesheetimporter"
