@@ -22,3 +22,6 @@
 [submodule "Packages/com.geuneda.gamedata"]
 	path = Packages/com.geuneda.gamedata
 	url = https://github.com/geuneda/geuneda-gamedata.git
+[submodule "Packages/com.geuneda.gamesystems"]
+	path = Packages/com.geuneda.gamesystems
+	url = https://github.com/geuneda/geuneda-gamesystems.git

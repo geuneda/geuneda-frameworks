@@ -11,6 +11,7 @@ SKILLS_DIR="${HOME}/.claude/skills"
 
 SKILLS=(
     "geuneda-gamedata"
+    "geuneda-gamesystems"
     "geuneda-frameworks"
     "geuneda-googlesheetimporter"
     "geuneda-inputextensions"

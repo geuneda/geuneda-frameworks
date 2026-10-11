@@ -5,32 +5,28 @@
 ### 시각적 의존성 다이어그램
 
 ```
-                    +-----------------------+
-                    |    Unity 6000.0+      |
-                    +-----------+-----------+
-                                |
-        +-----------------------+-----------------------+
-        |                       |                       |
-   +----v----+           +------v------+         +------v------+
-   | UniTask  |           | Addressables|         | Input System|
-   +----+----+           +------+------+         +------+------+
-        |                       |                       |
-   +----v----+           +------v------+         +------v------+
-   | services |           | assetsimporter|       |inputextensions|
-   +----+----+           +--------------+        +--------------+
-        |
-   +----v-------+
-   |  gamedata   |
-   +----+--------+
-        |
-   +----v----+
-   | uiservice|  <-- services + UniTask + Addressables
-   +----------+
+   Unity 6000.0+ (services, gamesystems 는 6000.3+)
 
-   +-----------+     +-------------+
-   | statechart|     |   nativeui  |
-   +-----------+     +-------------+
-   (독립)              (독립)
+   +-----------+
+   |  gamedata |  (기반)
+   +-----+-----+
+         |
+   +-----v-----+
+   |  services |  <-- gamedata + UniTask + Addressables (assetsimporter v2.1 흡수)
+   +-----+-----+
+         |
+   +-----v-------+
+   | gamesystems |  <-- services
+   +-------------+
+
+   +-----------+
+   | uiservice |  (독립) <-- UniTask + Addressables + TextMeshPro
+   +-----------+
+
+   +-----------+     +-------------+     +-----------------+
+   | statechart|     |   nativeui  |     | inputextensions |
+   +-----------+     +-------------+     +-----------------+
+   (UniTask)           (독립)              (Input System)
 
    +---------------------+     +--------------------+
    | notificationservice |     | googlesheetimporter|
@@ -64,26 +60,29 @@
 
 ### 2. com.geuneda.services
 
-**역할**: 게임 서비스 (DI, 메시지 브로커, 오브젝트 풀링)
-**의존성**: gamedata
-**의존하는 패키지**: uiservice
-**네임스페이스**: `Geuneda.Services`
+**역할**: 게임 서비스 (DI, 메시지 브로커, 오브젝트 풀링, 에셋 로딩)
+**의존성**: gamedata, UniTask, Addressables
+**의존하는 패키지**: gamesystems
+**네임스페이스**: `Geuneda.Services` (풀링: `Geuneda.Services.Pooling`, 에셋 임포터: `Geuneda.Services.AssetsImporter`)
 **저장소**: `https://github.com/geuneda/geuneda-services.git`
 **서브모듈 경로**: `Packages/com.geuneda.services`
 
+> 참고: 기존 `com.geuneda.assetsimporter`는 v2.1에서 이 패키지로 흡수되었다. 별도 패키지로 추가하면 정의가 중복돼 충돌한다.
+
 주요 기능:
-- 서비스 로케이터 / 의존성 주입
+- 서비스 로케이터 / 의존성 주입 (MainInstaller)
 - 메시지 브로커 (이벤트 시스템)
 - 오브젝트 풀링
 - 틱 시스템
+- Addressables 에셋/씬 로딩 (AssetResolverService)
 
 ---
 
 ### 3. com.geuneda.uiservice
 
 **역할**: UI 관리 서비스 (MVP 패턴)
-**의존성**: services, UniTask 2.5.10+, Addressables 2.6.0+
-**의존하는 패키지**: 없음 (최상위)
+**의존성**: UniTask 2.5.10+, Addressables 2.6.0+, TextMeshPro (gamedata/services에는 의존하지 않음)
+**의존하는 패키지**: 없음
 **네임스페이스**: `Geuneda.UiService`, `Geuneda.UiService.Views`
 **저장소**: `https://github.com/geuneda/geuneda-uiservice.git`
 **서브모듈 경로**: `Packages/com.geuneda.uiservice`
@@ -101,9 +100,9 @@
 ### 4. com.geuneda.statechart
 
 **역할**: 계층적 유한 상태 머신 (HFSM)
-**의존성**: 없음
+**의존성**: UniTask
 **의존하는 패키지**: 없음
-**네임스페이스**: `Geuneda.Statechart`
+**네임스페이스**: `Geuneda.StatechartMachine`
 **저장소**: `https://github.com/geuneda/geuneda-statechart.git`
 **서브모듈 경로**: `Packages/com.geuneda.statechart`
 
@@ -180,19 +179,17 @@
 
 ---
 
-### 9. com.geuneda.assetsimporter
+### 9. com.geuneda.gamesystems
 
-**역할**: 에셋 임포터 (Addressables 기반)
-**의존성**: Unity Addressables 2.7.6+
+**역할**: 여러 게임에서 반복 구현하던 게임 시스템 모음. 기능마다 asmdef가 나뉘어 필요한 것만 참조한다.
+**의존성**: services
 **의존하는 패키지**: 없음
-**네임스페이스**: `Geuneda.AssetsImporter`
-**저장소**: `https://github.com/geuneda/geuneda-assetsimporter.git`
-**서브모듈 경로**: `Packages/com.geuneda.assetsimporter`
+**네임스페이스**: `Geuneda.GameSystems.<기능>` (현재 `Geuneda.GameSystems.RedDot`)
+**저장소**: `https://github.com/geuneda/geuneda-gamesystems.git`
+**서브모듈 경로**: `Packages/com.geuneda.gamesystems`
 
 주요 기능:
-- Addressables 에셋 로드/인스턴스화/언로드
-- 씬 관리
-- 에셋 설정 임포트
+- 레드닷: '/' 경로 트리 알림 배지, 리프 값의 조상 합산, 뮤트, 경로 단위 구독 (`IRedDotService`, `RedDotBinding`, `RedDotView`)
 
 ---
 
@@ -209,7 +206,7 @@
     "com.geuneda.nativeui": "https://github.com/geuneda/geuneda-nativeui.git",
     "com.geuneda.notificationservice": "https://github.com/geuneda/geuneda-notificationservice.git",
     "com.geuneda.googlesheetimporter": "https://github.com/geuneda/geuneda-googlesheetimporter.git",
-    "com.geuneda.assetsimporter": "https://github.com/geuneda/geuneda-assetsimporter.git",
+    "com.geuneda.gamesystems": "https://github.com/geuneda/geuneda-gamesystems.git",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.unity.addressables": "2.7.6",
     "com.unity.inputsystem": "1.17.0",
@@ -225,17 +222,17 @@
 ### 핵심 패키지 (Core)
 대부분의 프로젝트에서 사용:
 - `gamedata` - 기반 유틸리티 (Observable, ConfigsProvider, floatP)
-- `services` - DI, 메시지, 풀링
+- `services` - DI, 메시지, 풀링, Addressables 에셋 로딩
 - `uiservice` - UI 관리
 
 ### 게임플레이 패키지 (Gameplay)
 게임 로직에 직접 사용:
 - `statechart` - 상태 머신
 - `inputextensions` - 입력 처리
+- `gamesystems` - 레드닷 등 공용 게임 시스템
 
 ### 인프라 패키지 (Infrastructure)
-빌드, 에셋, 데이터 파이프라인:
-- `assetsimporter` - 에셋 로딩
+빌드, 데이터 파이프라인:
 - `googlesheetimporter` - 데이터 임포트 (Editor 전용)
 
 ### 플랫폼 패키지 (Platform)
@@ -260,7 +257,7 @@
   "com.geuneda.services": "...",
   "com.geuneda.uiservice": "...",
   "com.geuneda.statechart": "...",
-  "com.geuneda.assetsimporter": "..."
+  "com.geuneda.gamesystems": "..."
 }
 ```
 
@@ -271,10 +268,12 @@
   "com.geuneda.services": "...",
   "com.geuneda.uiservice": "...",
   "com.geuneda.statechart": "...",
-  "com.geuneda.assetsimporter": "...",
+  "com.geuneda.gamesystems": "...",
   "com.geuneda.inputextensions": "...",
   "com.geuneda.nativeui": "...",
   "com.geuneda.notificationservice": "...",
   "com.geuneda.googlesheetimporter": "..."
 }
 ```
+
+UniTask는 git으로만 받을 수 있어 UPM이 의존성으로 자동 설치하지 못한다. services, uiservice, statechart를 쓰면 `com.cysharp.unitask`도 manifest에 직접 넣는다.

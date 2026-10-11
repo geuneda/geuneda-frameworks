@@ -34,24 +34,26 @@ geuneda-frameworks를 사용하는 모든 Unity 프로젝트에 적용되는 공
 ### 서비스 접근
 
 ```csharp
-var service = ServiceAccessor.Get<IMyService>();
-if (ServiceAccessor.TryGet<IMyService>(out var svc)) { ... }
+var service = MainInstaller.Resolve<IMyService>();
+if (MainInstaller.TryResolve<IMyService>(out var svc)) { ... }
 ```
 
 ### 이벤트 (MessageBroker)
 
 ```csharp
-MessageBroker.Subscribe<MyMessage>(OnMyMessage);    // 구독
-MessageBroker.PublishSafe(new MyMessage { ... });    // 발행
-MessageBroker.Unsubscribe<MyMessage>(this);          // 해제 (필수)
+var broker = MainInstaller.Resolve<IMessageBrokerService>();
+broker.Subscribe<MyMessage>(OnMyMessage);            // 구독 (MyMessage : IMessage)
+broker.PublishSafe(new MyMessage { ... });           // 발행 (발행 중 구독/해제가 있으면 PublishSafe)
+broker.Unsubscribe<MyMessage>(this);                 // 해제 (필수)
 ```
 
 ### 오브젝트 풀링
 
 ```csharp
-var pool = poolService.GetPool<T>(prefab);
-var obj = pool.Spawn();
-pool.Despawn(obj);
+var poolService = MainInstaller.Resolve<IPoolService>();         // using Geuneda.Services.Pooling
+poolService.AddPool(new GameObjectPool<Bullet>(initSize: 20, bulletPrefab));
+var bullet = poolService.Spawn<Bullet>();
+poolService.Despawn(bullet);
 ```
 
 ### DI 등록
@@ -69,12 +71,14 @@ Geuneda API 코드 작성/수정 전 반드시 해당 스킬을 invoke하여 API
 | `Geuneda.DataExtensions` | `/geuneda-gamedata` |
 | `Geuneda.Services` | `/geuneda-services` |
 | `Geuneda.Services.AssetsImporter` | `/geuneda-services` |
+| `Geuneda.Services.Pooling` | `/geuneda-services` |
 | `Geuneda.UiService` | `/geuneda-uiservice` |
 | `Geuneda.StatechartMachine` | `/geuneda-statechart` |
 | `Geuneda.GoogleSheetImporter` | `/geuneda-googlesheetimporter` |
 | `Geuneda.InputExtensions` | `/geuneda-inputextensions` |
 | `Geuneda.NativeUi` | `/geuneda-nativeui` |
 | `Geuneda.NotificationService` | `/geuneda-notificationservice` |
+| `Geuneda.GameSystems.*` (예: `Geuneda.GameSystems.RedDot`) | `/geuneda-gamesystems` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|
@@ -86,7 +90,8 @@ Geuneda API 코드 작성/수정 전 반드시 해당 스킬을 invoke하여 API
 ## 패키지 의존성 체인
 
 ```
-gamedata -> services -> uiservice
+gamedata -> services -> gamesystems
+uiservice (독립: Addressables, UniTask, TextMeshPro)
 ```
 
 하위 패키지 API 변경 시 상위 패키지에 영향을 줄 수 있다.

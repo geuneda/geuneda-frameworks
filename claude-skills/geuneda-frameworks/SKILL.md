@@ -20,7 +20,7 @@ Geuneda Unity UPM 패키지들을 개발, 테스트, 검증하는 Unity 6 호스
 ## 프로젝트 정보
 
 - **프로젝트명**: geuneda-frameworks
-- **Unity 버전**: 6000.0+
+- **Unity 버전**: 6000.0+ (`services`, `gamesystems`는 6000.3+)
 - **C# 버전**: C# 9.0 (명시적 네임스페이스, global usings 미사용)
 - **저장소**: `https://github.com/geuneda/geuneda-frameworks.git`
 - **라이선스**: MIT
@@ -40,9 +40,10 @@ Geuneda Unity UPM 패키지들을 개발, 테스트, 검증하는 Unity 6 호스
 | **nativeui** | `com.geuneda.nativeui` | 네이티브 UI 헬퍼 | geuneda-nativeui |
 | **notificationservice** | `com.geuneda.notificationservice` | 알림 서비스 | geuneda-notificationservice |
 | **googlesheetimporter** | `com.geuneda.googlesheetimporter` | 구글 시트 임포터 | geuneda-googlesheetimporter |
-| **assetsimporter** | `com.geuneda.assetsimporter` | 에셋 임포터 (v2.1에서 services로 흡수) | geuneda-services |
+| **gamesystems** | `com.geuneda.gamesystems` | 공용 게임 시스템 (레드닷 등, 기능별 asmdef) | geuneda-gamesystems |
 
 > 참고: 기존 `dataextensions`와 `configsprovider`는 `gamedata`로 통합되었다.
+> 참고: `assetsimporter`는 v2.1에서 `services`로 흡수되었다. 별도 패키지로 추가하지 않는다.
 
 ## 의존성 트리
 
@@ -50,12 +51,14 @@ Geuneda Unity UPM 패키지들을 개발, 테스트, 검증하는 Unity 6 호스
 gamedata (기반 패키지 - 의존성 없음)
     |
     v
-services (gamedata 의존)
+services (gamedata, UniTask, Addressables 의존)
     |
     v
-uiservice (services, UniTask, Addressables 의존)
+gamesystems (services 의존)
 
-statechart (독립)
+uiservice (독립: UniTask, Addressables, TextMeshPro 의존)
+
+statechart (UniTask 의존)
 
 inputextensions (Unity Input System 의존)
 
@@ -64,8 +67,6 @@ nativeui (독립, 플랫폼별 네이티브 코드)
 notificationservice (Unity Mobile Notifications 의존)
 
 googlesheetimporter (독립, Editor 전용)
-
-assetsimporter (Addressables 의존)
 ```
 
 ### 핵심 의존 체인
@@ -73,17 +74,18 @@ assetsimporter (Addressables 의존)
 가장 중요한 의존성 체인은 다음과 같다:
 
 ```
-gamedata -> services -> uiservice
+gamedata -> services -> gamesystems
 ```
 
 이 세 패키지는 계층적으로 의존하므로, 하위 패키지 API 변경 시 상위 패키지에 영향을 준다.
+`uiservice`는 gamedata/services에 의존하지 않는 독립 패키지다.
 
 ### 외부 의존성
 
 | 외부 패키지 | 버전 | 사용처 |
 |-------------|------|--------|
-| `com.unity.addressables` | 2.7.6+ | uiservice, assetsimporter |
-| `com.cysharp.unitask` | latest | uiservice, services |
+| `com.unity.addressables` | 2.7.6+ | uiservice, services |
+| `com.cysharp.unitask` | latest | uiservice, services, statechart |
 | `com.unity.inputsystem` | 1.17.0 | inputextensions |
 | `com.unity.mobile.notifications` | 2.4.2 | notificationservice |
 | `com.unity.test-framework` | 1.6.0 | 테스트 |
@@ -155,6 +157,8 @@ git pull origin main
 3. `.gitmodules`에 서브모듈 추가
 4. `Packages/manifest.json`에 의존성 추가
 5. README.md에 패키지 정보 추가
+6. `claude-skills/geuneda-<패키지>/`에 스킬(SKILL.md, references/api.md)을 추가하고 `install.sh`, `uninstall.sh`의 `SKILLS` 목록에 등록
+7. `CLAUDE.md`의 "프레임워크 스킬 필수 규칙" 표에 네임스페이스 → 스킬 행 추가
 
 ### 테스트
 
@@ -201,6 +205,7 @@ git pull origin main
 | 로컬/푸시 알림 | notificationservice |
 | Google Sheets 데이터 임포트 | googlesheetimporter |
 | Addressables 에셋 관리 | services (v2.1 흡수) |
+| 레드닷(알림 배지) 등 여러 게임에서 반복되는 게임 시스템 | gamesystems |
 
 ## 주의사항
 
@@ -208,7 +213,7 @@ git pull origin main
 - 패키지 변경은 해당 패키지의 독립 저장소에 커밋하는 것을 권장
 - Runtime 코드에서 UnityEditor API를 참조하면 빌드 실패
 - 패키지 간 순환 의존성은 절대 금지
-- 하위 패키지(gamedata)의 API 변경은 상위 패키지(services, uiservice)에 영향
+- 하위 패키지(gamedata)의 API 변경은 상위 패키지(services, gamesystems)에 영향
 
 ## 참조 문서
 
@@ -222,3 +227,4 @@ git pull origin main
 - `geuneda-nativeui` 스킬
 - `geuneda-notificationservice` 스킬
 - `geuneda-googlesheetimporter` 스킬
+- `geuneda-gamesystems` 스킬

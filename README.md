@@ -19,6 +19,7 @@ Unity 6 프로젝트로, Geuneda Unity Package Manager (UPM) 패키지들을 **�
 | `com.geuneda.nativeui` | 네이티브 UI 헬퍼 | [geuneda-nativeui](https://github.com/geuneda/geuneda-nativeui) |
 | `com.geuneda.notificationservice` | 알림 서비스 | [geuneda-notificationservice](https://github.com/geuneda/geuneda-notificationservice) |
 | `com.geuneda.googlesheetimporter` | 구글 시트 임포터 | [geuneda-googlesheetimporter](https://github.com/geuneda/geuneda-googlesheetimporter) |
+| `com.geuneda.gamesystems` | 여러 게임에서 반복되는 게임 시스템 (레드닷 등, 기능별 asmdef) | [geuneda-gamesystems](https://github.com/geuneda/geuneda-gamesystems) |
 
 > **참고**: `com.geuneda.assetsimporter`는 v2.1부터 `com.geuneda.services`에 통합되었습니다 (`AssetResolverService`, `AssetsImporter`, `AddressableIds`). 별도 패키지 대신 `com.geuneda.services`를 사용하세요.
 
@@ -51,7 +52,7 @@ git submodule update --init --recursive
 
 ## 요구 사항
 
-- Unity 6000.0 이상
+- Unity 6000.0 이상 (`services`, `gamesystems`는 6000.3 이상)
 - Addressables 2.7.6+
 - UniTask
 
@@ -60,9 +61,11 @@ git submodule update --init --recursive
 ```
 gamedata (기반)
     |
-services (gamedata 의존)
+services (gamedata, UniTask, Addressables 의존)
     |
-uiservice (services, UniTask, Addressables 의존)
+gamesystems (services 의존)
+
+uiservice (독립: UniTask, Addressables, TextMeshPro 의존)
 ```
 
 ## 프로젝트 구조
@@ -98,6 +101,7 @@ geuneda-frameworks/
 | `geuneda-services` | com.geuneda.services | DI, 메시지 브로커, 풀링, 틱, 에셋 로딩/임포트(AssetResolver) |
 | `geuneda-statechart` | com.geuneda.statechart | 계층적 상태 머신 (HFSM) 구성 |
 | `geuneda-uiservice` | com.geuneda.uiservice | MVP 패턴 UI 서비스, 피처 조합, UI Toolkit |
+| `geuneda-gamesystems` | com.geuneda.gamesystems | 레드닷(경로 트리 알림 배지) 등 공용 게임 시스템 |
 
 ### 스킬 설치
 
@@ -152,7 +156,7 @@ geuneda-{패키지명}/
 - 금지 패턴 (싱글톤, static mutable state 등)
 - CBD 설계 원칙 (MonoBehaviour 단일 책임, POCO 분리 등)
 - 권장 구조 (Model/View/Presenter/Config/Service)
-- 핵심 API 패턴 (ServiceAccessor, MessageBroker, PoolService)
+- 핵심 API 패턴 (MainInstaller, MessageBroker, PoolService)
 - 프레임워크 스킬 필수 규칙 (네임스페이스별 스킬 매핑)
 
 프로젝트별 CLAUDE.md에서 `"geuneda-frameworks CLAUDE.md 공용 규칙을 따른다"`로 참조하면 됩니다.
