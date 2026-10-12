@@ -20,7 +20,7 @@
 
 | 멤버 | 설명 |
 |---|---|
-| `void Trigger(IStatechartEvent trigger)` | 이벤트를 run-to-completion 방식으로 처리. 실행 중이 아니면(`Run` 전, `Pause` 후) 아무것도 하지 않고 이벤트는 버려짐 |
+| `void Trigger(IStatechartEvent trigger)` | 이벤트를 run-to-completion 방식으로 처리. 상태 액션 안에서 호출하면 큐에 넣었다가 현재 처리가 끝난 뒤 순서대로 처리(0.9.5). 실행 중이 아니면(`Run` 전, `Pause` 후) 아무것도 하지 않고 이벤트는 버려짐 |
 | `void Run()` | 실행 플래그를 켜고 현재 상태에서 진행을 시작/재개. 일시정지 동안 완료된 Wait/TaskWait 는 이때 전이됨 |
 | `void Pause()` | 실행 플래그를 끔. 이후 `Trigger` 와 대기 완료 콜백에 의한 진행이 멈춤 |
 | `void Reset()` | 현재 상태를 최상위 Initial 상태로 되돌림. 실행/정지 상태는 그대로이며 현재 상태의 `OnExit` 은 호출하지 않음 |

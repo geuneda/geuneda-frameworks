@@ -28,7 +28,7 @@ public MobileNotificationService(OperatingMode mode, params GameNotificationChan
 ```
 
 - `"NotificationService"` GameObject 에 `GameNotificationsMonoBehaviour` 를 붙이고 `Mode` 를 설정한 뒤 `Initialize(channels)` 를 호출하고 `DontDestroyOnLoad` 를 적용한다.
-- 내부 MonoBehaviour 를 노출하지 않으므로 `Mode` 는 생성 후 바꿀 수 없고, `AutoBadging` 은 기본값 `true` 로 고정된다.
+- 내부 MonoBehaviour 를 노출하지 않으므로 `Mode` 는 생성할 때만 정한다. `AutoBadging` 은 `public bool AutoBadging { get; set; }` 프로퍼티로 내부 값을 읽고 쓴다(기본값 `true`, v0.1.9).
 - 이벤트: MonoBehaviour 의 `OnLocalNotificationDelivered` / `OnLocalNotificationExpired` 가 호출될 때 그 시점의 구독자에게 전달한다.
 - `CreateNotification()`: 에디터(`UNITY_EDITOR`)에서는 `EditorGameNotification`, 그 외에는 `GameNotificationsMonoBehaviour.CreateNotification()` 결과(지원하지 않는 플랫폼이면 `null`).
 - `ScheduleNotification(...)`: `null` 이면 `ArgumentNullException`. 에디터에서는 `Id` 가 없으면 시간 기반 해시로 생성하고 `new PendingNotification(gameNotification)` 만 반환한다(예약하지 않고 `PendingNotifications` 에도 추가하지 않음). 그 외에는 MonoBehaviour 에 위임.

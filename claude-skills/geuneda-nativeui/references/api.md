@@ -67,8 +67,7 @@ public static void ShowAlertPopUp(bool isAlertSheet, string title, string messag
 
 예외:
 - `SystemException`: iOS/Android/에디터 외 플랫폼
-- `ArgumentException`: iOS 에서 `buttons` 가 null 이거나 비어 있을 때
-- `NullReferenceException`: Android 에서 `buttons` 가 null 일 때
+- `ArgumentException`: iOS, Android 에서 `buttons` 가 null 이거나 비어 있을 때(에디터는 로그만)
 
 #### ShowToastMessage
 

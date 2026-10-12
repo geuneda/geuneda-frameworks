@@ -220,6 +220,6 @@ public class SettingsPresenter : UiPresenter
 - `CancellationToken` 은 Addressables 로더의 비동기 대기에만 쓰인다.
 - UniTask 는 한 번만 `await` 할 수 있다. 여러 결과는 `var (a, b) = await UniTask.WhenAll(t1, t2);`.
 - 정적 이벤트 `UiService.OnResolutionChanged`/`OnOrientationChanged` 는 `Dispose()` 가 지우지 않으므로 직접 해제한다.
-- 레이어 정렬은 `Canvas`, `UIDocument` 만 지원하고 `PanelRenderer` 는 지원하지 않는다.
+- 레이어 정렬은 프리팹 루트의 `Canvas`, `UIDocument`, `PanelRenderer`(Unity 6.5+, `int sortingOrder`) 에 적용된다.
 - `UiPresenter` 인스펙터의 플레이 모드 버튼은 서비스를 거치지 않아 `VisiblePresenters` 와 어긋난다. 디버깅은 `Tools > UI Service > Presenter Manager` 사용.
 - 프레임워크 공통 규칙상 `async void` 대신 `async UniTaskVoid` 또는 `async UniTask` 를 쓴다.

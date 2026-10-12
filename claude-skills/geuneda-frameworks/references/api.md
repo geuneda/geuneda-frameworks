@@ -11,7 +11,7 @@
 
 ## 1. com.geuneda.gamedata
 
-- **버전 / 최소 Unity**: 1.0.3 / 6000.0
+- **버전 / 최소 Unity**: 1.0.4 / 6000.0
 - **package.json 의존성**: `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
 - **이 패키지에 의존하는 패키지**: services, googlesheetimporter
 - **어셈블리**: `Geuneda.GameData`(Runtime, `UniTask` + `Newtonsoft.Json.dll` 참조, `allowUnsafeCode`), `Geuneda.GameData.Editor`(Editor)
@@ -49,7 +49,7 @@
 
 ## 3. com.geuneda.uiservice
 
-- **버전 / 최소 Unity**: 1.3.1 / 6000.0
+- **버전 / 최소 Unity**: 1.3.2 / 6000.0
 - **package.json 의존성**: `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
 - **이 패키지에 의존하는 패키지**: 없음. gamedata/services 에도 의존하지 않는다.
 - **어셈블리**: `Geuneda.UiService`(Runtime), `Geuneda.UiService.Editor`(Editor)
@@ -62,7 +62,7 @@
 
 ## 4. com.geuneda.statechart
 
-- **버전 / 최소 Unity**: 0.9.4 / 2022.3
+- **버전 / 최소 Unity**: 0.9.5 / 2022.3
 - **package.json 의존성**: `com.cysharp.unitask` 2.5.10
 - **어셈블리**: `Geuneda.Statechart`
 - **네임스페이스**: `Geuneda.StatechartMachine`(내부 구현은 `Geuneda.StatechartMachine.Internal`)
@@ -74,7 +74,7 @@
 
 ## 5. com.geuneda.inputextensions
 
-- **버전 / 최소 Unity**: 1.0.1 / 2019.3
+- **버전 / 최소 Unity**: 1.0.2 / 2019.3
 - **package.json 의존성**: `com.unity.inputsystem` 1.0.0-preview.4, `com.unity.ugui` 1.0.0
 - **어셈블리**: `Geuneda.InputExtensions`
 - **네임스페이스**: `Input`, `Input.Controls`(어셈블리 이름과 다르다. `Input` 이 `UnityEngine.Input` 을 가린다)
@@ -86,7 +86,7 @@
 
 ## 6. com.geuneda.nativeui
 
-- **버전 / 최소 Unity**: 0.2.6 / 2020.3
+- **버전 / 최소 Unity**: 0.2.7 / 2020.3
 - **package.json 의존성**: 없음
 - **어셈블리**: `Geuneda.NativeUi`(iOS 네이티브 코드 `Runtime/Plugins/iOS/NativeUi.m` 포함)
 - **네임스페이스**: `Geuneda.NativeUi`
@@ -98,7 +98,7 @@
 
 ## 7. com.geuneda.notificationservice
 
-- **버전 / 최소 Unity**: 0.1.8 / 2019.4
+- **버전 / 최소 Unity**: 0.1.9 / 2019.4
 - **package.json 의존성**: `com.unity.mobile.notifications` 1.3.0
 - **어셈블리**: `Geuneda.NotificationService`
 - **네임스페이스**: `Geuneda.NotificationService`

@@ -250,7 +250,7 @@ Observable 타입과 `ComputedField` 는 이 인터페이스를 명시적으로 
 |------|------|
 | `ObservableResolverList(IList<TOrigin> originList, Func<TOrigin, T> fromOrignResolver, Func<T, TOrigin> toOrignResolver)` | 원본을 변환해 내부 리스트 생성 |
 
-`Add`, `RemoveAt`, `Clear` 는 원본 리스트에도 반영한다.
+`Add`, `RemoveAt`, `Clear`, 인덱서 setter 는 원본 리스트에도 반영한다(인덱서는 1.0.4 부터. `ObservableList` 인덱서가 virtual 로 바뀜).
 
 ### IObservableResolverDictionaryReader<TKey, TValue, TKeyOrigin, TValueOrigin> : IObservableDictionaryReader<TKey, TValue>
 
@@ -278,7 +278,7 @@ Observable 타입과 `ComputedField` 는 이 인터페이스를 명시적으로 
 |------|------|
 | `ObservableResolverDictionary(IDictionary<TKeyOrigin, TValueOrigin> dictionary, Func<KeyValuePair<TKeyOrigin, TValueOrigin>, KeyValuePair<TKey, TValue>> fromOrignResolver, Func<TKey, TValue, KeyValuePair<TKeyOrigin, TValueOrigin>> toOrignResolver)` | 생성자 |
 
-`Add`, `Remove`, `Clear` 는 원본 딕셔너리에도 반영한다.
+`Add`, `Remove`, `Clear`, 인덱서 setter 는 원본 딕셔너리에도 반영한다(인덱서는 1.0.4 부터. 없는 키는 원본을 바꾸지 않고 `KeyNotFoundException`).
 
 ### ObservableDebugRegistry (static)
 

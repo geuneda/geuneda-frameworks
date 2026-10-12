@@ -89,8 +89,8 @@ NativeUiService.ShowToastMessage("네트워크 오류가 발생했습니다.", t
 - **스타일 의미가 플랫폼마다 다르다**: `Default`/`Positive`/`Negative` 는 iOS 에서 `Default`/`Cancel`/`Destructive`, Android 에서 `BUTTON_NEUTRAL`/`BUTTON_POSITIVE`/`BUTTON_NEGATIVE` 가 된다.
 - **iOS `Positive` 는 하나만**: UIKit 은 `Cancel` 스타일 액션을 하나만 허용한다.
 - **Android 는 스타일당 버튼 하나, 최대 3개**: 같은 `Style` 을 다시 쓰면 앞 버튼이 대체된다.
-- **iOS 콜백은 버튼 텍스트로 매칭**: 텍스트가 같은 버튼이 있으면 첫 번째 것만 호출된다. `_currentButtons` 정적 필드 하나로 관리하므로 알림이 열린 상태에서 새 알림을 띄우면 이전 알림의 버튼 정보가 덮어써진다. `Text` 가 null 이면 네이티브에서 빈 문자열로 바뀌어 매칭되지 않으므로 콜백이 호출되지 않는다.
-- **버튼 인자**: `buttons` 가 `null` 이거나 비어 있으면 iOS 에서 `ArgumentException`. Android 는 `null` 이면 `buttons.Length` 접근 시 예외가 나고, 빈 배열은 검사하지 않아 버튼 없는 다이얼로그가 뜬다. 버튼은 최소 하나 넣는다.
+- **iOS 콜백은 버튼 텍스트로 매칭**: 텍스트가 같은 버튼이 있으면 첫 번째 것만 호출된다. `_currentButtons` 정적 필드 하나로 관리하므로 알림이 열린 상태에서 새 알림을 띄우면 이전 알림의 버튼 정보가 덮어써진다. `Text` 가 null 이면 네이티브와 같이 빈 문자열로 보고 매칭한다.
+- **버튼 인자**: `buttons` 가 `null` 이거나 비어 있으면 iOS, Android 모두 `ArgumentException`(v0.2.7). 에디터는 로그만 남긴다.
 - **`Callback` 은 null 허용**: iOS, Android 모두 null 이면 알림만 닫고 아무것도 호출하지 않는다.
 - **에디터에서 콜백 테스트 불가**: 에디터 분기는 `Debug.Log` 만 하고 반환한다.
 - **비대상 플랫폼 예외**: Standalone/WebGL 등에서는 `SystemException`. 공용 코드에서는 `#if UNITY_IOS || UNITY_ANDROID` 로 감싼다.

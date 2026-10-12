@@ -85,7 +85,7 @@ pending.Reschedule = true;              // RescheduleAfterClearing 모드에서 
 
 ### GameNotificationsMonoBehaviour 직접 사용
 
-`AutoBadging` 을 바꾸거나 에디터에서도 플랫폼 구현을 쓰려면 MonoBehaviour 를 직접 만든다.
+`AutoBadging` 은 `MobileNotificationService.AutoBadging` 프로퍼티로 바꾼다(v0.1.9). 에디터에서도 플랫폼 구현을 쓰려면 MonoBehaviour 를 직접 만든다.
 
 ```csharp
 using System;

@@ -51,9 +51,9 @@
 |--------|------|-----------|
 | `Pressed` | `Action<PointerInput, double>` | `Contact == true` 이고 누름 상태가 아닐 때 |
 | `Dragged` | `Action<PointerInput, double>` | `Contact == true` 이고 이미 누름 상태일 때 |
-| `Released` | `Action<PointerInput, double>` | `Contact == false` 이고 누름 상태일 때 |
+| `Released` | `Action<PointerInput, double>` | `Contact == false` 이고 그 포인터가 누름 상태일 때 |
 
-두 번째 인자는 `InputAction.CallbackContext.time`. 누름 상태는 모든 포인터가 공유하는 `bool` 하나(`m_Dragging`)다.
+두 번째 인자는 `InputAction.CallbackContext.time`. 누름 상태는 `InputId` -> 장치 `Dictionary`(`m_PressedPointers`)로 관리한다. `OnDisable`, 액션 `canceled`, `InputSystem.onDeviceChange` 의 Removed/Disconnected 에서 이벤트 없이 비운다.
 
 인스펙터 설정(private `[SerializeField]`, 기본 false):
 
@@ -104,7 +104,7 @@ InputId 규칙: 마우스 `PointerInputModule.kMouseLeftId`, 펜 `int.MinValue`,
 - 탭: `TravelDistance <= maxTapDrift && (EndTime - StartTime) <= maxTapDuration`
 
 동작 흐름:
-1. `Pressed` 수신: 입력 ID 로 새 `ActiveGesture` 를 등록하고(`Debug.Assert` 로 중복 검사) `Pressed` 발행
+1. `Pressed` 수신: 입력 ID 로 새 `ActiveGesture` 를 등록하고(해제를 받지 못하고 남은 제스처가 있으면 교체) `Pressed` 발행
 2. `Dragged` 수신: 해당 ID 의 제스처가 없으면 무시. 있으면 `SubmitPoint` 후 유효한 스와이프면 `PotentiallySwiped` 발행
 3. `Released` 수신: 해당 ID 의 제스처가 없으면 무시. 있으면 제거하고 `SubmitPoint` 후 `Swiped`, `Tapped` 를 각각 조건에 따라 발행(둘 다 발행될 수 있음)
 
@@ -189,7 +189,7 @@ InputId 규칙: 마우스 `PointerInputModule.kMouseLeftId`, 펜 `int.MinValue`,
 - `InputControlScheme MouseScheme / PenScheme / TouchScheme { get; }`
 
 `struct PointerActions`:
-- `InputAction point` - 타입 `Value`
+- `InputAction point` - 타입 `PassThrough`
 - `InputActionMap Get()`, `void Enable()`, `void Disable()`, `bool enabled`
 - `void SetCallbacks(IPointerActions instance)`
 - `implicit operator InputActionMap(PointerActions set)`
