@@ -166,6 +166,7 @@ public class PlayerMover : MonoBehaviour
 - `InputId`: 마우스는 `PointerInputModule.kMouseLeftId`, 펜은 `int.MinValue`, 터치는 `touchId`.
 - `PointerInput` 의 nullable 필드는 값이 0(또는 zero 벡터)이면 null 이다. `Pressure.HasValue` 등으로 확인한다.
 - `GestureController.Awake` 에서 `inputManager` 이벤트를 구독하므로 인스펙터 연결이 없으면 `NullReferenceException`.
+- `GestureController` 는 새 `Pressed` 때 관리자에서 더 이상 눌려 있지 않은 포인터(관리자 비활성화, 장치 분리로 해제를 받지 못한 것)의 남은 제스처를 지운다(v1.0.3). 지금 눌려 있는 다른 포인터의 제스처는 유지되므로 멀티터치는 끊기지 않는다. 같은 ID 가 다시 눌리면 그 제스처는 새로 시작한다.
 - `IsValidSwipe`/`IsValidTap` 은 지속 시간(`EndTime - StartTime`)이 각각 `maxSwipeDuration`, `maxTapDuration` 이하여야 참이다. `PotentiallySwiped` 도 같은 조건이라 `maxSwipeDuration` 을 넘겨 드래그하면 더 이상 발행되지 않는다. `minSwipeDistance <= maxTapDrift` 면 한 동작이 `Swiped` 와 `Tapped` 를 모두 발행할 수 있다.
 - `GestureController.Pressed` 의 `SwipeInput` 은 막 시작한 제스처라 `SwipeDuration`, `SwipeVelocity`, `TravelDistance` 가 0 이다.
 - 디버그 `label`(`UnityEngine.UI.Text`)을 연결하면 `Camera.main` 을 참조한다.

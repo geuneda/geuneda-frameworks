@@ -62,7 +62,7 @@
 
 ## 4. com.geuneda.statechart
 
-- **버전 / 최소 Unity**: 0.9.5 / 2022.3
+- **버전 / 최소 Unity**: 0.9.6 / 2022.3
 - **package.json 의존성**: `com.cysharp.unitask` 2.5.10
 - **어셈블리**: `Geuneda.Statechart`
 - **네임스페이스**: `Geuneda.StatechartMachine`(내부 구현은 `Geuneda.StatechartMachine.Internal`)
@@ -74,7 +74,7 @@
 
 ## 5. com.geuneda.inputextensions
 
-- **버전 / 최소 Unity**: 1.0.2 / 2019.3
+- **버전 / 최소 Unity**: 1.0.3 / 2019.3
 - **package.json 의존성**: `com.unity.inputsystem` 1.0.0-preview.4, `com.unity.ugui` 1.0.0
 - **어셈블리**: `Geuneda.InputExtensions`
 - **네임스페이스**: `Input`, `Input.Controls`(어셈블리 이름과 다르다. `Input` 이 `UnityEngine.Input` 을 가린다)

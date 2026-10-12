@@ -104,7 +104,7 @@ InputId 규칙: 마우스 `PointerInputModule.kMouseLeftId`, 펜 `int.MinValue`,
 - 탭: `TravelDistance <= maxTapDrift && (EndTime - StartTime) <= maxTapDuration`
 
 동작 흐름:
-1. `Pressed` 수신: 입력 ID 로 새 `ActiveGesture` 를 등록하고(해제를 받지 못하고 남은 제스처가 있으면 교체) `Pressed` 발행
+1. `Pressed` 수신: 관리자에서 더 이상 눌려 있지 않은 포인터의 남은 제스처를 지우고(`PointerInputManager.IsPointerPressed`, internal), 입력 ID 로 새 `ActiveGesture` 를 등록한 뒤 `Pressed` 발행
 2. `Dragged` 수신: 해당 ID 의 제스처가 없으면 무시. 있으면 `SubmitPoint` 후 유효한 스와이프면 `PotentiallySwiped` 발행
 3. `Released` 수신: 해당 ID 의 제스처가 없으면 무시. 있으면 제거하고 `SubmitPoint` 후 `Swiped`, `Tapped` 를 각각 조건에 따라 발행(둘 다 발행될 수 있음)
 
