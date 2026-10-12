@@ -164,6 +164,7 @@ public 필드 `Action OnUpdate`, `Action OnFixedUpdate`, `Action OnLateUpdate`. 
 - 생성자 `protected ObjectPoolBase(uint initSize, T sampleEntity, Func<T, T> instantiator)`
 - `protected readonly IList<T> SpawnedEntities`
 - `protected virtual T SpawnEntity()`, `protected virtual void PostDespawnEntity(T entity)`, `protected T CallInstantiator()`
+- `SpawnEntity()` 는 스택에서 null 이거나 파괴된(`Equals(null)`) 항목을 건너뛰고, 스택이 비면 인스턴시에이터를 한 번 부릅니다. 그 결과도 null 이거나 파괴된 객체면 `InvalidOperationException` 을 던집니다. `CallInstantiator()` 는 무효한 인스턴스에 `IPoolEntityObject<T>.Init` 을 부르지 않습니다(Unreleased)
 - `protected virtual void CallOnSpawned(T entity)`, `protected virtual void CallOnSpawned<TData>(T entity, TData data)`, `protected virtual void CallOnDespawned(T entity)` — 기본 구현은 `entity as I...` 캐스팅
 - `public virtual void Dispose()` — `Clear()` 호출
 - `public virtual void Dispose(bool disposeSampleEntity)` — `true` 면 샘플 참조를 null 로 만든 뒤 `Dispose()`
