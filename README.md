@@ -24,7 +24,7 @@ Geuneda Unity Package Manager(UPM) 패키지 9개를 개발, 테스트, 검증�
 | `com.geuneda.services` | 2.1.4 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG, 시간, 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
 | `com.geuneda.statechart` | 0.9.6 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
-| `com.geuneda.inputextensions` | 1.0.3 | 2019.3 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](Packages/com.geuneda.inputextensions/README.md) |
+| `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](Packages/com.geuneda.inputextensions/README.md) |
 | `com.geuneda.nativeui` | 0.2.7 | 2020.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](Packages/com.geuneda.nativeui/README.md) |
 | `com.geuneda.notificationservice` | 0.1.9 | 2019.4 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](Packages/com.geuneda.notificationservice/README.md) |
 | `com.geuneda.googlesheetimporter` | 0.9.1 | 6000.0 | Google 스프레드시트 데이터를 ScriptableObject 설정 데이터로 가져오는 에디터 도구 | [README](Packages/com.geuneda.googlesheetimporter/README.md) |
@@ -58,7 +58,7 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | services | `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
 | uiservice | `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
 | statechart | `com.cysharp.unitask` 2.5.10 |
-| inputextensions | `com.unity.inputsystem` 1.0.0-preview.4, `com.unity.ugui` 1.0.0 |
+| inputextensions | `com.unity.inputsystem` 1.1.1, `com.unity.ugui` 1.0.0 |
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 1.3.0 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |

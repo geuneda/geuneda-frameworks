@@ -13,7 +13,7 @@ Unity Input System 위에서 포인터 드래그, 스와이프/탭 제스처, �
 - 설치: `https://github.com/geuneda/geuneda-inputextensions.git` (고정하려면 `#<태그>`)
 - 네임스페이스: `Input`(컴포넌트, 데이터 타입), `Input.Controls`(자동 생성 래퍼)
 - 어셈블리: `Geuneda.InputExtensions` (`Runtime/Geuneda.InputExtensions.asmdef`, autoReferenced)
-- 의존성: `com.unity.inputsystem` 1.0.0-preview.4 이상, `com.unity.ugui` 1.0.0 이상(`UnityEngine.UI`, `UnityEngine.EventSystems`), Unity 2019.3 이상(`package.json` 기준)
+- 의존성: `com.unity.inputsystem` 1.1.1 이상, `com.unity.ugui` 1.0.0 이상(`UnityEngine.UI`, `UnityEngine.EventSystems`), Unity 2019.4 이상(`package.json` 기준, v1.0.4)
 
 ## 구조
 
@@ -162,7 +162,7 @@ public class PlayerMover : MonoBehaviour
 
 - 전역 네임스페이스 `Input` 이 `UnityEngine.Input` 을 가린다. 어셈블리가 autoReferenced 이므로 프로젝트 코드에서 레거시 API 는 `UnityEngine.Input.GetKey(...)` 처럼 완전한 이름으로 써야 한다. 이 패키지 네임스페이스는 `Geuneda.InputExtensions` 가 아니다(그건 어셈블리 이름).
 - `PointerInputManager` 의 `m_UseMouse`/`m_UsePen`/`m_UseTouch` 는 기본 false. 셋 다 true 면 `bindingMask = null`, 아니면 켜진 그룹으로 `InputBinding.MaskByGroups` 를 건다. 사용할 장치는 명시적으로 켠다.
-- `PointerInputManager` 는 누름 상태를 `InputId` 별로 관리한다(v1.0.2). 포인터마다 `Pressed` -> `Dragged` -> `Released` 순서로 오고, 누르지 않은 포인터의 이동(마우스 호버)은 무시한다. 활성화할 때 이미 눌린 포인터도 `Pressed` 로 온다(액션 initialStateCheck, Input System 1.1 이상. 그 미만에서는 활성화 뒤 첫 입력 변화부터). 비활성화, 액션 리셋, 장치 분리 때는 이벤트 없이 그 포인터들의 눌림 상태만 비운다(입력 콜백 안에서 비활성화해도 `Released` 가 나가지 않는다). 그 뒤 같은 포인터의 접촉은 다시 `Pressed` 로 오므로, 직접 상태를 추적한다면 같은 `InputId` 의 `Pressed` 를 새 시작으로 처리하고 자신의 `OnDisable` 에서도 상태를 비운다.
+- `PointerInputManager` 는 누름 상태를 `InputId` 별로 관리한다(v1.0.2). 포인터마다 `Pressed` -> `Dragged` -> `Released` 순서로 오고, 누르지 않은 포인터의 이동(마우스 호버)은 무시한다. 활성화할 때 이미 눌린 포인터도 `Pressed` 로 온다(액션 initialStateCheck). 비활성화, 액션 리셋, 장치 분리 때는 이벤트 없이 그 포인터들의 눌림 상태만 비운다(입력 콜백 안에서 비활성화해도 `Released` 가 나가지 않는다). 그 뒤 같은 포인터의 접촉은 다시 `Pressed` 로 오므로, 직접 상태를 추적한다면 같은 `InputId` 의 `Pressed` 를 새 시작으로 처리하고 자신의 `OnDisable` 에서도 상태를 비운다.
 - `InputId`: 마우스는 `PointerInputModule.kMouseLeftId`, 펜은 `int.MinValue`, 터치는 `touchId`.
 - `PointerInput` 의 nullable 필드는 값이 0(또는 zero 벡터)이면 null 이다. `Pressure.HasValue` 등으로 확인한다.
 - `GestureController.Awake` 에서 `inputManager` 이벤트를 구독하므로 인스펙터 연결이 없으면 `NullReferenceException`.

@@ -74,8 +74,8 @@
 
 ## 5. com.geuneda.inputextensions
 
-- **버전 / 최소 Unity**: 1.0.3 / 2019.3
-- **package.json 의존성**: `com.unity.inputsystem` 1.0.0-preview.4, `com.unity.ugui` 1.0.0
+- **버전 / 최소 Unity**: 1.0.4 / 2019.4
+- **package.json 의존성**: `com.unity.inputsystem` 1.1.1, `com.unity.ugui` 1.0.0
 - **어셈블리**: `Geuneda.InputExtensions`
 - **네임스페이스**: `Input`, `Input.Controls`(어셈블리 이름과 다르다. `Input` 이 `UnityEngine.Input` 을 가린다)
 - **주요 기능**: `PointerInputManager`(드래그), `GestureController`(스와이프/탭), `GamepadInputManager`, `.inputactions` 생성 래퍼 `PointerControls`/`GamepadControls`
