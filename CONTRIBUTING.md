@@ -74,6 +74,19 @@ git commit -m "chore: services 포인터 갱신"
 
 inputextensions, nativeui, notificationservice 에는 테스트가 없습니다. 패키지 테스트가 Test Runner 에 보이지 않으면 `Packages/manifest.json` 의 `testables` 에 패키지 이름을 추가합니다.
 
+### 테스트 의존성
+
+gamedata, services, statechart, uiservice 테스트는 아래 두 라이브러리가 있어야 컴파일됩니다. 호스트 `Packages/manifest.json` 에 들어 있습니다.
+
+| 라이브러리 | 패키지 | 쓰는 곳 |
+|------------|--------|---------|
+| Unity Performance Testing | `com.unity.test-framework.performance` | `[Performance]` 테스트 (gamedata, services, uiservice) |
+| NSubstitute | `org.nuget.nsubstitute` (UnityNuGet 레지스트리 `https://unitynuget-registry.openupm.com`, scope `org.nuget`) | 목 객체 (gamedata, services, statechart) |
+
+- 패키지 `package.json` 에는 테스트 전용 의존성을 넣을 수 없습니다. 그래서 소비 프로젝트에서 `testables` 로 이 패키지들의 테스트를 돌리려면 위 두 의존성과 scoped registry 를 그 프로젝트 manifest 에도 넣어야 합니다.
+- 명령줄에서는 Unity CLI 로 돌릴 수 있습니다: `unity test . --mode EditMode` (PlayMode 는 `--mode PlayMode`).
+- `ProjectSettings/ProjectVersion.txt` 와 다른 패치 버전의 에디터로 열면 Unity 가 manifest 의 Unity 패키지 버전을 올리고 순서를 바꿀 수 있습니다. 커밋하기 전에 `Packages/manifest.json` 변경이 의도한 것인지 확인합니다.
+
 ## 문서화 요구 사항
 
 동작이나 공개 API 를 바꾸면 같은 변경에서 다음을 갱신합니다.
