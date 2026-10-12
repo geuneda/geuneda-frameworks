@@ -51,7 +51,7 @@
 |--------|------|-----------|
 | `Pressed` | `Action<PointerInput, double>` | `Contact == true` 이고 누름 상태가 아닐 때 |
 | `Dragged` | `Action<PointerInput, double>` | `Contact == true` 이고 이미 누름 상태일 때 |
-| `Released` | `Action<PointerInput, double>` | `Contact == false` 일 때(누름 상태와 무관) |
+| `Released` | `Action<PointerInput, double>` | `Contact == false` 이고 누름 상태일 때 |
 
 두 번째 인자는 `InputAction.CallbackContext.time`. 누름 상태는 모든 포인터가 공유하는 `bool` 하나(`m_Dragging`)다.
 
@@ -82,7 +82,7 @@ InputId 규칙: 마우스 `PointerInputModule.kMouseLeftId`, 펜 `int.MinValue`,
 
 | 이벤트 | 타입 | 발생 조건 |
 |--------|------|-----------|
-| `Pressed` | `Action<SwipeInput>` (`new` 로 선언) | 새 제스처 시작 시 |
+| `Pressed` | `Action<SwipeInput>` | 새 제스처 시작 시 |
 | `PotentiallySwiped` | `Action<SwipeInput>` | 드래그 중 유효한 스와이프 조건을 만족할 때마다 |
 | `Swiped` | `Action<SwipeInput>` | 해제 시 유효한 스와이프일 때 |
 | `Tapped` | `Action<TapInput>` | 해제 시 유효한 탭일 때 |
@@ -100,10 +100,8 @@ InputId 규칙: 마우스 `PointerInputModule.kMouseLeftId`, 펜 `int.MinValue`,
 | `label` | `UnityEngine.UI.Text` | null | 디버그 정보 출력용. 연결 시 `Camera.main` 사용 |
 
 판정 코드(private):
-- 스와이프: `TravelDistance >= minSwipeDistance && (StartTime - EndTime) <= maxSwipeDuration && SwipeDirectionSameness >= swipeDirectionSamenessThreshold`
-- 탭: `TravelDistance <= maxTapDrift && (StartTime - EndTime) <= maxTapDuration`
-
-`StartTime <= EndTime` 이므로 시간 조건은 항상 참이다. 실제로는 이동 거리와 방향 일관성만으로 판정된다.
+- 스와이프: `TravelDistance >= minSwipeDistance && (EndTime - StartTime) <= maxSwipeDuration && SwipeDirectionSameness >= swipeDirectionSamenessThreshold`
+- 탭: `TravelDistance <= maxTapDrift && (EndTime - StartTime) <= maxTapDuration`
 
 동작 흐름:
 1. `Pressed` 수신: 입력 ID 로 새 `ActiveGesture` 를 등록하고(`Debug.Assert` 로 중복 검사) `Pressed` 발행

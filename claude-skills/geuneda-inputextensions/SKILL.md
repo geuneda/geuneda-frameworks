@@ -13,8 +13,7 @@ Unity Input System 위에서 포인터 드래그, 스와이프/탭 제스처, �
 - 설치: `https://github.com/geuneda/geuneda-inputextensions.git` (고정하려면 `#<태그>`)
 - 네임스페이스: `Input`(컴포넌트, 데이터 타입), `Input.Controls`(자동 생성 래퍼)
 - 어셈블리: `Geuneda.InputExtensions` (`Runtime/Geuneda.InputExtensions.asmdef`, autoReferenced)
-- 의존성: `com.unity.inputsystem` 1.0.0-preview.4 이상, Unity 2019.3 이상(`package.json` 기준)
-- 선언되지 않은 의존성: uGUI(`UnityEngine.UI`, `UnityEngine.EventSystems`)
+- 의존성: `com.unity.inputsystem` 1.0.0-preview.4 이상, `com.unity.ugui` 1.0.0 이상(`UnityEngine.UI`, `UnityEngine.EventSystems`), Unity 2019.3 이상(`package.json` 기준)
 
 ## 구조
 
@@ -118,7 +117,7 @@ public class DragHandler : MonoBehaviour
 
     private void OnReleased(PointerInput input, double time)
     {
-        if (!isPressed) return; // Released 는 누르지 않은 상태에서도 올 수 있다
+        // 누름 상태 플래그는 모든 포인터가 공유하므로 멀티터치에서는 포인터별로 직접 추적한다
         isPressed = false;
     }
 }
@@ -152,11 +151,11 @@ public class PlayerMover : MonoBehaviour
 
 - 전역 네임스페이스 `Input` 이 `UnityEngine.Input` 을 가린다. 어셈블리가 autoReferenced 이므로 프로젝트 코드에서 레거시 API 는 `UnityEngine.Input.GetKey(...)` 처럼 완전한 이름으로 써야 한다. 이 패키지 네임스페이스는 `Geuneda.InputExtensions` 가 아니다(그건 어셈블리 이름).
 - `PointerInputManager` 의 `m_UseMouse`/`m_UsePen`/`m_UseTouch` 는 기본 false. 셋 다 true 면 `bindingMask = null`, 아니면 켜진 그룹으로 `InputBinding.MaskByGroups` 를 건다. 사용할 장치는 명시적으로 켠다.
-- `PointerInputManager` 는 모든 포인터에 대해 `m_Dragging` 플래그 하나만 쓴다. `Contact == false` 면 상태와 무관하게 `Released` 를 발행하고, 두 번째 손가락의 첫 접촉은 `Pressed` 가 아니라 `Dragged` 로 올 수 있다. 동시 멀티터치를 포인터별로 정확히 추적한다고 가정하지 않는다.
+- `PointerInputManager` 는 모든 포인터에 대해 `m_Dragging` 플래그 하나만 쓴다. `Released` 는 `Contact == false` 이고 `m_Dragging` 이 true 일 때만 발행되지만, 두 번째 손가락의 첫 접촉은 `Pressed` 가 아니라 `Dragged` 로 오고, 먼저 뗀 손가락이 플래그를 내리면 나머지 손가락의 해제는 `Released` 없이 무시된다. 동시 멀티터치를 포인터별로 정확히 추적한다고 가정하지 않는다.
 - `InputId`: 마우스는 `PointerInputModule.kMouseLeftId`, 펜은 `int.MinValue`, 터치는 `touchId`.
 - `PointerInput` 의 nullable 필드는 값이 0(또는 zero 벡터)이면 null 이다. `Pressure.HasValue` 등으로 확인한다.
 - `GestureController.Awake` 에서 `inputManager` 이벤트를 구독하므로 인스펙터 연결이 없으면 `NullReferenceException`.
-- `IsValidSwipe`/`IsValidTap` 의 시간 조건이 `StartTime - EndTime` 으로 계산되어 항상 참이다. `maxTapDuration`, `maxSwipeDuration` 은 사실상 판정에 반영되지 않는다. `minSwipeDistance <= maxTapDrift` 면 한 동작이 `Swiped` 와 `Tapped` 를 모두 발행할 수 있다.
+- `IsValidSwipe`/`IsValidTap` 은 지속 시간(`EndTime - StartTime`)이 각각 `maxSwipeDuration`, `maxTapDuration` 이하여야 참이다. `PotentiallySwiped` 도 같은 조건이라 `maxSwipeDuration` 을 넘겨 드래그하면 더 이상 발행되지 않는다. `minSwipeDistance <= maxTapDrift` 면 한 동작이 `Swiped` 와 `Tapped` 를 모두 발행할 수 있다.
 - `GestureController.Pressed` 의 `SwipeInput` 은 막 시작한 제스처라 `SwipeDuration`, `SwipeVelocity`, `TravelDistance` 가 0 이다.
 - 디버그 `label`(`UnityEngine.UI.Text`)을 연결하면 `Camera.main` 을 참조한다.
 - `PointerControls`, `GamepadControls` 는 `.inputactions` 에서 생성된 코드다(`wrapperCodeNamespace: Input.Controls`). 직접 수정하지 말고 `.inputactions` 를 고친 뒤 재생성한다. `point` 액션 타입은 `Value` 다(PassThrough 아님).

@@ -6,7 +6,7 @@ weight: 1
 응답의 C# 코드가 아래를 **모두** 만족해야 통과다.
 
 1. `using Geuneda.Services;` 를 포함한다.
-2. 풀 서비스 때문에 `using Geuneda.Services.Pooling;` 을 **추가로** 포함한다 (PoolService 는 `Geuneda.Services.Pooling` 네임스페이스에 있다).
+2. 풀 서비스 때문에 `using Geuneda.Services.Pooling;` 을 **추가로** 포함한다 (`IPoolService` 는 `Geuneda.Services.Pooling` 네임스페이스에 있다. 구현 `PoolService` 는 `Geuneda.Services` 에 있다).
 3. `MainInstaller.Bind<IMessageBrokerService>(new MessageBrokerService())` 형태로 **인터페이스를 제네릭 인자**로 바인딩한다. `ITickService`, `IPoolService` 도 같은 방식이다.
 4. 정리에 `MainInstaller.Clean()` / `Clean<T>()` / `CleanDispose<T>()` 중 하나를 쓴다.
 

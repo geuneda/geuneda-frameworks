@@ -9,7 +9,7 @@ Unity 게임용 기반 서비스 모음이다. 전체 공개 API 는 [references
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.services` (현재 2.1.3), 설치 URL `https://github.com/geuneda/geuneda-services.git`
+- 패키지: `com.geuneda.services` (현재 2.1.4), 설치 URL `https://github.com/geuneda/geuneda-services.git`
 - Unity 6000.3 이상
 - 의존성: `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10. gamedata 와 UniTask 는 Unity 레지스트리에 없으므로 `manifest.json` 에 git URL 로 직접 추가해야 한다.
 - 에셋 로딩/임포트는 v2.0.0 에서 예전 `com.geuneda.assetsimporter` 를 흡수한 것이다. `com.geuneda.assetsimporter` 를 따로 추가하지 않는다.
@@ -131,10 +131,10 @@ MainInstaller.Bind<IAssetResolverService>(resolver);
 - **`TickService` / `CoroutineService`** 는 생성자에서 `DontDestroyOnLoad` GameObject 를 만든다. 런타임에 만들고 `Dispose()`(또는 `CleanDispose<T>()`)로 정리한다. `MainInstaller.Clean()` 은 Dispose 하지 않는다.
 - **FixedUpdate 콜백 인자**는 경과 시간이 아니라 `Time.fixedTime` 이다.
 - **`IAsyncCoroutine.OnComplete`** 는 교체 방식이다. `StopCoroutine(triggerOnComplete)` 기본값은 `false`(콜백 없음). 서비스의 `StopAllCoroutines()` 는 핸들을 완료 처리하지 않는다.
-- **풀**: 타입당 풀 1개(중복 `AddPool` 은 `ArgumentException`). `GameObjectPool` 계열은 훅을 `GetComponent` 로 찾으므로 훅 인터페이스는 컴포넌트에 구현한다. `Spawn(data)` 는 `OnSpawn()` 과 `OnSpawn(data)` 를 둘 다 호출한다. `GameObjectPool.Dispose(bool)` 는 인자와 관계없이 샘플을 `Object.Destroy` 하므로 샘플을 유지하려면 `Dispose()` 를 쓴다.
+- **풀**: 타입당 풀 1개(중복 `AddPool` 은 `ArgumentException`). `GameObjectPool` 계열은 훅을 `GetComponent` 로 찾으므로 훅 인터페이스는 컴포넌트에 구현한다. `Spawn(data)` 는 `OnSpawn()` 과 `OnSpawn(data)` 를 둘 다 호출한다. `GameObjectPool.Dispose(bool)` 는 인자가 `true` 일 때만 샘플을 `Object.Destroy` 한다(v2.1.4 부터. 이전 버전은 인자와 관계없이 파괴).
 - **`DataService`**: 참조 타입만, `PlayerPrefs` 키는 `typeof(T).Name`, `LoadData<T>` 는 매개변수 없는 생성자 필요, `GetData<T>` 는 없으면 `KeyNotFoundException`.
 - **`RngService`**: `Range(int, int)` 는 max 미포함, `Range(floatP, floatP)` 는 max 포함. float 계열은 `Geuneda.DataExtensions.floatP`. v2.1.1 에서 시퀀스가 바뀌어 이전 버전 리플레이와 호환되지 않는다.
-- **`VersionServices`** 는 `SubsystemRegistration` 에서 자동 로드되므로 `LoadVersionData()` 를 부를 필요가 없다. `version-data` 리소스가 없으면 예외 없이 `Application.version` / 빈 문자열로 폴백하고 `Debug.LogError` 를 남긴다. `IsOutdatedVersion` 은 세 부분 버전 문자열만 받는다.
+- **`VersionServices`** 는 `SubsystemRegistration` 에서 자동 로드되므로 `LoadVersionData()` 를 부를 필요가 없다. `version-data` 리소스가 없으면 예외 없이 `Application.version` / 빈 문자열로 폴백하고 `Debug.LogError` 를 남긴다(지연 로드는 한 번만 시도). git 저장소가 아닌 프로젝트에서는 `Branch` / `Commit` 이 빈 문자열이다. `IsOutdatedVersion` 은 세 부분 버전 문자열만 받는다.
 - **`AssetResolverService`**: `AddConfigs` 는 `IAssetAdderService` 로만 호출된다(`AssetResolverService` 변수로 호출하면 CS1061). 등록 전 `RequestAsset` / `LoadSceneAsync<TId>` 는 `MissingMemberException`. `RequestAsset` 의 `instantiate` 기본값이 `true` 라 `GameObject` 는 인스턴스가 만들어진다. 씬은 에셋 타입 `UnityEngine.SceneManagement.Scene` 으로 등록한다.
 - **`AddressablesAssetLoader.UnloadAsset`** 은 동기 `void` 이며 참조 카운트만 줄인다. 메모리 회수는 호출자가 `Resources.UnloadUnusedAssets()` 로 한다.
 - **Services Explorer**(`Tools > Geuneda > Services Explorer`)는 `MainInstaller` 에 인터페이스로 바인딩된 서비스만 보여 준다.

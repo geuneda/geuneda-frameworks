@@ -125,10 +125,10 @@ internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `Intern
 
 | 멤버 | 비고 |
 |------|------|
-| `List<UiConfig> Configs { get; set; }` | 변환 리스트. `LoadSynchronously` 는 저장되지 않아 항상 `false` |
+| `List<UiConfig> Configs { get; set; }` | 변환 리스트. 호출마다 새 리스트 |
 | `List<UiSetConfig> Sets { get; }` | 타입을 찾지 못한 항목 제외 |
 | `void SetSetsSize(int size)` | 세트 수 조정, 설정에 없는 타입 항목 제거. 새 세트의 `SetId` 는 인덱스 |
-| `struct UiConfigSerializable` | 필드 `string Address`, `int Layer`, `string UiType`. `UiConfig` 와 양방향 암시적 변환 |
+| `struct UiConfigSerializable` | 필드 `string Address`, `int Layer`, `string UiType`, `bool LoadSynchronously`(1.3.1 추가, 이전 에셋은 `false`). `UiConfig` 와 양방향 암시적 변환 |
 
 ### 설정 에셋 파생 타입
 
@@ -152,7 +152,7 @@ internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `Intern
 
 ### class LoadSynchronouslyAttribute : Attribute
 
-에디터 동기화 시 `UiConfig.LoadSynchronously` 를 채우지만 에셋에 저장되지 않아 런타임 효과 없음.
+에디터 동기화 시 `UiConfig.LoadSynchronously` 를 채워 에셋에 저장한다. 런타임은 어트리뷰트를 직접 읽지 않으므로 바꾼 뒤 인스펙터를 열어 재동기화해야 한다.
 
 ### class UiServiceMonoComponent : MonoBehaviour
 
@@ -167,7 +167,7 @@ internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `Intern
 
 | 구현 | 공개 멤버 | 동작 |
 |------|-----------|------|
-| `AddressablesUiAssetLoader` | 인터페이스 멤버 | `Addressables.InstantiateAsync`, `LoadSynchronously` 면 `WaitForCompletion()`, 실패 시 `OperationException` throw. 해제는 `Addressables.ReleaseInstance` |
+| `AddressablesUiAssetLoader` | 인터페이스 멤버 | `Addressables.InstantiateAsync`, `LoadSynchronously` 면 `WaitForCompletion()`, 실패 시 `OperationException` throw. 해제는 `Addressables.ReleaseInstance`, Addressables 인스턴스가 아니면 `Object.Destroy` |
 | `ResourcesUiAssetLoader` | 인터페이스 멤버 | `Resources.Load<GameObject>` 캐시 후 `Instantiate`, 없으면 `KeyNotFoundException`. 해제는 `DestroyImmediate`. 토큰 미사용 |
 | `PrefabRegistryUiAssetLoader` | `PrefabRegistryUiAssetLoader()`, `PrefabRegistryUiAssetLoader(PrefabRegistryUiConfigs configs)`, `void RegisterPrefab(string address, GameObject prefab)` | 미등록 주소면 `KeyNotFoundException`. 해제는 `DestroyImmediate`. 토큰 미사용 |
 

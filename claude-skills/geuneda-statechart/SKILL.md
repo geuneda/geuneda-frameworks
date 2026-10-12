@@ -115,7 +115,7 @@ var wait = factory.Wait("Loading");
 wait.WaitingFor(activity =>
 {
     var child = activity.Split();          // 자식 활동: 부모와 자식이 모두 완료되어야 끝남
-    LoadConfigs(() => child.Complete());   // 완료는 비동기 콜백에서 호출
+    LoadConfigs(() => child.Complete());   // 로드 완료 콜백에서 호출(동기 호출도 가능)
     LoadAssets(() => activity.Complete());
 }).Target(next);
 wait.Event(onCancel).Target(cancelled);    // Target 이 있는 이벤트 전이는 대기 활동을 강제 완료
@@ -130,13 +130,12 @@ task.WaitingFor(DownloadAsync).Target(next); // async Task 또는 async UniTask 
 - 검증(`Validate`)은 `UNITY_EDITOR || DEBUG` 에서만 생성자 안에서 실행된다. 릴리스 빌드에서는 잘못된 구성이 예외 없이 이상 동작할 수 있으니 에디터에서 생성자를 한 번은 실행해 본다.
   - 대상 없는 자동 전이(Transition/Wait/TaskWait/Leave), 자기 자신으로의 전이, Choice 의 조건 전이나 기본 전이 누락은 `InvalidOperationException`.
   - Initial 상태의 전이 누락은 `MissingMemberException`. Initial 상태 자체가 없으면 빌드와 무관하게 `MissingMemberException`.
-  - Nest 는 하위 영역 정확히 1개, Split 은 2개 이상이어야 한다. Leave 의 대상은 바로 위 영역(RegionLayer - 1)의 상태여야 한다.
+  - Nest 는 하위 영역 정확히 1개, Split 은 2개 이상이어야 하고, 하위 영역마다 Initial 이 있어야 한다(`InvalidOperationException`). Leave 의 대상은 바로 위 영역(RegionLayer - 1)의 상태여야 한다.
 - 같은 영역에서 `Initial`/`Final` 을 두 번 만들거나, 같은 상태에 `Transition()`/`Nest()`/`Split()` 을 두 번 호출하면 즉시 `InvalidOperationException`. 같은 상태에 같은 이벤트를 두 번 등록하면 `Dictionary` 의 `ArgumentException`.
-- 중첩 영역의 Initial 누락은 검증되지 않고 실행 시점에 실패한다. 중첩 영역마다 Initial 을 만든다.
 - `TaskWait` 에는 `Event()` 가 없다. 이 상태가 현재 상태일 때 `Trigger` 한 이벤트는 부모 Nest/Split 의 이벤트가 아니면 처리되지 않고 사라진다. 취소가 필요하면 `Wait` 를 쓴다.
 - Nest/Split 을 이벤트나 Leave 로 떠날 때 내부 `Wait` 는 강제 완료되고, 내부 `TaskWait` 가 실행 중이면 태스크가 끝날 때까지 전이가 지연된다(이벤트는 첫 번째 하나만 큐잉).
 - Nest/Split 자신에 등록한 `Event` 가 내부 상태보다 먼저 검사된다.
-- `WaitingFor` 콜백 안에서 동기적으로 `activity.Complete()` 를 호출하거나 즉시 완료되는 Task 를 넘기면, 완료 콜백이 진행 중인 `Trigger` 안으로 재진입한다. 패키지 테스트는 모두 yield 이후에 완료한다. 완료는 비동기로 일어나게 한다.
+- `WaitingFor` 콜백 안에서 동기적으로 `activity.Complete()` 를 호출하거나 이미 완료된 Task/UniTask 를 넘겨도 된다. 전이는 한 번만 일어난다(0.9.4 미만에서는 Wait 와 UniTask 의 경우 두 번 실행됐다). 이미 완료된 `UniTask` 와 동기 `Complete()` 는 진행 중인 처리 안에서 바로 전이하고, `Func<Task>` 는 `AsUniTask` 변환이 동기화 컨텍스트를 거치므로 그 뒤에 전이한다. 단, 대기 콜백 밖의 다른 상태 액션(`OnEnter` 등)에서 대기 활동을 완료하거나 `Trigger` 를 호출하면 진행 중인 처리 안으로 재진입하므로 피한다.
 - `Reset()` 은 현재 상태의 `OnExit` 를 부르지 않고, 실행 중인 대기 활동도 정리하지 않는다. 필요한 정리는 직접 한다.
 - `OnEnter`/`OnExit`/`OnTransition`/대기 액션의 예외는 잡혀서 로그로만 남고 흐름은 계속된다. 예외로 흐름을 멈출 수 없다.
 - `Statechart.CurrentState` 는 `UNITY_EDITOR` 전용이며 최상위 영역의 상태 이름만 보여 준다. 런타임 로직에 쓰지 않는다.

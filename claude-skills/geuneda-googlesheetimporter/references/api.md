@@ -11,7 +11,7 @@
 | 이름 | 선언 | 값 | 쓰임 |
 |------|------|-----|------|
 | `IGNORE_COLUMN_CHAR` | `public const string` | `"$"` | 이 문자로 시작하는 헤더 열은 `ConvertCsv` 가 무시 |
-| `IGNORE_FIELD_CHAR` | `public const string` | `"#"` | 이 문자로 시작하는 줄은 `ConvertCsv` 가 건너뜀. 서브 리스트 데이터 행의 `Key` 값 |
+| `IGNORE_FIELD_CHAR` | `public const string` | `"#"` | 이 문자로 시작하는 줄은 `ConvertCsv` 가 건너뜀(서브 리스트 데이터 행은 예외). 서브 리스트 데이터 행의 `Key` 값 |
 | `SUB_LIST_SUFFIX` | `public const string` | `"[]"` | 서브 리스트 필드 표시 접미사 |
 | `PairSplitChars` | `public static readonly char[]` | `':' '<' '>' '=' '\|'` | 키-값 쌍 구분 |
 | `ArraySplitChars` | `public static readonly char[]` | `',' '(' ')' '[' ']' '{' '}'` | 배열 요소 구분 |
@@ -24,7 +24,7 @@ public static List<Dictionary<string, string>> ConvertCsv(string csv)
 ```
 
 - `"\r\n"` 으로만 줄을 나눈다. 첫 줄이 헤더이며 딕셔너리 키가 된다.
-- `#` 으로 시작하는 줄은 건너뛴다.
+- `#` 으로 시작하는 줄은 건너뛴다. 단, 첫 열이 `[]` 로 끝나는 행(서브 리스트 헤더) 바로 아래에 이어지는, 첫 열이 정확히 `#` 인 행은 남긴다. 건너뛴 설명 행은 이 연속을 끊지 않고, `#` 으로 시작하지 않는 행이 나오면 연속이 끝난다.
 - `$` 로 시작하는 헤더 열은 결과에 넣지 않는다.
 - 값은 `Trim()` 되고, 값이 모자란 열은 `""` 로 채운다.
 - 헤더만 있거나 `\n` 만 쓰는 텍스트는 빈 리스트를 반환한다.
@@ -46,13 +46,11 @@ public static object DeserializeObject(string data, Type type, params Func<strin
 
 | 조건 | 처리 |
 |------|------|
-| `type.IsArray` | `ArrayParse(data, elementType)` (반환은 `List<T>`) |
+| `type.IsArray` | `ArrayParse(data, elementType)` 결과를 `T[]` 로 복사해 반환 |
 | `IList` 할당 가능 | `ArrayParse(data, GenericTypeArguments[0])` |
 | 직접 기반 타입이 `UnitySerializedDictionary<,>` | 해당 파생 타입 인스턴스로 딕셔너리 파싱 |
 | `IDictionary` 할당 가능 | `Dictionary<K, V>` 로 딕셔너리 파싱 |
 | 그 외 | `Parse(data, type)` |
-
-배열 필드는 `List<T>` 가 반환되므로 `T[]` 필드에 `field.SetValue` 하면 실패한다. 리스트 필드는 `List<T>` 로 선언한다.
 
 #### `DeserializeSubList`
 

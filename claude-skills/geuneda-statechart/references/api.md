@@ -141,8 +141,8 @@ public StatechartEvent(string name)
   - 이벤트나 Leave 로 떠날 때 하위 영역의 현재 상태가 `Wait` 면 강제 완료하고, 실행 중인 `TaskWait` 면 태스크가 끝날 때까지 전이를 지연한다. 지연 중 들어온 이벤트는 첫 번째 하나만 그 `TaskWait` 에 큐잉되어 완료 후 처리된다.
   - 상태를 떠날 때 각 하위 영역에 대해 `NestedStateData.ExecuteExit` 가 참이면 현재 내부 상태의 `OnExit` 을, `ExecuteFinal` 이 참이고 현재 내부 상태가 Final/Leave 가 아니면 그 영역 Final 상태의 `OnEnter` 를 실행한다.
   - `Nest()`/`Split()` 을 같은 상태에 두 번 호출하면 `InvalidOperationException`.
-- **Wait**: 진입할 때마다 새 `IWaitActivity` 를 만들고 첫 진행 시 `waitAction(activity)` 를 호출한다. 활동(과 모든 자식 활동)이 완료되면 `WaitingFor()` 의 전이를 실행한다. `Target` 이 있는 이벤트 전이가 일어나면 활동을 강제 완료한다.
-- **TaskWait**: 첫 진행 시 태스크를 시작하고 완료되면 `WaitingFor()` 의 전이를 실행한다. `Func<Task>` 는 내부에서 `UniTask` 로 변환된다. 이벤트를 받지 않는다.
+- **Wait**: 진입할 때마다 새 `IWaitActivity` 를 만들고 첫 진행 시 `waitAction(activity)` 를 호출한다. 활동(과 모든 자식 활동)이 완료되면 `WaitingFor()` 의 전이를 실행한다. `Target` 이 있는 이벤트 전이가 일어나면 활동을 강제 완료한다. `waitAction` 안에서 동기적으로 완료해도 전이는 한 번만 실행된다.
+- **TaskWait**: 첫 진행 시 태스크를 시작하고 완료되면 `WaitingFor()` 의 전이를 실행한다. `Func<Task>` 는 내부에서 `UniTask` 로 변환된다(`AsUniTask` 가 동기화 컨텍스트로 완료를 넘기므로 이미 완료된 `Task` 도 동기화 컨텍스트가 그 작업을 처리한 뒤에 전이된다). 이미 완료된 `UniTask` 는 그 자리에서 한 번 전이된다. 이벤트를 받지 않는다.
 - **Leave**: Nest/Split 내부에서만 의미가 있다. `Transition()` 의 대상은 바로 위 영역(한 레이어 위)의 상태여야 한다.
 
 `OnEnter`/`OnExit`/`OnTransition` 과 대기 액션에서 발생한 예외는 잡혀서 `Debug.LogError` + `Debug.LogException` 으로 출력되며 흐름은 계속된다.
@@ -193,10 +193,8 @@ public static implicit operator NestedStateData(Action<IStateFactory> setup)
 | Simple | 이벤트 전이의 자기 자신 전이 금지 |
 | Transition | 전이 대상 필수, 자기 자신 전이 금지 |
 | Choice | 모든 전이에 대상 필수, 자기 자신 전이 금지, 조건 전이 1개 이상, 기본 전이 1개 이상 (2개 이상이면 경고 로그) |
-| Nest | 하위 영역 정확히 1개, 하위 상태 검증, 완료 전이와 이벤트 전이의 자기 자신 전이 금지 |
-| Split | 하위 영역 2개 이상, 하위 상태 검증, 완료 전이와 이벤트 전이의 자기 자신 전이 금지 |
+| Nest | 하위 영역 정확히 1개, 하위 영역의 Initial 필수, 하위 상태 검증, 완료 전이와 이벤트 전이의 자기 자신 전이 금지 |
+| Split | 하위 영역 2개 이상, 각 하위 영역의 Initial 필수, 하위 상태 검증, 완료 전이와 이벤트 전이의 자기 자신 전이 금지 |
 | Wait | `WaitingFor` 필수, 전이 대상 필수, 자기 자신 전이 금지(완료 전이와 이벤트 전이) |
 | TaskWait | `WaitingFor` 필수, 전이 대상 필수, 자기 자신 전이 금지 |
 | Leave | 전이 대상 필수, 대상이 바로 위 영역 레이어에 있어야 함 |
-
-하위 영역의 Initial 누락은 검증하지 않는다.

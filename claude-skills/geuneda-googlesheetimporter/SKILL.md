@@ -9,7 +9,7 @@ Google 시트 URL 을 CSV 내보내기 URL 로 바꿔 다운로드하고, `CsvPa
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.googlesheetimporter` (버전은 `package.json` 기준, 현재 0.9.0)
+- 패키지: `com.geuneda.googlesheetimporter` (버전은 `package.json` 기준, 현재 0.9.1)
 - 런타임: 네임스페이스 `Geuneda.GoogleSheetImporter`, 어셈블리 `Geuneda.GoogleSheetImporter` (`CsvParser`, `ParseIgnoreAttribute`)
 - 에디터: 네임스페이스 `GeunedaEditor.GoogleSheetImporter`, 어셈블리 `Geuneda.GoogleSheetImporter.Editor` (임포터, 메뉴, 인스펙터)
 - 의존성: `com.geuneda.gamedata` 1.0.0(`Geuneda.DataExtensions` 의 `IConfigsContainer<T>`, `ISingleConfigContainer<T>`, `UnitySerializedDictionary<,>`), `com.unity.nuget.newtonsoft-json` 2.0.0
@@ -104,7 +104,8 @@ public class GameIdsImporter : IGoogleSheetConfigsImporter
 ## CSV 와 파싱 규칙
 
 - 행 구분자는 `\r\n` 만 인식한다. `\n` 텍스트는 빈 결과.
-- 첫 행이 헤더. `$` 로 시작하는 헤더 열은 무시. `#` 으로 시작하는 줄은 건너뜀.
+- 첫 행이 헤더. `$` 로 시작하는 헤더 열은 무시. `#` 으로 시작하는 줄은 건너뜀. 단, 첫 열이 `[]` 로 끝나는 서브 리스트 헤더 행 바로 아래에 이어지는, 첫 열이 정확히 `#` 인 행은 서브 리스트 데이터로 남긴다.
+- 배열/리스트 필드는 `T[]`, `List<T>` 모두 쓸 수 있다.
 - 배열/리스트: `, ( ) [ ] { }` 로 분리. 딕셔너리: `k:v,k:v`(쌍 구분자 `: < > = |`) 또는 `k,v,k,v`, 빈 셀은 `null`.
 - `Parse` 순서: string -> enum -> Key/Value(또는 Value1/Value2) 필드 2개짜리 제네릭 구조체 -> 커스텀 역직렬화기 -> `DateTime` -> `TimeSpan` -> `Nullable<T>` -> 값 타입(`Convert.ChangeType`) -> 참조 타입(`JsonConvert.DeserializeObject("\"text\"", type)`).
 - 커스텀 역직렬화기 `Func<string, Type, object>` 는 처리하지 않을 타입에 `null` 을 반환한다.
@@ -113,12 +114,10 @@ public class GameIdsImporter : IGoogleSheetConfigsImporter
 
 - URL 은 `.../d/<ID>/edit#gid=<GID>` 형식이어야 한다. 코드는 `edit#` 를 `export?format=csv&` 로 문자열 치환하므로 `edit?gid=...#gid=...` 형태면 CSV 가 아닌 응답을 받는다. `/d/` 나 `/edit` 가 없으면 즉시 실패.
 - 시트는 링크 공개여야 한다. 401/403 도 재시도 대상이라 비공개 시트는 최대 6회 재시도 후 실패한다.
-- 리스트 필드는 `List<T>` 로 선언한다. `DeserializeObject` 가 `T[]` 에도 `List<T>` 를 반환해서 `T[]` 필드는 `field.SetValue` 에서 예외가 난다.
 - 값 타입 필드에 빈 셀이 오면 예외가 난다. 선택 값은 `int?` 같은 `Nullable<T>` 로 둔다.
 - `System.Collections.Generic.KeyValuePair<,>` 는 public 필드가 없어 Key/Value 규칙에 걸리지 않는다. `StructPair<,>`(gamedata) 같은 public 필드 구조체를 쓰거나 역직렬화기를 넘긴다.
-- 서브 리스트(`GoogleSheetSingleConfigSubListImporter`)의 데이터 행은 `Key == "#"` 인데, `ConvertCsv` 가 `#` 으로 시작하는 줄을 버린다. `Key` 열을 첫 열로 두면 서브 리스트가 비므로 앞에 `$` 주석 열을 둔다. 대상 필드는 `List<T>` 여야 한다.
+- 서브 리스트(`GoogleSheetSingleConfigSubListImporter`)의 데이터 행은 `Key == "#"` 이다. 서브 리스트 헤더(`필드명[]`) 바로 아래에 `#` 만 있는 설명 행을 두면 데이터 행으로 읽힌다. 설명 행은 `#설명` 처럼 다른 글자를 붙이거나 헤더 위에 둔다. 대상 필드는 `List<T>` 여야 한다.
 - 저장 대상은 `FindAssets("t:<타입 이름>")` 의 첫 결과다. 같은 타입 에셋을 여러 개 두지 않는다. 없으면 `Assets/<타입 이름>.asset` 이 생긴다.
 - `ReplaceSpreadsheetId` 는 인스펙터 버튼에만 적용되고 메뉴 실행에는 적용되지 않는다.
 - 임포터는 모든 어셈블리에서 리플렉션으로 수집되며 `Activator.CreateInstance` 로 만든다. 추상이 아니고 public 매개변수 없는 생성자가 필요하다.
 - `ICsvSyncTarget` 기록은 `File.WriteAllText` 라 폴더를 만들지 않는다. 실패해도 경고만 남는다.
-- 패키지의 `Importers Example` 샘플은 그대로 컴파일되지 않는다(`Configs` 타입 없음, `GameIdsImporter` 가 제거된 `IGoogleSheetImporter` 사용). 예제는 위 패턴을 기준으로 한다.

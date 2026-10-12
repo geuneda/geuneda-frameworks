@@ -1,6 +1,6 @@
 # Geuneda Services - 공개 API 레퍼런스
 
-`com.geuneda.services` 2.1.3 소스 기준. 런타임 어셈블리 `Geuneda.Services`, 에디터 어셈블리 `Geuneda.Services.Editor`.
+`com.geuneda.services` 2.1.4 소스 기준. 런타임 어셈블리 `Geuneda.Services`, 에디터 어셈블리 `Geuneda.Services.Editor`.
 
 ---
 
@@ -180,7 +180,7 @@ public 필드 `Action OnUpdate`, `Action OnFixedUpdate`, `Action OnLateUpdate`. 
 - `static GameObject Instantiator(GameObject entityRef)` — 샘플 부모 아래 `Object.Instantiate` 후 `SetActive(false)`
 - 스폰 시 `SetActive(true)`, 디스폰 시 `SetActive(false)`. 훅은 `GetComponent<I...>()` 로 호출
 - `Dispose()` — 풀의 GameObject 를 `Object.Destroy`(이미 파괴된 항목은 건너뜀). 샘플은 유지
-- `Dispose(bool)` — 인자와 관계없이 샘플을 `Object.Destroy` 한 뒤 기본 처리
+- `Dispose(bool)` — 인자가 `true` 이면 샘플을 `Object.Destroy` 한 뒤 기본 처리(`false` 면 샘플 유지)
 
 ### class GameObjectPool\<T\> : ObjectPoolBase\<T\> where T : Behaviour
 
@@ -339,7 +339,7 @@ public 필드 `int Seed`, `int Count`, `int[] State`. `RngService` 가 직접 �
 | `bool IsOutdatedVersion(string version)` | `version` 이 `VersionExternal` 보다 높으면 `true`. 세 부분 아니면 예외 |
 | `string FormatInternalVersion(VersionData data)` | `{Application.version}-{BuildNumber}.{BranchName}.{CommitHash}[.{BuildType}]` |
 
-`SubsystemRegistration` 에서 자동 로드되고, 프로퍼티 접근 시 미로드면 지연 로드한다.
+`SubsystemRegistration` 에서 자동 로드되고, 프로퍼티 접근 시 로드를 한 번도 시도하지 않았으면 지연 로드한다(실패해도 재시도하지 않음).
 
 ### struct VersionServices.VersionData ([Serializable])
 
@@ -363,7 +363,7 @@ public 필드 `int Seed`, `int Count`, `int[] State`. `RngService` 가 직접 �
 | 멤버 | 반환 |
 |------|------|
 | `LoadSceneAsync(string path, LoadSceneMode loadMode = LoadSceneMode.Single, bool activateOnLoad = true, Action<Scene> onCompleteCallback = null)` | `UniTask<Scene>` |
-| `UnloadSceneAsync(Scene scene, Action onCompleteCallback = null)` | `UniTask` (`SceneManager.UnloadSceneAsync` 사용) |
+| `UnloadSceneAsync(Scene scene, Action onCompleteCallback = null)` | `UniTask` (`SceneManager.UnloadSceneAsync` 사용. Addressables 씬 핸들은 `sceneUnloaded` 에서 Addressables 가 해제) |
 
 ### class AddressablesAssetLoader : IAssetLoader, ISceneLoader
 

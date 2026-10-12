@@ -10,8 +10,8 @@
 
 | 멤버 | 설명 |
 |------|------|
-| `event Action<PendingNotification> OnLocalNotificationDeliveredEvent` | 앱이 포그라운드일 때 예약된 로컬 알림이 전달되면 발생하도록 선언됨. `MobileNotificationService` 에서는 실제로 호출되지 않음 |
-| `event Action<PendingNotification> OnLocalNotificationExpiredEvent` | 큐에 있던 알림이 표시 시점에 앱이 포그라운드여서 취소될 때 발생하도록 선언됨. `MobileNotificationService` 에서는 실제로 호출되지 않음 |
+| `event Action<PendingNotification> OnLocalNotificationDeliveredEvent` | 앱이 포그라운드일 때 대기 목록에 있는 로컬 알림이 전달되면 발생 |
+| `event Action<PendingNotification> OnLocalNotificationExpiredEvent` | 큐에 있던 알림이 표시 시점에 앱이 포그라운드여서 제거될 때 발생(`Queue` 모드) |
 | `IReadOnlyList<PendingNotification> PendingNotifications { get; }` | 예약되었거나 큐에 있는 알림 |
 | `IGameNotification CreateNotification()` | 현재 플랫폼용 알림 객체 생성 |
 | `PendingNotification ScheduleNotification(IGameNotification gameNotification)` | 알림 예약 |
@@ -23,14 +23,15 @@
 ## MobileNotificationService : INotificationService (class)
 
 ```csharp
-public MobileNotificationService(params GameNotificationChannel[] channels)
+public MobileNotificationService(params GameNotificationChannel[] channels)   // Mode = NoQueue
+public MobileNotificationService(OperatingMode mode, params GameNotificationChannel[] channels)
 ```
 
-- `"NotificationService"` GameObject 에 `GameNotificationsMonoBehaviour` 를 붙이고 `Initialize(channels)` 를 호출한 뒤 `DontDestroyOnLoad` 를 적용한다.
-- 내부 MonoBehaviour 를 노출하지 않으므로 `Mode` 는 기본값 `NoQueue` 로 고정된다.
-- 이벤트: 생성자에서 이벤트의 현재 값(`null`)을 MonoBehaviour 필드에 복사하므로, 이후 구독한 핸들러는 호출되지 않는다.
+- `"NotificationService"` GameObject 에 `GameNotificationsMonoBehaviour` 를 붙이고 `Mode` 를 설정한 뒤 `Initialize(channels)` 를 호출하고 `DontDestroyOnLoad` 를 적용한다.
+- 내부 MonoBehaviour 를 노출하지 않으므로 `Mode` 는 생성 후 바꿀 수 없고, `AutoBadging` 은 기본값 `true` 로 고정된다.
+- 이벤트: MonoBehaviour 의 `OnLocalNotificationDelivered` / `OnLocalNotificationExpired` 가 호출될 때 그 시점의 구독자에게 전달한다.
 - `CreateNotification()`: 에디터(`UNITY_EDITOR`)에서는 `EditorGameNotification`, 그 외에는 `GameNotificationsMonoBehaviour.CreateNotification()` 결과(지원하지 않는 플랫폼이면 `null`).
-- `ScheduleNotification(...)`: 에디터에서는 `Id` 가 없으면 시간 기반 해시로 생성하고 `new PendingNotification(gameNotification)` 만 반환한다(예약하지 않고 `PendingNotifications` 에도 추가하지 않음). 그 외에는 MonoBehaviour 에 위임.
+- `ScheduleNotification(...)`: `null` 이면 `ArgumentNullException`. 에디터에서는 `Id` 가 없으면 시간 기반 해시로 생성하고 `new PendingNotification(gameNotification)` 만 반환한다(예약하지 않고 `PendingNotifications` 에도 추가하지 않음). 그 외에는 MonoBehaviour 에 위임.
 - `CancelNotification` / `DismissNotification` 은 같은 이름의 MonoBehaviour 메서드에, `CancelAllScheduledNotifications` 는 `CancelAllNotifications` 에, `DismissAllDisplayedNotifications` 는 `DismissAllNotifications` 에 위임한다.
 
 ---
@@ -87,7 +88,7 @@ public MobileNotificationService(params GameNotificationChannel[] channels)
 
 - `Initialize` 외의 메서드는 초기화 전에 호출하면 `InvalidOperationException`.
 - 플랫폼 구현은 `UNITY_ANDROID` 면 Android, `UNITY_IOS` 면 iOS 이며, 둘 다 아니면 없다(에디터에서도 빌드 타깃 기준).
-- 포그라운드 전환(`OnApplicationFocus(true)`, `Initialize` 시 포함): 목록을 비우고 `PlayerPrefs` 키 `notifications` 에서 저장된 알림을 읽는다. `ClearOnForegrounding` 이면 예약을 모두 취소하고, `RescheduleAfterClearing` 이면 미래 알림을 `Reschedule = true` 로 다시 예약한다. 그렇지 않으면 미래 알림을 목록에만 복원한다.
+- 포그라운드 전환(`OnApplicationFocus(true)`, `Initialize` 시 포함): 목록을 비우고 `PlayerPrefs` 키 `notifications` 에서 저장된 알림을 읽는다. `ClearOnForegrounding` 이면 예약을 모두 취소하고, `RescheduleAfterClearing` 이면 미래 알림을 `Reschedule = true` 로 다시 예약한다. 그렇지 않으면 미래 알림을 다시 예약하지 않고 `Scheduled` 상태로 목록에 복원한다(OS 예약이 남아 있으므로).
 - 백그라운드 전환(`OnApplicationFocus(false)`): `Queue` 모드면 아직 예약되지 않은 알림 중 전달 시간이 2초 이내이거나 지난 것을 버리고(필요하면 배지 자동 부여) 나머지를 예약한다. 이어서 저장 대상(`ClearOnForegrounding` 이 없으면 예약된 모든 알림, `RescheduleAfterClearing` 까지 있으면 `Reschedule` 이고 예약되었으며 시간이 있는 알림)을 `PlayerPrefs` 키 `notifications` 에 쓴다.
 
 ## OperatingMode (`[Flags]` enum)
@@ -184,4 +185,4 @@ public GameNotificationChannel(string id, string name, string description,
 - `IGameNotificationsPlatform` / `IGameNotificationsPlatform<TNotificationType>` - 플랫폼 추상화(`NotificationReceived` 이벤트, 생성/예약/취소/닫기, `OnForeground`, `OnBackground`)
 - `AndroidNotificationsPlatform`, `iOSNotificationsPlatform` - 위 인터페이스의 구현. iOS 는 `OnForeground` 에서 `iOSNotificationCenter.ApplicationBadge = 0`
 - `EditorGameNotification` - 에디터용 `IGameNotification`. 모든 값이 자동 프로퍼티이며 `Scheduled` 는 항상 `false`
-- `SerializableNotification` / `SerializableNotificationConverter` - `PlayerPrefs` 저장용 구조체(`Id`, `Title`, `Body`, `Subtitle`, `Channel`, `BadgeNumber`, `DeliveryTime`)와 변환 확장 메서드
+- `SerializableNotification` / `SerializableNotificationConverter` - `PlayerPrefs` 저장용 구조체(`Id`, `Title`, `Body`, `Subtitle`, `Channel`, `BadgeNumber`, `DeliveryTime`, `SmallIcon`, `LargeIcon`, `ShouldAutoCancel`)와 변환 메서드. 백그라운드 전환 때 `SetString` 후 바로 `PlayerPrefs.Save()` 한다. `ToJson`/`FromJson` 은 `JsonUtility` 가 다룰 수 있는 `SerializableNotificationCollection`/`SerializableNotificationData`(nullable 값은 `Has*` 플래그, 시간은 `DateTime.ToBinary`)로 변환하며, 비었거나 읽을 수 없는 값은 빈 목록으로 읽는다

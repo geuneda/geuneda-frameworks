@@ -39,7 +39,7 @@ public struct AlertButton
 |------|------|------|
 | `Text` | `string` | 버튼 텍스트. iOS 에서는 콜백 매칭 키로도 쓰인다 |
 | `Style` | `AlertButtonStyle` | 버튼 스타일 |
-| `Callback` | `System.Action` | 버튼 클릭 시 호출. iOS 는 null 허용(`?.Invoke()`), Android 는 null 이면 `NullReferenceException` |
+| `Callback` | `System.Action` | 버튼 클릭 시 호출. null 허용(`?.Invoke()`) |
 
 ---
 
@@ -61,14 +61,14 @@ public static void ShowAlertPopUp(bool isAlertSheet, string title, string messag
 | 플랫폼 (컴파일 분기) | 동작 |
 |----------------------|------|
 | `UNITY_EDITOR` | `Debug.Log` 로 title, message 만 출력. 콜백 호출 없음 |
-| `UNITY_IOS` | `buttons` 가 null 이면 `ArgumentException`. `_currentButtons` 에 저장 후 네이티브 `AlertMessage` 호출. 표시는 메인 큐에서 `UnityGetGLViewController()` 로 present |
+| `UNITY_IOS` | `buttons` 가 null 이거나 비어 있으면 `ArgumentException`. `_currentButtons` 에 저장 후 네이티브 `AlertMessage` 호출. 알림 생성과 표시는 메인 큐에서 `UnityGetGLViewController()` 로 present |
 | `UNITY_ANDROID` | `AlertDialog.Builder(currentActivity).create()` 로 만든 `AlertDialog` 에 `setTitle`, `setMessage`, 버튼마다 `setButton(style, text, listener)` 후 `show` |
 | 그 외 | `SystemException` |
 
 예외:
 - `SystemException`: iOS/Android/에디터 외 플랫폼
-- `ArgumentException`: iOS 에서 `buttons` 가 null
-- `NullReferenceException`: Android 에서 `buttons` 가 null 이거나, null `Callback` 버튼이 눌렸을 때
+- `ArgumentException`: iOS 에서 `buttons` 가 null 이거나 비어 있을 때
+- `NullReferenceException`: Android 에서 `buttons` 가 null 일 때
 
 #### ShowToastMessage
 
@@ -84,7 +84,7 @@ public static void ShowToastMessage(string message, bool isLongDuration)
 | 플랫폼 (컴파일 분기) | 동작 |
 |----------------------|------|
 | `UNITY_EDITOR` | `Debug.Log` 로 message 출력 |
-| `UNITY_IOS` | 네이티브 `ToastMessage` 호출. 제목 없는 `UIAlertController`(Alert 스타일, 버튼 없음)를 띄우고 `dispatch_after` 로 지정 시간 후 닫음 |
+| `UNITY_IOS` | 네이티브 `ToastMessage` 호출. 메인 큐에서 제목 없는 `UIAlertController`(Alert 스타일, 버튼 없음)를 띄우고 `dispatch_after` 로 지정 시간 후 닫음 |
 | `UNITY_ANDROID` | `Toast.makeText(currentActivity, message, duration)` 후 `show` |
 | 그 외 | `SystemException` |
 
@@ -105,8 +105,9 @@ public static void ShowToastMessage(string message, bool isLongDuration)
 | 현재 버튼 | `private static AlertButton[] _currentButtons` |
 
 - `AlertButtonCallback` 은 `_currentButtons` 에서 `Text` 가 같은 첫 버튼의 `Callback?.Invoke()` 를 호출한다.
-- `NativeUi.m` 은 문자열을 `[NSString stringWithUTF8String:]` 로 변환하며 null 검사를 하지 않는다.
-- 액션 시트에 popover 위치(`popoverPresentationController`)를 지정하지 않는다.
+- `NativeUi.m` 은 문자열을 `[NSString stringWithUTF8String:]` 로 변환하며 NULL 은 빈 문자열(`@""`)로 바꾼다. 인자는 호출 중에 복사하고 `UIAlertController` 생성과 표시는 `dispatch_async(dispatch_get_main_queue(), ...)` 안에서 한다.
+- 액션 시트의 `popoverPresentationController` 가 있으면(iPad) `sourceView` 를 루트 뷰로, `sourceRect` 를 루트 뷰 중앙으로, `permittedArrowDirections` 를 0 으로 설정한다.
+- `NativeUi.m.meta` 는 iOS 에서만 활성화되어 있다. C# 은 `UNITY_IOS` 분기뿐이라 tvOS 는 지원하지 않는다.
 
 ### Android (`#elif UNITY_ANDROID`)
 
@@ -115,6 +116,6 @@ public static void ShowToastMessage(string message, bool isLongDuration)
 | 클릭 리스너 | `private class AndroidButtonCallback : AndroidJavaProxy` (`android.content.DialogInterface$OnClickListener`) |
 | 스타일 변환 | `private static int ConvertToAndroidStyle(AlertButtonStyle style)` |
 
-- `AndroidButtonCallback.onClick(AndroidJavaObject dialog, int which)` 는 `dialog.Call("dismiss")` 후 `_callback()` 을 null 검사 없이 호출한다.
+- `AndroidButtonCallback.onClick(AndroidJavaObject dialog, int which)` 는 `dialog.Call("dismiss")` 후 `_callback?.Invoke()` 를 호출한다.
 - `ConvertToAndroidStyle` 은 정의되지 않은 값에 `ArgumentOutOfRangeException` 을 던진다.
 - `AlertDialog.setButton` 은 버튼 종류(`which`)당 하나만 유지하므로 버튼은 스타일당 하나, 최대 3개다.

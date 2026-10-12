@@ -238,9 +238,9 @@ Observable 타입과 `ComputedField` 는 이 인터페이스를 명시적으로 
 
 | 멤버 | 설명 |
 |------|------|
-| `void UpdateOrigin(TOrigin value, int index)` | 원본과 내부 리스트 갱신 (옵저버 통지 없음) |
-| `void AddOrigin(TOrigin value)` | 원본과 내부 리스트에 추가 (옵저버 통지 없음) |
-| `bool RemoveOrigin(TOrigin value)` | 원본에서 제거 후 변환 값을 `Remove` |
+| `void UpdateOrigin(TOrigin value, int index)` | 원본 갱신 후 변환 값을 인덱서로 설정 (통지) |
+| `void AddOrigin(TOrigin value)` | 원본에 추가 후 변환 값을 내부 리스트에 추가 (통지) |
+| `bool RemoveOrigin(TOrigin value)` | 원본에서 `value` 의 위치를 찾아 원본과 내부 리스트의 같은 위치를 제거 (통지). 원본에 없으면 아무것도 바꾸지 않고 `false` |
 | `void ClearOrigin()` | 원본과 내부 리스트 비움 |
 | `void Rebind(IList<TOrigin> originList, Func<TOrigin, T> fromOrignResolver, Func<T, TOrigin> toOrignResolver)` | 원본과 변환 함수 교체, 내부 리스트 재구성 |
 

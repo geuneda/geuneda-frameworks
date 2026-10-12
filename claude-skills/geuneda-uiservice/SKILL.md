@@ -9,9 +9,9 @@ UI 프레젠터의 로드, 열기, 닫기, 언로드를 `UiService` 한 곳에�
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.uiservice` 1.3.0 (`package.json` 기준)
+- 패키지: `com.geuneda.uiservice` 1.3.1 (`package.json` 기준)
 - 설치: `https://github.com/geuneda/geuneda-uiservice.git` (UniTask 는 manifest 에 직접 추가해야 함)
-- 의존성: `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10. 헬퍼 뷰는 uGUI/TextMeshPro 사용
+- 의존성: `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0. 헬퍼 뷰는 uGUI/TextMeshPro 사용
 - Unity 6000.0+ (`UiToolkitPanelRendererFeature` 는 6000.5+)
 - 소스: geuneda-frameworks 레포의 `Packages/com.geuneda.uiservice/` (`Runtime/`, `Editor/`, `docs/`)
 - 전체 공개 API: [references/api.md](references/api.md)
@@ -215,8 +215,8 @@ public class SettingsPresenter : UiPresenter
 - `UnloadUi` 는 닫기 훅을 실행하지 않는다. 훅이 필요하면 `CloseUi(..., destroy: true)`.
 - 데이터 오버로드에 `UiPresenter<TData>` 가 아닌 타입을 넘기면 에러 로그 후 열지 않는다.
 - `GetUi<T>()` 는 null 을 반환하지 않고 `KeyNotFoundException` 을 던진다.
-- `UiConfigs` 에셋은 `LoadSynchronously` 를 저장하지 않는다. `[LoadSynchronously]` 는 런타임 효과가 없고, 동기 로드는 `AddUiConfig(new UiConfig { ..., LoadSynchronously = true })` 로만 된다.
-- 설정 없이 `AddUi` 만 한 타입은 `UnloadUi`, `CloseAllUi(int)`, `Close(destroy: true)` 에서 `KeyNotFoundException`.
+- `[LoadSynchronously]` 는 설정 인스펙터 동기화 때 `UiConfigs` 에셋의 `LoadSynchronously` 로 저장되고, 런타임은 어트리뷰트를 직접 읽지 않는다. 어트리뷰트를 바꾼 뒤에는 인스펙터를 열어 다시 동기화한다. 1.3.1 이전에 저장된 에셋은 `false` 로 읽힌다. 동기 로드는 `AddressablesUiAssetLoader` 에서만 의미가 있다.
+- `AddressablesUiAssetLoader` 를 쓸 때 `Instantiate` 후 `AddUi` 로 넣은 프레젠터는 `ReleaseInstance` 가 처리하지 못하므로 `UnloadUi` 에서 로더가 `Object.Destroy` 로 파괴한다. GameObject 를 남기려면 `RemoveUi` 를 쓴다.
 - `CancellationToken` 은 Addressables 로더의 비동기 대기에만 쓰인다.
 - UniTask 는 한 번만 `await` 할 수 있다. 여러 결과는 `var (a, b) = await UniTask.WhenAll(t1, t2);`.
 - 정적 이벤트 `UiService.OnResolutionChanged`/`OnOrientationChanged` 는 `Dispose()` 가 지우지 않으므로 직접 해제한다.
