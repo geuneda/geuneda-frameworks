@@ -1,225 +1,124 @@
 ---
 name: geuneda-googlesheetimporter
-description: Google 스프레드시트 데이터를 Unity ScriptableObject로 임포트하는 패키지. Unity 프로젝트에서 Google 시트 데이터를 파싱하거나, CSV 데이터를 역직렬화하거나, 시트 임포터를 작성/수정할 때 사용한다.
+description: com.geuneda.googlesheetimporter 패키지로 Google 스프레드시트를 CSV 로 내려받아 ScriptableObject 설정 데이터로 임포트할 때 사용한다. 시트 임포터(GoogleSheetConfigsImporter, GoogleSheetSingleConfigImporter, GoogleSheetSingleConfigSubListImporter, IGoogleSheetConfigsImporter)를 작성하거나 고칠 때, CsvParser 로 CSV 텍스트나 셀 값을 파싱할 때, 임포트 순서(GoogleSheetImportOrder)나 원본 CSV 역동기화(ICsvSyncTarget)를 설정할 때, 시트 임포트가 비거나 실패하는 원인을 찾을 때 쓴다.
 ---
 
 # Geuneda GoogleSheetImporter
 
-Google 스프레드시트의 데이터를 Unity ScriptableObject 설정 데이터로 가져오는 에디터 도구 패키지이다. CSV 형식으로 시트를 다운로드하여 파싱하고, 리플렉션 기반으로 다양한 데이터 타입을 역직렬화하여 ScriptableObject에 저장한다.
-
-## 활성화 시점
-
-- Google 스프레드시트에서 게임 데이터를 임포트하는 코드를 작성할 때
-- CSV 텍스트를 파싱하거나 역직렬화할 때
-- 커스텀 시트 임포터를 작성할 때
-- CsvParser를 사용하여 데이터를 변환할 때
-- ParseIgnoreAttribute를 사용하여 필드를 파싱에서 제외할 때
+Google 시트 URL 을 CSV 내보내기 URL 로 바꿔 다운로드하고, `CsvParser` 로 파싱한 뒤 임포터가 ScriptableObject 에 저장하는 에디터 도구다. 전체 공개 API 는 [references/api.md](references/api.md) 에 있다.
 
 ## 패키지 정보
 
-- **런타임 네임스페이스**: `Geuneda.GoogleSheetImporter`
-- **에디터 네임스페이스**: `GeunedaEditor.GoogleSheetImporter`
-- **설치**: `https://github.com/geuneda/geuneda-googlesheetimporter.git`
-- **Unity 버전**: 6000.0 이상
-- **의존성**:
-  - `com.unity.nuget.newtonsoft-json` (2.0.0)
-  - `com.geuneda.gamedata` (1.0.0)
+- 패키지: `com.geuneda.googlesheetimporter` (버전은 `package.json` 기준, 현재 0.9.0)
+- 런타임: 네임스페이스 `Geuneda.GoogleSheetImporter`, 어셈블리 `Geuneda.GoogleSheetImporter` (`CsvParser`, `ParseIgnoreAttribute`)
+- 에디터: 네임스페이스 `GeunedaEditor.GoogleSheetImporter`, 어셈블리 `Geuneda.GoogleSheetImporter.Editor` (임포터, 메뉴, 인스펙터)
+- 의존성: `com.geuneda.gamedata` 1.0.0(`Geuneda.DataExtensions` 의 `IConfigsContainer<T>`, `ISingleConfigContainer<T>`, `UnitySerializedDictionary<,>`), `com.unity.nuget.newtonsoft-json` 2.0.0
+- Unity 6000.0 이상
+- 설치: `https://github.com/geuneda/geuneda-googlesheetimporter.git`. gamedata(`https://github.com/geuneda/geuneda-gamedata.git`)와 UniTask 는 레지스트리에 없으므로 manifest 에 함께 넣는다. 특정 태그 고정은 `#<태그>` 이며 레포에 있는 태그만 쓴다.
 
-## 핵심 API
+## 어떤 임포터를 쓰나
 
-### CsvParser (정적 클래스, 런타임)
+| 시트 모양 | 기반 타입 | 구현할 것 |
+|-----------|-----------|-----------|
+| 1행 = 항목 1개 | `GoogleSheetConfigsImporter<TConfig, TSO>` (`TSO : IConfigsContainer<TConfig>`) | `GoogleSheetUrl`. 필요하면 `Deserialize(Dictionary<string,string>)` 재정의 |
+| Key/Value 행으로 설정 1개 | `GoogleSheetSingleConfigImporter<TConfig, TSO>` (`TSO : ISingleConfigContainer<TConfig>`) | `GoogleSheetUrl`, `Deserialize(List<Dictionary<string,string>>)` |
+| Key/Value + 하위 리스트 | `GoogleSheetSingleConfigSubListImporter<TConfig, TSO>` | `GoogleSheetUrl`, `GetDeserializers()` |
+| 직접 저장 로직 | `GoogleSheetScriptableObjectImportContainer<TSO>` | `GoogleSheetUrl`, `OnImport(TSO, data)` |
+| ScriptableObject 없음(코드 생성 등) | `IGoogleSheetConfigsImporter` | `GoogleSheetUrl`, `Import(data)` |
 
-CSV 텍스트를 파싱하고 다양한 타입으로 역직렬화하는 핵심 유틸리티.
+- `TConfig : struct`, `TSO : ScriptableObject`.
+- 선택: `ICsvSyncTarget.CsvSyncPath`, `[GoogleSheetImportOrder(n)]`, `OnImportComplete(TSO)` 재정의.
 
-```csharp
-// CSV 전체 파싱 - 헤더를 키로 사용하는 딕셔너리 리스트 반환
-static List<Dictionary<string, string>> ConvertCsv(string csv);
-
-// 딕셔너리를 지정된 타입의 객체로 역직렬화
-static T DeserializeTo<T>(Dictionary<string, string> data, params Func<string, Type, object>[] deserializers);
-static object DeserializeTo(Type type, Dictionary<string, string> data, params Func<string, Type, object>[] deserializers);
-
-// 단일 셀 값을 객체로 역직렬화 (배열, 리스트, 딕셔너리 자동 감지)
-static object DeserializeObject(string data, Type type, params Func<string, Type, object>[] deserializers);
-
-// 서브 리스트 역직렬화 (복합 타입의 중첩 리스트)
-static object DeserializeSubList(List<Dictionary<string, string>> data, int startIndex, Type type, string fieldName, params Func<string, Type, object>[] deserializers);
-
-// 단일 값 파싱
-static T Parse<T>(string text, params Func<string, Type, object>[] deserializers);
-static object Parse(string text, Type type, params Func<string, Type, object>[] deserializers);
-
-// 배열/리스트 파싱
-static List<T> ArrayParse<T>(string text, params Func<string, Type, object>[] deserializers);
-
-// 딕셔너리 파싱
-static Dictionary<TKey, TValue> DictionaryParse<TKey, TValue>(string text, params Func<string, Type, object>[] deserializers);
-```
-
-### ParseIgnoreAttribute (어트리뷰트, 런타임)
-
-CsvParser에서 특정 필드의 파싱을 무시하게 하는 어트리뷰트.
+## 기본 패턴
 
 ```csharp
-[ParseIgnore]
-public string IgnoredField;
-```
+// 런타임 어셈블리 (EnemyConfigs 는 EnemyConfigs.cs 파일에)
+using System;
+using System.Collections.Generic;
+using Geuneda.DataExtensions;
+using UnityEngine;
 
-### IGoogleSheetConfigsImporter (인터페이스, 에디터)
-
-Google 시트 임포터의 기본 인터페이스.
-
-```csharp
-string GoogleSheetUrl { get; }
-void Import(List<Dictionary<string, string>> data);
-```
-
-### GoogleSheetScriptableObjectImportContainer\<TScriptableObject\> (추상 클래스, 에디터)
-
-ScriptableObject에 임포트 결과를 저장하는 기본 컨테이너.
-
-### GoogleSheetConfigsImporter\<TConfig, TScriptableObject\> (추상 클래스, 에디터)
-
-행 단위로 데이터를 임포트 (1행 = 1개 TConfig 항목).
-
-### GoogleSheetSingleConfigImporter\<TConfig, TScriptableObject\> (추상 클래스, 에디터)
-
-시트 전체를 하나의 TConfig 객체로 임포트 (Key/Value 쌍).
-
-### GoogleSheetSingleConfigSubListImporter\<TConfig, TScriptableObject\> (추상 클래스, 에디터)
-
-단일 설정 내 서브 리스트 임포트를 지원하는 확장.
-
-### GoogleSheetImportOrderAttribute (어트리뷰트, 에디터)
-
-임포트 순서를 제어하는 어트리뷰트. 값이 작을수록 먼저 임포트된다.
-
-```csharp
-[GoogleSheetImportOrder(0)]
-public class MyImporter : IGoogleSheetConfigsImporter { ... }
-```
-
-## 사용 패턴
-
-### 행 단위 데이터 임포트 (가장 일반적)
-
-```csharp
-// 1. 데이터 구조체 정의
+[Serializable]
 public struct EnemyConfig
 {
     public string Name;
     public int Health;
     public float Speed;
-    [ParseIgnore] public string EditorNote; // 파싱 무시
 }
 
-// 2. ScriptableObject 정의 (IConfigsContainer<T> 구현)
 public class EnemyConfigs : ScriptableObject, IConfigsContainer<EnemyConfig>
 {
-    [SerializeField] private List<EnemyConfig> _configs;
-    public List<EnemyConfig> Configs { get => _configs; set => _configs = value; }
-}
+    [SerializeField] private List<EnemyConfig> _configs = new();
 
-// 3. 임포터 정의
-public class EnemyConfigsImporter : GoogleSheetConfigsImporter<EnemyConfig, EnemyConfigs>
-{
-    public override string GoogleSheetUrl =>
-        "https://docs.google.com/spreadsheets/d/SHEET_ID/edit#gid=TAB_ID";
-}
-```
-
-### 단일 설정 임포트 (Key/Value 형식)
-
-```csharp
-public class GameConfigsImporter : GoogleSheetSingleConfigImporter<GameConfig, GameConfigs>
-{
-    public override string GoogleSheetUrl => "https://docs.google.com/.../edit#gid=...";
-
-    protected override GameConfig Deserialize(List<Dictionary<string, string>> data)
+    public List<EnemyConfig> Configs
     {
-        var config = new GameConfig() as object;
-        var type = typeof(GameConfig);
-
-        foreach (var row in data)
-        {
-            var field = type.GetField(row["Key"]);
-            field.SetValue(config, CsvParser.Parse(row["Value"], field.FieldType));
-        }
-
-        return (GameConfig)config;
+        get => _configs;
+        set => _configs = value;
     }
 }
 ```
 
-### 코드 생성 임포터 (enum/lookup 자동 생성)
+```csharp
+// 에디터 어셈블리
+using GeunedaEditor.GoogleSheetImporter;
+
+public class EnemyConfigsImporter : GoogleSheetConfigsImporter<EnemyConfig, EnemyConfigs>, ICsvSyncTarget
+{
+    public override string GoogleSheetUrl =>
+        "https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/edit#gid=<GID>";
+
+    // 선택: 다운로드한 원본 CSV 를 LF 로 정규화해 기록. 빈 값이면 건너뜀
+    public string CsvSyncPath => "Assets/Data/Enemy.csv";
+}
+```
+
+시트 헤더는 `Name,Health,Speed` 처럼 public 필드 이름과 정확히 같아야 한다(대소문자 구분).
+
+코드 생성 임포터는 다른 임포터보다 먼저 돌도록 순서를 준다.
 
 ```csharp
-[GoogleSheetImportOrder(0)] // 다른 임포터보다 먼저 실행
+using System.Collections.Generic;
+using GeunedaEditor.GoogleSheetImporter;
+using UnityEditor;
+
+[GoogleSheetImportOrder(0)]
 public class GameIdsImporter : IGoogleSheetConfigsImporter
 {
-    public string GoogleSheetUrl => "https://docs.google.com/.../edit#gid=...";
+    public string GoogleSheetUrl =>
+        "https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/edit#gid=<GID>";
 
     public void Import(List<Dictionary<string, string>> data)
     {
-        // data를 기반으로 enum 코드 생성
-        // File.WriteAllText()로 스크립트 저장
+        // data 로 스크립트 텍스트를 만들어 File.WriteAllText 로 저장
         AssetDatabase.Refresh();
     }
 }
 ```
 
-### CsvParser 직접 사용
+## 실행 방법
 
-```csharp
-// CSV 텍스트를 딕셔너리 리스트로 변환
-var data = CsvParser.ConvertCsv(csvText);
+- `Tools > GoogleSheet Importer > Import Google Sheet Data`: 전체 임포트
+- `Tools > GoogleSheet Importer > Select GoogleSheetImporter.asset`: 설정 에셋 선택(없으면 `Assets/GoogleSheetImporter.asset` 생성). 생성 메뉴는 `Create > ScriptableObjects > Editor > GoogleSheetImporter`
+- 설정 에셋 인스펙터: **Import All Sheets**, 임포터별 **Import** / **Select Object**, `ReplaceSpreadsheetId` 입력란
 
-// 배열 파싱: "1,2,3" 또는 "[1,2,3]" 또는 "{1,2,3}"
-var numbers = CsvParser.ArrayParse<int>("1,[2],{3}");
+## CSV 와 파싱 규칙
 
-// 딕셔너리 파싱: "key1:value1,key2:value2"
-var dict = CsvParser.DictionaryParse<string, int>("hp:100,mp:50");
+- 행 구분자는 `\r\n` 만 인식한다. `\n` 텍스트는 빈 결과.
+- 첫 행이 헤더. `$` 로 시작하는 헤더 열은 무시. `#` 으로 시작하는 줄은 건너뜀.
+- 배열/리스트: `, ( ) [ ] { }` 로 분리. 딕셔너리: `k:v,k:v`(쌍 구분자 `: < > = |`) 또는 `k,v,k,v`, 빈 셀은 `null`.
+- `Parse` 순서: string -> enum -> Key/Value(또는 Value1/Value2) 필드 2개짜리 제네릭 구조체 -> 커스텀 역직렬화기 -> `DateTime` -> `TimeSpan` -> `Nullable<T>` -> 값 타입(`Convert.ChangeType`) -> 참조 타입(`JsonConvert.DeserializeObject("\"text\"", type)`).
+- 커스텀 역직렬화기 `Func<string, Type, object>` 는 처리하지 않을 타입에 `null` 을 반환한다.
 
-// 커스텀 역직렬화기 전달
-var result = CsvParser.DeserializeTo<MyType>(data[0],
-    (text, type) => {
-        if (type == typeof(MyCustomType))
-            return ParseMyCustomType(text);
-        return null;
-    }
-);
-```
+## 함정
 
-## CSV 형식 규칙
-
-- 행 구분자: `\r\n` (CRLF) - Google 시트 CSV 내보내기 형식
-- 첫 번째 행: 헤더 (필드 이름)
-- `$`로 시작하는 열: 파싱에서 무시 (주석용)
-- `#`으로 시작하는 Key: 서브 리스트의 데이터 행
-- `[]` 접미사: 서브 리스트 필드 표시
-- 배열 구분자: `,`, `()`, `[]`, `{}`
-- 키-값 쌍 구분자: `:`, `<`, `>`, `=`, `|`
-
-## 지원하는 데이터 타입
-
-- 원시 타입: `int`, `float`, `double`, `string`, `bool` 등
-- `enum` 타입
-- `DateTime`, `TimeSpan`
-- `Nullable<T>` (예: `int?`, `float?`)
-- `List<T>`, 배열
-- `Dictionary<TKey, TValue>`, `UnitySerializedDictionary<TKey, TValue>`
-- `KeyValuePair<TKey, TValue>` 형태의 커스텀 구조체 (Key/Value 또는 Value1/Value2 필드)
-- Newtonsoft.Json으로 역직렬화 가능한 참조 타입
-
-## 주의사항
-
-- CSV 행 구분자는 반드시 `\r\n` (CRLF)이어야 한다. `\n`만 사용하면 빈 결과가 반환된다
-- Google 시트 URL은 `edit#gid=`를 포함해야 하며, 이 부분이 `export?format=csv&`로 변환된다
-- `DeserializeTo`는 리플렉션 기반이므로 public 필드만 처리된다
-- 커스텀 타입 파싱이 필요하면 `deserializers` 파라미터로 커스텀 역직렬화 함수를 전달해야 한다
-- `GoogleSheetImportOrderAttribute`를 사용하여 임포트 순서를 제어할 수 있다 (기본: int.MaxValue)
-- `com.geuneda.gamedata` 패키지의 `IConfigsContainer<T>`, `ISingleConfigContainer<T>`, `UnitySerializedDictionary<TKey, TValue>` 타입을 사용한다
-
-## 참조 문서
-
-상세 API 문서는 `references/api.md` 참조.
+- URL 은 `.../d/<ID>/edit#gid=<GID>` 형식이어야 한다. 코드는 `edit#` 를 `export?format=csv&` 로 문자열 치환하므로 `edit?gid=...#gid=...` 형태면 CSV 가 아닌 응답을 받는다. `/d/` 나 `/edit` 가 없으면 즉시 실패.
+- 시트는 링크 공개여야 한다. 401/403 도 재시도 대상이라 비공개 시트는 최대 6회 재시도 후 실패한다.
+- 리스트 필드는 `List<T>` 로 선언한다. `DeserializeObject` 가 `T[]` 에도 `List<T>` 를 반환해서 `T[]` 필드는 `field.SetValue` 에서 예외가 난다.
+- 값 타입 필드에 빈 셀이 오면 예외가 난다. 선택 값은 `int?` 같은 `Nullable<T>` 로 둔다.
+- `System.Collections.Generic.KeyValuePair<,>` 는 public 필드가 없어 Key/Value 규칙에 걸리지 않는다. `StructPair<,>`(gamedata) 같은 public 필드 구조체를 쓰거나 역직렬화기를 넘긴다.
+- 서브 리스트(`GoogleSheetSingleConfigSubListImporter`)의 데이터 행은 `Key == "#"` 인데, `ConvertCsv` 가 `#` 으로 시작하는 줄을 버린다. `Key` 열을 첫 열로 두면 서브 리스트가 비므로 앞에 `$` 주석 열을 둔다. 대상 필드는 `List<T>` 여야 한다.
+- 저장 대상은 `FindAssets("t:<타입 이름>")` 의 첫 결과다. 같은 타입 에셋을 여러 개 두지 않는다. 없으면 `Assets/<타입 이름>.asset` 이 생긴다.
+- `ReplaceSpreadsheetId` 는 인스펙터 버튼에만 적용되고 메뉴 실행에는 적용되지 않는다.
+- 임포터는 모든 어셈블리에서 리플렉션으로 수집되며 `Activator.CreateInstance` 로 만든다. 추상이 아니고 public 매개변수 없는 생성자가 필요하다.
+- `ICsvSyncTarget` 기록은 `File.WriteAllText` 라 폴더를 만들지 않는다. 실패해도 경고만 남는다.
+- 패키지의 `Importers Example` 샘플은 그대로 컴파일되지 않는다(`Configs` 타입 없음, `GameIdsImporter` 가 제거된 `IGoogleSheetImporter` 사용). 예제는 위 패턴을 기준으로 한다.

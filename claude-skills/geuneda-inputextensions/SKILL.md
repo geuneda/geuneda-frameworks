@@ -1,123 +1,53 @@
 ---
 name: geuneda-inputextensions
-description: Unity Input System 확장 패키지(geuneda-inputextensions)의 코드를 작성하거나 수정할 때 사용하는 스킬. 포인터 드래그, 스와이프, 탭 제스처, 게임패드 입력 처리 코드를 구현할 때 활성화한다.
+description: com.geuneda.inputextensions 패키지(네임스페이스 Input, Input.Controls)를 쓰거나 고칠 때 사용한다. PointerInputManager 로 마우스/펜/터치 드래그를 받거나, GestureController 로 스와이프/탭을 감지하거나, GamepadInputManager 로 스틱/버튼 값을 폴링하는 코드를 작성할 때, 그리고 PointerControls/GamepadControls 바인딩이나 PointerInputComposite 를 다룰 때 활성화한다.
 ---
 
 # Geuneda Input Extensions
 
-Unity의 새로운 Input System 패키지를 확장하여 터치, 드래그, 스와이프, 탭 제스처 및 게임패드 입력을 간편하게 처리할 수 있게 해주는 라이브러리이다. 포인터 입력(마우스, 펜, 터치스크린)을 통합 관리하고, 제스처 인식(스와이프/탭)을 자동화한다.
-
-## 활성화 시점
-
-- Unity Input System 기반의 터치/드래그 입력 처리 코드를 작성할 때
-- 스와이프, 탭 등 제스처 인식 기능을 구현할 때
-- 게임패드(아날로그 스틱, 버튼) 입력 관리 코드를 작성할 때
-- 멀티터치 포인터 입력을 처리해야 할 때
-- PointerInputManager, GestureController, GamepadInputManager를 사용하거나 확장할 때
+Unity Input System 위에서 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력을 이벤트와 프로퍼티로 제공하는 패키지.
 
 ## 패키지 정보
 
-- **네임스페이스**: `Input` (핵심), `Input.Controls` (자동 생성 컨트롤)
-- **설치**: `https://github.com/geuneda/geuneda-inputextensions.git`
-- **의존성**: `com.unity.inputsystem` >= 1.0.0-preview.4
-- **최소 Unity 버전**: 2019.3
+- 패키지: `com.geuneda.inputextensions` (버전은 `package.json` 기준)
+- 설치: `https://github.com/geuneda/geuneda-inputextensions.git` (고정하려면 `#<태그>`)
+- 네임스페이스: `Input`(컴포넌트, 데이터 타입), `Input.Controls`(자동 생성 래퍼)
+- 어셈블리: `Geuneda.InputExtensions` (`Runtime/Geuneda.InputExtensions.asmdef`, autoReferenced)
+- 의존성: `com.unity.inputsystem` 1.0.0-preview.4 이상, Unity 2019.3 이상(`package.json` 기준)
+- 선언되지 않은 의존성: uGUI(`UnityEngine.UI`, `UnityEngine.EventSystems`)
 
-## 아키텍처 개요
+## 구조
 
 ```
-PointerControls / GamepadControls (자동 생성 InputActionCollection)
-       |                    |
-PointerInputManager    GamepadInputManager (MonoBehaviour, 입력 해석)
-       |
-GestureController (MonoBehaviour, 제스처 인식)
-       |
-SwipeInput / TapInput (결과 데이터 구조체)
+PointerControls  ->  PointerInputManager  ->  GestureController  ->  SwipeInput / TapInput
+GamepadControls  ->  GamepadInputManager
 ```
 
-- `PointerInputManager`는 `PointerControls`로부터 원시 포인터 입력을 수신하여 Pressed/Dragged/Released 이벤트를 발행한다.
-- `GestureController`는 `PointerInputManager`의 이벤트를 구독하여 `ActiveGesture`를 추적하고, 유효한 스와이프/탭을 감지하면 이벤트를 발행한다.
-- `GamepadInputManager`는 `GamepadControls`로부터 아날로그 스틱과 버튼 입력을 수신하여 프로퍼티로 노출한다.
+- `PointerInputManager` 는 `PointerControls.pointer.point` 액션의 값을 `PointerInput` 으로 읽어 `Pressed`/`Dragged`/`Released` 를 발행한다.
+- `GestureController` 는 `PointerInputManager` 이벤트를 구독해 입력 ID 별로 내부 `ActiveGesture` 를 추적하고 `Pressed`/`PotentiallySwiped`/`Swiped`/`Tapped` 를 발행한다.
+- `GamepadInputManager` 는 `GamepadControls.gameplay` 액션 값을 프로퍼티에 저장한다. 이벤트는 없고 폴링해서 쓴다.
 
 ## 핵심 API
 
-### PointerInput (struct)
-포인터 입력 데이터를 담는 구조체.
-- `bool Contact` - 접촉 여부
-- `int InputId` - 입력 소스 ID
-- `Vector2 Position` - 위치
-- `Vector2? Tilt` - 펜 기울기 (nullable)
-- `float? Pressure` - 압력 (nullable)
-- `Vector2? Radius` - 터치 반경 (nullable)
-- `float? Twist` - 비틀림 (nullable)
+전체 목록은 [references/api.md](references/api.md) 참고.
 
-### PointerInputManager : MonoBehaviour
-포인터(마우스/펜/터치) 입력을 해석하는 입력 관리자.
-- `event Action<PointerInput, double> Pressed` - 누르기 시작
-- `event Action<PointerInput, double> Dragged` - 드래그 중
-- `event Action<PointerInput, double> Released` - 누르기 해제
-- `[SerializeField] bool m_UseMouse / m_UsePen / m_UseTouch` - 입력 장치 필터
+| 타입 | 주요 멤버 |
+|------|-----------|
+| `PointerInputManager` | `event Action<PointerInput, double> Pressed / Dragged / Released` (두 번째 인자는 `InputAction.CallbackContext.time`) |
+| `GestureController` | `event Action<SwipeInput> Pressed / PotentiallySwiped / Swiped`, `event Action<TapInput> Tapped` |
+| `GamepadInputManager` | `Vector2 AnalogueValue`, `bool PrimaryButtonValue`, `bool SecondaryButtonValue` (모두 public get) |
+| `PointerInput` | `Contact`, `InputId`, `Position`, `Tilt?`, `Pressure?`, `Radius?`, `Twist?` (public 필드) |
+| `SwipeInput` | `InputId`, `StartPosition`, `PreviousPosition`, `EndPosition`, `SwipeDirection`, `SwipeVelocity`, `TravelDistance`, `SwipeDuration`, `SwipeSameness` (readonly) |
+| `TapInput` | `PressPosition`, `ReleasePosition`, `TapDuration`, `TapDrift`, `TimeStamp` (readonly, InputId 없음) |
 
-### GestureController : MonoBehaviour
-제스처(스와이프/탭) 인식 컨트롤러.
-- `event Action<SwipeInput> Pressed` - 누르기 시작
-- `event Action<SwipeInput> PotentiallySwiped` - 스와이프 진행 중
-- `event Action<SwipeInput> Swiped` - 스와이프 완료
-- `event Action<TapInput> Tapped` - 탭 감지
-- 설정: `maxTapDuration`, `maxTapDrift`, `maxSwipeDuration`, `minSwipeDistance`, `swipeDirectionSamenessThreshold`
-
-### SwipeInput (struct)
-스와이프 결과 데이터.
-- `int InputId`, `Vector2 StartPosition`, `Vector2 PreviousPosition`, `Vector2 EndPosition`
-- `Vector2 SwipeDirection`, `float SwipeVelocity`, `float TravelDistance`
-- `double SwipeDuration`, `float SwipeSameness`
-
-### TapInput (struct)
-탭 결과 데이터.
-- `Vector2 PressPosition`, `Vector2 ReleasePosition`
-- `double TapDuration`, `float TapDrift`, `double TimeStamp`
-
-### GamepadInputManager : MonoBehaviour
-게임패드/키보드 입력 관리자.
-- `Vector2 AnalogueValue { get; }` - 아날로그 스틱 값
-- `bool PrimaryButtonValue { get; }` - 기본 버튼 상태
-- `bool SecondaryButtonValue { get; }` - 보조 버튼 상태
+`SwipeInput`, `TapInput` 생성자는 internal 이라 외부에서 만들 수 없다.
 
 ## 사용 패턴
 
-### 기본 포인터 드래그 처리
-```csharp
-using Input;
-using UnityEngine;
+### 스와이프/탭 감지
 
-public class DragHandler : MonoBehaviour
-{
-    [SerializeField] private PointerInputManager inputManager;
+씬 설정: `PointerInputManager` 를 추가하고 인스펙터에서 `Use Mouse`/`Use Pen`/`Use Touch` 를 켠다. `GestureController` 의 `Input Manager` 필드에 연결한다.
 
-    private void Awake()
-    {
-        inputManager.Pressed += OnPressed;
-        inputManager.Dragged += OnDragged;
-        inputManager.Released += OnReleased;
-    }
-
-    private void OnPressed(PointerInput input, double time)
-    {
-        // 드래그 시작 처리
-    }
-
-    private void OnDragged(PointerInput input, double time)
-    {
-        // input.Position으로 드래그 위치 처리
-    }
-
-    private void OnReleased(PointerInput input, double time)
-    {
-        // 드래그 종료 처리
-    }
-}
-```
-
-### 스와이프/탭 제스처 감지
 ```csharp
 using Input;
 using UnityEngine;
@@ -126,58 +56,108 @@ public class GestureHandler : MonoBehaviour
 {
     [SerializeField] private GestureController gestureController;
 
-    private void Awake()
+    private void OnEnable()
     {
         gestureController.Swiped += OnSwiped;
         gestureController.Tapped += OnTapped;
     }
 
+    private void OnDisable()
+    {
+        gestureController.Swiped -= OnSwiped;
+        gestureController.Tapped -= OnTapped;
+    }
+
     private void OnSwiped(SwipeInput swipe)
     {
-        // swipe.SwipeDirection으로 방향 판단
-        // swipe.SwipeVelocity로 속도 활용
+        // swipe.SwipeDirection 은 (EndPosition - StartPosition).normalized
     }
 
     private void OnTapped(TapInput tap)
     {
-        // tap.PressPosition으로 탭 위치 활용
+        // tap.ReleasePosition 은 화면 좌표
     }
 }
 ```
 
-### 게임패드 입력 폴링
+### 포인터 드래그 직접 처리
+
 ```csharp
 using Input;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class DragHandler : MonoBehaviour
+{
+    [SerializeField] private PointerInputManager inputManager;
+
+    private bool isPressed;
+
+    private void OnEnable()
+    {
+        inputManager.Pressed += OnPressed;
+        inputManager.Dragged += OnDragged;
+        inputManager.Released += OnReleased;
+    }
+
+    private void OnDisable()
+    {
+        inputManager.Pressed -= OnPressed;
+        inputManager.Dragged -= OnDragged;
+        inputManager.Released -= OnReleased;
+    }
+
+    private void OnPressed(PointerInput input, double time)
+    {
+        isPressed = true;
+    }
+
+    private void OnDragged(PointerInput input, double time)
+    {
+        // input.Position 으로 드래그 위치 처리
+    }
+
+    private void OnReleased(PointerInput input, double time)
+    {
+        if (!isPressed) return; // Released 는 누르지 않은 상태에서도 올 수 있다
+        isPressed = false;
+    }
+}
+```
+
+### 게임패드 폴링
+
+```csharp
+using Input;
+using UnityEngine;
+
+public class PlayerMover : MonoBehaviour
 {
     [SerializeField] private GamepadInputManager gamepadInput;
+    [SerializeField] private float speed = 5f;
 
     private void Update()
     {
-        Vector2 movement = gamepadInput.AnalogueValue;
-        // movement로 이동 처리
+        Vector2 move = gamepadInput.AnalogueValue;
+        transform.Translate(new Vector3(move.x, 0f, move.y) * speed * Time.deltaTime);
 
         if (gamepadInput.PrimaryButtonValue)
         {
-            // 기본 버튼 액션
+            // Button South / Space / Z
         }
     }
 }
 ```
 
-## 주의사항
+## 함정
 
-- `com.unity.inputsystem` 패키지가 반드시 설치되어야 한다.
-- 프로젝트 설정에서 Input System을 활성 Input Handling으로 설정해야 한다 (Player Settings > Active Input Handling).
-- `PointerControls`와 `GamepadControls`는 .inputactions 파일에서 자동 생성된 코드이므로 직접 수정하지 않는다.
-- `PointerInputComposite`는 에디터와 런타임에서 자동 등록된다 (`[InitializeOnLoad]`, `[RuntimeInitializeOnLoadMethod]`).
-- 멀티터치는 touch0~touch4까지 5개 터치 포인트를 지원한다.
-- 네임스페이스가 `Input`으로 되어 있어 `UnityEngine.Input`과 충돌할 수 있으므로 명시적 using이 필요할 수 있다.
-- GestureController는 PointerInputManager에 대한 참조를 SerializeField로 가지므로 인스펙터에서 연결해야 한다.
-- 게임패드 바인딩: 왼쪽 스틱 + WASD(이동), South/Space/Z(버튼1), East/X(버튼2).
-
-## 참조 문서
-
-상세 API 문서는 `references/api.md` 참조.
+- 전역 네임스페이스 `Input` 이 `UnityEngine.Input` 을 가린다. 어셈블리가 autoReferenced 이므로 프로젝트 코드에서 레거시 API 는 `UnityEngine.Input.GetKey(...)` 처럼 완전한 이름으로 써야 한다. 이 패키지 네임스페이스는 `Geuneda.InputExtensions` 가 아니다(그건 어셈블리 이름).
+- `PointerInputManager` 의 `m_UseMouse`/`m_UsePen`/`m_UseTouch` 는 기본 false. 셋 다 true 면 `bindingMask = null`, 아니면 켜진 그룹으로 `InputBinding.MaskByGroups` 를 건다. 사용할 장치는 명시적으로 켠다.
+- `PointerInputManager` 는 모든 포인터에 대해 `m_Dragging` 플래그 하나만 쓴다. `Contact == false` 면 상태와 무관하게 `Released` 를 발행하고, 두 번째 손가락의 첫 접촉은 `Pressed` 가 아니라 `Dragged` 로 올 수 있다. 동시 멀티터치를 포인터별로 정확히 추적한다고 가정하지 않는다.
+- `InputId`: 마우스는 `PointerInputModule.kMouseLeftId`, 펜은 `int.MinValue`, 터치는 `touchId`.
+- `PointerInput` 의 nullable 필드는 값이 0(또는 zero 벡터)이면 null 이다. `Pressure.HasValue` 등으로 확인한다.
+- `GestureController.Awake` 에서 `inputManager` 이벤트를 구독하므로 인스펙터 연결이 없으면 `NullReferenceException`.
+- `IsValidSwipe`/`IsValidTap` 의 시간 조건이 `StartTime - EndTime` 으로 계산되어 항상 참이다. `maxTapDuration`, `maxSwipeDuration` 은 사실상 판정에 반영되지 않는다. `minSwipeDistance <= maxTapDrift` 면 한 동작이 `Swiped` 와 `Tapped` 를 모두 발행할 수 있다.
+- `GestureController.Pressed` 의 `SwipeInput` 은 막 시작한 제스처라 `SwipeDuration`, `SwipeVelocity`, `TravelDistance` 가 0 이다.
+- 디버그 `label`(`UnityEngine.UI.Text`)을 연결하면 `Camera.main` 을 참조한다.
+- `PointerControls`, `GamepadControls` 는 `.inputactions` 에서 생성된 코드다(`wrapperCodeNamespace: Input.Controls`). 직접 수정하지 말고 `.inputactions` 를 고친 뒤 재생성한다. `point` 액션 타입은 `Value` 다(PassThrough 아님).
+- Player Settings 의 `Active Input Handling` 이 Input System 을 포함해야 한다.

@@ -1,7 +1,9 @@
 # Geuneda Frameworks - 공용 규칙
 
-geuneda-frameworks를 사용하는 모든 Unity 프로젝트에 적용되는 공통 규칙.
-프로젝트별 CLAUDE.md에서 이 문서를 참조한다.
+geuneda-frameworks 패키지를 쓰는 모든 Unity 프로젝트에 적용하는 공통 규칙.
+프로젝트별 CLAUDE.md 에서 "geuneda-frameworks CLAUDE.md 공용 규칙을 따른다"로 참조한다.
+
+패키지 목록, 버전, 설치, 의존성은 [README.md](README.md) 가 기준이다. 이 레포 자체(호스트 프로젝트, 서브모듈)를 작업할 때의 규칙은 [AGENTS.md](AGENTS.md) 를 따른다.
 
 ## 금지 패턴
 
@@ -31,67 +33,76 @@ geuneda-frameworks를 사용하는 모든 Unity 프로젝트에 적용되는 공
 
 ## 핵심 API 패턴
 
+모두 `Geuneda.Services` 네임스페이스다(풀 타입만 `Geuneda.Services.Pooling`). 자세한 사용법은 `/geuneda-services` 스킬을 쓴다.
+
+### DI 등록과 해제
+
+```csharp
+MainInstaller.Bind<IMyService>(new MyService());     // T 는 인터페이스여야 한다(클래스면 ArgumentException)
+MainInstaller.CleanDispose<IPoolService>();          // IDisposable 서비스: Dispose 후 바인딩 제거
+MainInstaller.Clean();                               // 모든 바인딩 제거
+```
+
+- `MainInstaller.Bind<T>` 는 인터페이스 하나만 받는다. 한 인스턴스를 여러 인터페이스로 묶으려면 인터페이스마다 따로 `Bind` 한다.
+- 같은 인터페이스를 두 번 `Bind` 하면 예외가 난다.
+
 ### 서비스 접근
 
 ```csharp
-var service = MainInstaller.Resolve<IMyService>();
-if (MainInstaller.TryResolve<IMyService>(out var svc)) { ... }
+var service = MainInstaller.Resolve<IMyService>();                  // 바인딩이 없으면 ArgumentException
+if (MainInstaller.TryResolve<IMyService>(out var svc)) { /* ... */ }
 ```
 
 ### 이벤트 (MessageBroker)
 
 ```csharp
+public struct MyMessage : IMessage { public int Value; }
+
 var broker = MainInstaller.Resolve<IMessageBrokerService>();
-broker.Subscribe<MyMessage>(OnMyMessage);            // 구독 (MyMessage : IMessage)
-broker.PublishSafe(new MyMessage { ... });           // 발행 (발행 중 구독/해제가 있으면 PublishSafe)
-broker.Unsubscribe<MyMessage>(this);                 // 해제 (필수)
+broker.Subscribe<MyMessage>(OnMyMessage);            // 인스턴스 메서드만 가능(static 이면 ArgumentException)
+broker.Publish(new MyMessage { Value = 1 });         // 핸들러 안에서 구독/해제가 일어나면 PublishSafe 사용
+broker.Unsubscribe<MyMessage>(this);                 // 해제 필수. 구독자는 액션의 Target(구독한 객체)
+broker.UnsubscribeAll(this);                         // 이 객체의 모든 구독 해제
 ```
+
+`Unsubscribe<T>()` 처럼 인자 없이 부르면 그 메시지 타입의 구독자 전체가 해제되니 주의한다.
 
 ### 오브젝트 풀링
 
 ```csharp
-var poolService = MainInstaller.Resolve<IPoolService>();         // using Geuneda.Services.Pooling
-poolService.AddPool(new GameObjectPool<Bullet>(initSize: 20, bulletPrefab));
+using Geuneda.Services.Pooling;
+
+// Bullet : MonoBehaviour, bulletPrefab : Bullet
+var poolService = MainInstaller.Resolve<IPoolService>();
+poolService.AddPool(new GameObjectPool<Bullet>(20, bulletPrefab));  // 같은 타입의 풀은 하나만
 var bullet = poolService.Spawn<Bullet>();
 poolService.Despawn(bullet);
 ```
 
-### DI 등록
-
-```csharp
-MainInstaller.Bind<IMyService>(instance);
-```
-
 ## 프레임워크 스킬 필수 규칙
 
-Geuneda API 코드 작성/수정 전 반드시 해당 스킬을 invoke하여 API 사양 확인.
+Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke 해서 API 사양을 확인한다.
 
 | using 네임스페이스 | 필수 스킬 |
 |-------------------|----------|
-| `Geuneda.DataExtensions` | `/geuneda-gamedata` |
-| `Geuneda.Services` | `/geuneda-services` |
-| `Geuneda.Services.AssetsImporter` | `/geuneda-services` |
-| `Geuneda.Services.Pooling` | `/geuneda-services` |
-| `Geuneda.UiService` | `/geuneda-uiservice` |
+| `Geuneda.DataExtensions`, `Geuneda.DataExtensions.Editor`, `GeunedaEditor.GameData` | `/geuneda-gamedata` |
+| `Geuneda.Services`, `Geuneda.Services.*` (Pooling, Commands, AssetsImporter, 에디터 네임스페이스 포함) | `/geuneda-services` |
+| `Geuneda.UiService`, `Geuneda.UiService.Views`, `GeunedaEditor.UiService` | `/geuneda-uiservice` |
 | `Geuneda.StatechartMachine` | `/geuneda-statechart` |
-| `Geuneda.GoogleSheetImporter` | `/geuneda-googlesheetimporter` |
-| `Geuneda.InputExtensions` | `/geuneda-inputextensions` |
+| `Input`, `Input.Controls` (inputextensions, 어셈블리 이름은 `Geuneda.InputExtensions`) | `/geuneda-inputextensions` |
 | `Geuneda.NativeUi` | `/geuneda-nativeui` |
 | `Geuneda.NotificationService` | `/geuneda-notificationservice` |
+| `Geuneda.GoogleSheetImporter`, `GeunedaEditor.GoogleSheetImporter` | `/geuneda-googlesheetimporter` |
 | `Geuneda.GameSystems.*` (예: `Geuneda.GameSystems.RedDot`) | `/geuneda-gamesystems` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|
-| 프레임워크 구조/의존성 변경 | `/geuneda-frameworks` |
+| 프레임워크 구조/의존성 변경, 패키지 선택 | `/geuneda-frameworks` |
 
-- 하나의 파일이 여러 네임스페이스 사용 시 관련 스킬 모두 invoke
-- 에이전트 위임 시 스킬 invoke를 명시
+- 하나의 파일이 여러 네임스페이스를 쓰면 관련 스킬을 모두 invoke 한다.
+- 에이전트에게 위임할 때 invoke 할 스킬을 명시한다.
+- inputextensions 의 `Input` 네임스페이스는 `UnityEngine.Input` 을 가린다. 레거시 입력 API 는 `UnityEngine.Input` 으로 완전한 이름을 쓴다.
 
-## 패키지 의존성 체인
+## 패키지 간 영향
 
-```
-gamedata -> services -> gamesystems
-uiservice (독립: Addressables, UniTask, TextMeshPro)
-```
-
-하위 패키지 API 변경 시 상위 패키지에 영향을 줄 수 있다.
+gamedata 를 services, googlesheetimporter 가 쓰고, services 를 gamesystems 가 쓴다. 하위 패키지 API 를 바꾸면 상위 패키지도 확인한다. 전체 의존성은 [README.md](README.md#의존성) 를 본다.

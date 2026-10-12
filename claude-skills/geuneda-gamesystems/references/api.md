@@ -1,8 +1,8 @@
-# Geuneda Game Systems - API Reference
+# Geuneda Game Systems - API 레퍼런스
 
 ## 네임스페이스: Geuneda.GameSystems.RedDot
 
-어셈블리: `Geuneda.GameSystems.RedDot` (참조: `Geuneda.Services`)
+어셈블리: `Geuneda.GameSystems.RedDot` (참조: `Geuneda.Services`). 소스: `Runtime/RedDot/`.
 
 ### interface IRedDotService
 
@@ -16,8 +16,8 @@
 | `void SetLeafValue(string path, int value)` | 리프 값 설정. 음수는 0. 미등록 경로나 부모 노드면 `Debug.LogWarning` 후 무시 |
 | `void SetNodeMuted(string path, bool muted)` | 뮤트/해제. 미등록 경로면 경고 후 무시 |
 | `int GetValue(string path)` | 현재 값. 부모는 자식 합(int 범위 초과 시 `int.MaxValue`), 없는 경로는 0 |
-| `void Subscribe(string path, Action<int> callback)` | 경로 구독. null 콜백은 `ArgumentNullException`. 미등록 경로도 가능 |
-| `void Unsubscribe(string path, Action<int> callback)` | 같은 콜백 중 마지막에 추가한 하나를 해제 |
+| `void Subscribe(string path, Action<int> callback)` | 경로 구독. null 콜백은 `ArgumentNullException`. 미등록 경로도 가능. 구독 시점 값은 전달하지 않음(그 값이 이 구독자의 기준값). 같은 콜백을 여러 번 구독하면 그만큼 호출 |
+| `void Unsubscribe(string path, Action<int> callback)` | 같은 콜백 중 마지막에 추가한 하나를 해제. null 콜백이나 구독 없는 경로면 무시 |
 | `void Clear()` | 모든 노드 제거, 값이 있던 경로 구독자에게 0 알림, 구독 유지 |
 
 알림 규칙:
@@ -63,12 +63,12 @@
 
 | 멤버 | 설명 |
 |------|------|
-| `[SerializeField] string _nodePath` | 구독할 경로 |
-| `[SerializeField] GameObject _indicator` | 값이 1 이상이면 켤 자식 오브젝트. 비우면 토글 없이 이벤트만 발생. 자신/조상 지정은 무시(Awake 오류, OnValidate 경고) |
+| `[SerializeField] private string _nodePath` | 인스펙터에서 지정하는 구독 경로 |
+| `[SerializeField] private GameObject _indicator` | 값이 1 이상이면 켤 자식 오브젝트. 비우면 토글 없이 이벤트만 발생. 자신/조상 지정은 무시(Awake 오류, OnValidate 경고) |
 | `event Action<int> ValueChanged` | 표시 값이 바뀔 때. 일반 이벤트 +=/-= 규칙. 호출 단위로 예외 격리, 앞선 핸들러가 경로를 바꾸거나 뷰를 끄면 남은 핸들러 호출 중단 |
 | `int Value { get; }` | 마지막 표시 값(늦게 구독한 쪽이 초기 상태를 읽을 때) |
 | `string NodePath { get; }` | 현재 경로 |
-| `void SetNodePath(string nodePath)` | 활성 상태면 즉시 재구독, 비활성이면 표시를 끄고 다음 활성화 때 구독. null/빈 문자열이면 끔 |
+| `void SetNodePath(string nodePath)` | 같은 경로면 무시. 활성 상태면 즉시 재구독, 비활성이면 표시를 끄고 다음 활성화 때 구독. null/빈 문자열이면 끔 |
 
 생명주기: Awake 에서 `RedDotBinding` 생성, OnEnable 에서 `Bind(_nodePath)`, OnDisable 에서 `Unbind()`.
 

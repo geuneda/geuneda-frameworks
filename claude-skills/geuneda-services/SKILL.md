@@ -1,211 +1,140 @@
 ---
 name: geuneda-services
-description: Unity 게임 아키텍처를 위한 핵심 서비스 패키지. DI 컨테이너(MainInstaller), 메시지 브로커(Pub/Sub), 틱 서비스(업데이트 관리), 코루틴 서비스, 오브젝트 풀링, 데이터 영속성, 시간 관리, 결정론적 RNG, 커맨드 패턴, 버전 관리, 그리고 v2.1부터 흡수된 Addressables 에셋 로딩/임포트(AssetResolverService, AddressableIds) 관련 코드를 작성하거나 수정할 때 사용한다.
+description: Geuneda Services(com.geuneda.services) 패키지로 Unity 코드를 작성하거나 고칠 때 사용한다. MainInstaller/Installer 서비스 바인딩과 해석, IMessageBrokerService 메시지 발행/구독, ITickService 업데이트 구독, ICoroutineService 코루틴, IPoolService/ObjectPool/GameObjectPool 오브젝트 풀, IDataService PlayerPrefs 저장, IRngService 결정론적 난수, ITimeService 시간 조작, CommandService 커맨드, VersionServices 빌드 버전 정보, AssetResolverService/AddressablesAssetLoader Addressables 에셋 로딩, Addressable Ids 생성기와 AssetsConfigsImporter, Services Explorer 창을 다루는 작업이 대상이다. 코드에 using Geuneda.Services 가 있거나 위 타입 이름이 나오면 이 스킬을 쓴다.
 ---
 
 # Geuneda Services
 
-Unity 게임 아키텍처를 위한 핵심 서비스 패키지이다. DI 컨테이너, 메시지 브로커, 틱/코루틴 서비스, 오브젝트 풀링, 데이터 영속성, 시간 관리, 결정론적 RNG, 커맨드 패턴 등 게임 개발에 필요한 핵심 서비스를 제공한다.
-
-## 활성화 시점
-
-- DI 컨테이너를 통해 서비스를 등록/해석할 때 (MainInstaller, Installer)
-- 타입 안전한 Pub/Sub 메시지 통신을 구현할 때 (MessageBrokerService)
-- MonoBehaviour 없이 업데이트 사이클을 관리할 때 (TickService)
-- MonoBehaviour 없이 코루틴을 실행할 때 (CoroutineService)
-- 오브젝트 풀링 시스템을 구현할 때 (PoolService, ObjectPool)
-- PlayerPrefs 기반 데이터 저장/로드를 구현할 때 (DataService)
-- 시간 관리 및 변환을 구현할 때 (TimeService)
-- 결정론적 난수 생성이 필요할 때 (RngService)
-- 커맨드 패턴을 구현할 때 (CommandService)
-- 빌드 버전/Git 메타데이터에 접근할 때 (VersionServices)
-- Addressables로 에셋/씬을 타입 안전하게 로드/언로드할 때 (AssetResolverService) — v2.1에서 assetsimporter 흡수
-- Addressable ID 열거형을 생성/사용할 때 (AddressableIds, AssetConfigsScriptableObject)
-- Services Explorer 에디터 창으로 서비스 상태를 점검할 때
+Unity 게임용 기반 서비스 모음이다. 전체 공개 API 는 [references/api.md](references/api.md) 에 있다.
 
 ## 패키지 정보
 
-- **네임스페이스**: `Geuneda.Services` (풀링: `Geuneda.Services.Pooling`, 에셋 임포터: `Geuneda.Services.AssetsImporter`)
-- **설치**: `https://github.com/geuneda/geuneda-services.git`
-- **의존성**: `com.geuneda.gamedata` >= 1.0.0, `com.unity.addressables`, `com.cysharp.unitask`
-- **최소 Unity 버전**: 6000.3
-- **버전**: 2.1.0 (upstream CoderGamester/Unity-Services v2.1 채택, assetsimporter 통합)
+- 패키지: `com.geuneda.services` (현재 2.1.3), 설치 URL `https://github.com/geuneda/geuneda-services.git`
+- Unity 6000.3 이상
+- 의존성: `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10. gamedata 와 UniTask 는 Unity 레지스트리에 없으므로 `manifest.json` 에 git URL 로 직접 추가해야 한다.
+- 에셋 로딩/임포트는 v2.0.0 에서 예전 `com.geuneda.assetsimporter` 를 흡수한 것이다. `com.geuneda.assetsimporter` 를 따로 추가하지 않는다.
 
-## 아키텍처 개요
+## 네임스페이스 (자주 틀림)
 
-```
-MainInstaller (정적 서비스 로케이터)
-    |
-    +-- IMessageBrokerService (Pub/Sub 통신)
-    +-- ITickService (업데이트 관리)
-    +-- ICoroutineService (코루틴 호스트)
-    +-- IPoolService (오브젝트 풀링)
-    +-- IDataService (데이터 영속성)
-    +-- ITimeService (시간 관리)
-    +-- IRngService (결정론적 RNG)
-    +-- ICommandService<T> (커맨드 패턴)
-    +-- IAssetResolverService (Addressables 에셋/씬 로딩) [v2.1 흡수]
-```
+| 네임스페이스 | 타입 |
+|--------------|------|
+| `Geuneda.Services` | `MainInstaller`, `Installer`, `IInstaller`, `IMessage`, `IMessageBrokerService`, `MessageBrokerService`, `ITickService`, `TickService`, `ICoroutineService`, `CoroutineService`, `IAsyncCoroutine`, `IDataService`, `IDataProvider`, `DataService`, `ITimeService`, `ITimeManipulator`, `TimeService`, `IRngService`, `RngService`, `RngData`, `VersionServices`, **`PoolService`**, **`CommandService<T>`**, **`AssetResolverService`**, `IAssetResolverService`, `IAssetAdderService` |
+| `Geuneda.Services.Pooling` | `IPoolService`, `IObjectPool<T>`, `ObjectPool<T>`, `GameObjectPool`, `GameObjectPool<T>`, `IPoolEntitySpawn`, `IPoolEntitySpawn<T>`, `IPoolEntityDespawn`, `IPoolEntityObject<T>` |
+| `Geuneda.Services.Commands` | `ICommandService<T>`, `IGameCommand<T>`, `IGameServerCommand<T>`, `IGameCommandBase` |
+| `Geuneda.Services.AssetsImporter` | `IAssetLoader`, `ISceneLoader`, `AddressablesAssetLoader`, `AssetConfigsScriptableObject<TId, TAsset>`, `AddressableConfig`, `AssetReferenceScene` |
+| `Geuneda.Services.AssetsImporter.Editor` (에디터) | `AssetsConfigsImporter<TId, TAsset, TScriptableObject>` 등 |
+| `Geuneda.DataExtensions` (gamedata) | `floatP`, `Pair<TKey, TValue>` |
 
-## 핵심 API 요약
-
-### MainInstaller (정적 DI 컨테이너)
-- `Bind<T>(T instance)` - 인터페이스 바인딩 (인터페이스만 가능)
-- `Resolve<T>()` - 서비스 해석
-- `TryResolve<T>(out T instance)` - 안전한 해석
-- `Clean<T>()` / `CleanDispose<T>()` / `Clean()` - 바인딩 제거
-
-### IMessageBrokerService (Pub/Sub)
-- `Publish<T>(T message)` - 메시지 발행
-- `PublishSafe<T>(T message)` - 안전한 발행 (체인 구독 허용)
-- `Subscribe<T>(Action<T> action)` - 구독 (정적 메서드 불가)
-- `Unsubscribe<T>(object subscriber)` - 구독 해제
-- `UnsubscribeAll(object subscriber)` - 전체 구독 해제
-
-### ITickService (업데이트 관리, IDisposable)
-- `SubscribeOnUpdate(Action<float>, float deltaTime, bool timeOverflow, bool realTime)` - Update 구독
-- `SubscribeOnLateUpdate(...)` - LateUpdate 구독
-- `SubscribeOnFixedUpdate(Action<float>)` - FixedUpdate 구독
-- `Unsubscribe(Action<float>)` - 전체 구독 해제
-- `UnsubscribeAll()` / `UnsubscribeAll(object subscriber)` - 일괄 해제
-
-### ICoroutineService (코루틴, IDisposable)
-- `StartCoroutine(IEnumerator)` - 코루틴 시작
-- `StartAsyncCoroutine(IEnumerator)` - IAsyncCoroutine 반환 (완료 콜백)
-- `StartDelayCall(Action, float delay)` - 지연 호출
-- `StopCoroutine(Coroutine)` / `StopAllCoroutines()` - 중지
-
-### IPoolService (풀링, IDisposable) — 네임스페이스 `Geuneda.Services.Pooling` (v2.1)
-- `GetPool<T>()` - `IObjectPool<T>` 반환 (v2.1 신규)
-- `TryGetPool<T>(out IObjectPool<T> pool)` - 안전한 풀 조회 (v2.1 신규)
-- `AddPool<T>(IObjectPool<T>)` - 풀 추가
-- `Spawn<T>()` / `Spawn<T, TData>(TData)` - 스폰 (TData는 `IPoolEntitySpawn<TData>`)
-- `Despawn<T>(T entity)` / `DespawnAll<T>()` - 디스폰
-- 풀 타입: `ObjectPool<T>`, `GameObjectPool`, `GameObjectPool<T>` (모두 `Geuneda.Services.Pooling`)
-
-### IDataService (데이터 영속성)
-- `AddOrReplaceData<T>(T data)` - 메모리에 추가/교체
-- `SaveData<T>()` / `SaveAllData()` - PlayerPrefs + JSON 저장
-- `LoadData<T>()` - 로드 (없으면 새 인스턴스 생성)
-- `GetData<T>()` / `HasData<T>()` - 조회
-
-### ITimeService / ITimeManipulator (시간)
-- `DateTimeUtcNow` / `UnityTimeNow` / `UnixTimeNow` - 현재 시간
-- 시간 변환: DateTime <-> Unix <-> UnityTime
-- `AddTime(float)` / `SetInitialTime(DateTime)` - 시간 조작
-
-### IRngService (결정론적 RNG)
-- `Next` / `Nextfloat` - 다음 난수
-- `Peek` / `Peekfloat` - 상태 변경 없이 조회
-- `Range(int min, int max)` / `Range(floatP min, floatP max)` - 범위 지정
-- `Restore(int count)` - 상태 복원
-- `CreateRngData(int seed)` - 정적 팩토리
-
-### ICommandService<TGameLogic> (커맨드 패턴)
-- `ExecuteCommand<TCommand>(TCommand command)` - 커맨드 실행
-- 커맨드는 `IGameCommand<TGameLogic>` 구현
-
-### IAssetResolverService (Addressables 에셋/씬 로딩, v2.1 흡수)
-- `RequestAsset<TId, TAsset>(TId id, bool loadAsynchronously = true, ...)` - UniTask<TAsset>, ID(enum)로 에셋 로드
-- `RequestAsset<TId, TAsset, TData>(TId id, TData data, ...)` - 로드 후 데이터 주입
-- `LoadAllAssets<TId, TAsset>(...)` - UniTask<List<Pair<TId, TAsset>>>, 타입별 전체 로드
-- `LoadSceneAsync<TId>(TId id, LoadSceneMode)` / `UnloadSceneAsync<TId>(TId id)` - 씬 로드/언로드
-- `UnloadAssets<TId, TAsset>(bool clearReferences, params TId[] ids)` - 언로드
-- `AddAsset<TId>` / `AddAssets<TId>` - AssetReference 등록
-- ID 열거형은 `AssetConfigsScriptableObject` + `AddressableIds` 제너레이터로 생성 (에디터: `GeunedaEditor` 네임스페이스)
+`IPoolService` 를 쓰면 `using Geuneda.Services.Pooling;`, `IGameCommand<T>` 를 쓰면 `using Geuneda.Services.Commands;` 가 추가로 필요하다.
 
 ## 사용 패턴
 
-### 서비스 초기화 및 등록
+### 부트스트랩과 해석
+
 ```csharp
 using Geuneda.Services;
+using Geuneda.Services.Pooling;
+using UnityEngine;
 
-// 서비스 생성 및 등록
-MainInstaller.Bind<IMessageBrokerService>(new MessageBrokerService());
-MainInstaller.Bind<ITickService>(new TickService());
-MainInstaller.Bind<ICoroutineService>(new CoroutineService());
-MainInstaller.Bind<IPoolService>(new PoolService());
-MainInstaller.Bind<IDataService>(new DataService());
-MainInstaller.Bind<ITimeService, ITimeManipulator>(new TimeService());
+public class GameBootstrap : MonoBehaviour
+{
+    private void Awake()
+    {
+        MainInstaller.Bind<IMessageBrokerService>(new MessageBrokerService());
+        MainInstaller.Bind<ITickService>(new TickService());
+        MainInstaller.Bind<ICoroutineService>(new CoroutineService());
+        MainInstaller.Bind<IPoolService>(new PoolService());
+        MainInstaller.Bind<IDataService>(new DataService());
 
-// 서비스 사용
-var broker = MainInstaller.Resolve<IMessageBrokerService>();
+        // MainInstaller.Bind 는 인터페이스 하나만 받는다. 같은 인스턴스는 인터페이스마다 바인딩한다
+        var time = new TimeService();
+        MainInstaller.Bind<ITimeService>(time);
+        MainInstaller.Bind<ITimeManipulator>(time);
+    }
+
+    private void OnDestroy()
+    {
+        MainInstaller.CleanDispose<ITickService>();      // Dispose 후 제거
+        MainInstaller.CleanDispose<ICoroutineService>();
+        MainInstaller.CleanDispose<IPoolService>();
+        MainInstaller.Clean();                           // 나머지 바인딩 제거 (Dispose 안 함)
+    }
+}
 ```
 
-### 메시지 기반 통신
+### 메시지
+
 ```csharp
 public struct PlayerDiedMessage : IMessage
 {
     public int PlayerId;
 }
 
-// 구독
-broker.Subscribe<PlayerDiedMessage>(msg => HandlePlayerDeath(msg.PlayerId));
-
-// 발행
-broker.Publish(new PlayerDiedMessage { PlayerId = 1 });
-
-// 구독 해제
-broker.Unsubscribe<PlayerDiedMessage>(this);
-```
-
-### 틱 서비스로 업데이트 관리
-```csharp
-var tickService = MainInstaller.Resolve<ITickService>();
-
-// 매 프레임
-tickService.SubscribeOnUpdate(deltaTime => MovePlayer(deltaTime));
-
-// 0.5초마다
-tickService.SubscribeOnUpdate(dt => CheckEnemy(dt), deltaTime: 0.5f);
-
-// FixedUpdate
-tickService.SubscribeOnFixedUpdate(dt => PhysicsStep(dt));
-```
-
-### 오브젝트 풀링
-```csharp
-var poolService = MainInstaller.Resolve<IPoolService>();
-
-// GameObject 풀 생성
-var bulletPool = new GameObjectPool<Bullet>(initSize: 50, bulletPrefab);
-poolService.AddPool(bulletPool);
-
-// 스폰/디스폰
-var bullet = poolService.Spawn<Bullet>();
-poolService.Despawn(bullet);
-```
-
-### 커맨드 패턴
-```csharp
-public struct AttackCommand : IGameCommand<GameLogic>
+public class DeathHandler : MonoBehaviour
 {
-    public int TargetId;
+    private IMessageBrokerService _broker;
 
-    public void Execute(GameLogic logic, IMessageBrokerService broker)
+    private void Start()
     {
-        logic.DealDamage(TargetId);
-        broker.Publish(new DamageDealtMessage { TargetId = TargetId });
+        _broker = MainInstaller.Resolve<IMessageBrokerService>();
+        _broker.Subscribe<PlayerDiedMessage>(msg => HandlePlayerDeath(msg.PlayerId)); // this 를 캡처하는 람다
+        _broker.Publish(new PlayerDiedMessage { PlayerId = 1 });
     }
-}
 
-var commandService = new CommandService<GameLogic>(gameLogic, broker);
-commandService.ExecuteCommand(new AttackCommand { TargetId = 42 });
+    private void OnDestroy()
+    {
+        _broker?.Unsubscribe<PlayerDiedMessage>(this);
+    }
+
+    private void HandlePlayerDeath(int playerId) { }
+}
 ```
 
-## 주의사항
+### 틱, 풀, 커맨드
 
-- `MainInstaller`는 인터페이스만 바인딩 가능하다. 구체 클래스를 직접 바인딩하면 `ArgumentException`이 발생한다.
-- `MessageBrokerService`는 정적 메서드 구독을 지원하지 않는다. `action.Target`이 null이면 예외가 발생한다.
-- `Publish` 중 `Subscribe`/`Unsubscribe`를 호출하면 `InvalidOperationException`이 발생한다. 이 경우 `PublishSafe`를 사용한다.
-- `TickService`와 `CoroutineService`는 DontDestroyOnLoad GameObject를 생성한다. 반드시 `Dispose()`로 정리해야 한다.
-- `DataService`는 `PlayerPrefs` + `Newtonsoft.Json`을 사용한다. 참조 타입만 저장 가능하다.
-- `RngService`는 `Geuneda.DataExtensions`의 `floatP`(결정론적 부동소수점)를 사용한다. (gamedata 패키지의 런타임 네임스페이스는 어셈블리명 `Geuneda.GameData`와 달리 `Geuneda.DataExtensions`이다.)
-- `VersionServices`(v2.1)는 `[RuntimeInitializeOnLoadMethod(SubsystemRegistration)]`로 자동 부트스트랩된다. 기본 흐름에서는 `LoadVersionData()`/`LoadVersionDataAsync()`를 명시 호출할 필요가 없으며, 프로퍼티(`VersionInternal`/`Branch`/`Commit`/`BuildNumber`) 최초 접근 시 지연 로드된다. Resources 폴더에 `version-data`가 없으면 예외 없이 `Application.version`/빈 문자열로 폴백한다.
-- 풀 서비스의 `GameObjectPool`은 스폰 시 `SetActive(true)`, 디스폰 시 `SetActive(false)`를 자동 호출한다.
-- v2.1에서 pooling이 `Geuneda.Services.Pooling` 네임스페이스로 이동했고 `IPoolService.GetPool<T>()`가 `IObjectPool<T>`를 반환하도록 변경됐다. 구 `Runtime/ObjectPool.cs`는 제거됐다.
-- 에셋 로딩(`AssetResolverService`)/임포트(`AssetsImporter`)는 v2.1에서 별도 `assetsimporter` 패키지를 흡수한 것이다. `com.geuneda.assetsimporter`를 별도로 추가하지 말 것(중복 정의 충돌).
+```csharp
+var tick = MainInstaller.Resolve<ITickService>();
+tick.SubscribeOnUpdate(OnUpdate);                    // 매 프레임, 인자는 경과 시간
+tick.SubscribeOnUpdate(OnSlowUpdate, deltaTime: 0.5f); // 최소 0.5초 간격
+tick.UnsubscribeAll(this);
 
-## 참조 문서
+var pools = MainInstaller.Resolve<IPoolService>();
+pools.AddPool(new GameObjectPool<Bullet>(50, bulletPrefab)); // Bullet : MonoBehaviour
+Bullet bullet = pools.Spawn<Bullet>();
+pools.Despawn(bullet);
 
-상세 API 문서는 `references/api.md` 참조.
+var commands = new CommandService<GameLogic>(gameLogic, MainInstaller.Resolve<IMessageBrokerService>());
+commands.ExecuteCommand(new AttackCommand { TargetId = 42 }); // AttackCommand : IGameCommand<GameLogic>
+```
+
+### Addressables 에셋
+
+```csharp
+using Geuneda.Services;
+using Geuneda.Services.AssetsImporter;
+
+public class SpriteConfigs : AssetConfigsScriptableObject<SpriteId, Sprite> { }
+
+// AddConfigs 는 기본 인터페이스 메서드라 IAssetAdderService 타입으로 호출해야 한다
+IAssetAdderService resolver = new AssetResolverService();
+resolver.AddConfigs(spriteConfigs);
+Sprite hero = await resolver.RequestAsset<SpriteId, Sprite>(SpriteId.Hero, instantiate: false);
+resolver.UnloadAssets<SpriteId, Sprite>(clearReferences: false);
+MainInstaller.Bind<IAssetResolverService>(resolver);
+```
+
+## 함정
+
+- **인터페이스만 바인딩**: `MainInstaller.Bind<PoolService>(...)` 처럼 구체 타입을 넘기면 `ArgumentException`. 같은 인터페이스 재바인딩도 `ArgumentException`, 미바인딩 `Resolve` 도 `ArgumentException`(`KeyNotFoundException` 아님). 없을 수 있으면 `TryResolve`.
+- **`MainInstaller` 에는 다중 인터페이스 `Bind` 가 없다**. `Bind<T, T1, T2>` / `Bind<T, T1, T2, T3>` 는 `Installer` 인스턴스에만 있고, `T` 는 구현 타입이다.
+- **메시지 브로커**: 정적 메서드 구독 불가. 구독자 키가 `action.Target` 이라 같은 객체가 같은 메시지를 다시 구독하면 덮어쓰고, 지역 변수를 캡처한 람다는 `Unsubscribe<T>(this)` 로 안 지워진다. `Publish` 핸들러 안에서 구독/해제하면 `InvalidOperationException` 이므로 `PublishSafe` 를 쓴다. `Unsubscribe<T>()` 를 인자 없이 부르면 그 타입 구독자 전부가 지워진다.
+- **`TickService` / `CoroutineService`** 는 생성자에서 `DontDestroyOnLoad` GameObject 를 만든다. 런타임에 만들고 `Dispose()`(또는 `CleanDispose<T>()`)로 정리한다. `MainInstaller.Clean()` 은 Dispose 하지 않는다.
+- **FixedUpdate 콜백 인자**는 경과 시간이 아니라 `Time.fixedTime` 이다.
+- **`IAsyncCoroutine.OnComplete`** 는 교체 방식이다. `StopCoroutine(triggerOnComplete)` 기본값은 `false`(콜백 없음). 서비스의 `StopAllCoroutines()` 는 핸들을 완료 처리하지 않는다.
+- **풀**: 타입당 풀 1개(중복 `AddPool` 은 `ArgumentException`). `GameObjectPool` 계열은 훅을 `GetComponent` 로 찾으므로 훅 인터페이스는 컴포넌트에 구현한다. `Spawn(data)` 는 `OnSpawn()` 과 `OnSpawn(data)` 를 둘 다 호출한다. `GameObjectPool.Dispose(bool)` 는 인자와 관계없이 샘플을 `Object.Destroy` 하므로 샘플을 유지하려면 `Dispose()` 를 쓴다.
+- **`DataService`**: 참조 타입만, `PlayerPrefs` 키는 `typeof(T).Name`, `LoadData<T>` 는 매개변수 없는 생성자 필요, `GetData<T>` 는 없으면 `KeyNotFoundException`.
+- **`RngService`**: `Range(int, int)` 는 max 미포함, `Range(floatP, floatP)` 는 max 포함. float 계열은 `Geuneda.DataExtensions.floatP`. v2.1.1 에서 시퀀스가 바뀌어 이전 버전 리플레이와 호환되지 않는다.
+- **`VersionServices`** 는 `SubsystemRegistration` 에서 자동 로드되므로 `LoadVersionData()` 를 부를 필요가 없다. `version-data` 리소스가 없으면 예외 없이 `Application.version` / 빈 문자열로 폴백하고 `Debug.LogError` 를 남긴다. `IsOutdatedVersion` 은 세 부분 버전 문자열만 받는다.
+- **`AssetResolverService`**: `AddConfigs` 는 `IAssetAdderService` 로만 호출된다(`AssetResolverService` 변수로 호출하면 CS1061). 등록 전 `RequestAsset` / `LoadSceneAsync<TId>` 는 `MissingMemberException`. `RequestAsset` 의 `instantiate` 기본값이 `true` 라 `GameObject` 는 인스턴스가 만들어진다. 씬은 에셋 타입 `UnityEngine.SceneManagement.Scene` 으로 등록한다.
+- **`AddressablesAssetLoader.UnloadAsset`** 은 동기 `void` 이며 참조 카운트만 줄인다. 메모리 회수는 호출자가 `Resources.UnloadUnusedAssets()` 로 한다.
+- **Services Explorer**(`Tools > Geuneda > Services Explorer`)는 `MainInstaller` 에 인터페이스로 바인딩된 서비스만 보여 준다.

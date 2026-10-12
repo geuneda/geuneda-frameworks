@@ -1,403 +1,202 @@
-# Geuneda Statechart API Reference
+# Geuneda Statechart API 레퍼런스
 
-## 네임스페이스: Geuneda.StatechartMachine
+- 네임스페이스: `Geuneda.StatechartMachine`
+- 어셈블리: `Geuneda.Statechart` (참조: UniTask)
+- 소스: `Packages/com.geuneda.statechart/Runtime/`
+
+아래는 모든 공개 타입이다. `Geuneda.StatechartMachine.Internal` 의 타입은 전부 `internal` 이라 사용자 코드에서 접근할 수 없다.
 
 ---
 
-## Public 인터페이스
+## Statechart
 
 ### IStateMachineDebug
 
-상태 차트 디버깅 인터페이스.
-
-**프로퍼티:**
-- `bool LogsEnabled { get; set; }` - 콘솔 디버그 로그 활성화/비활성화
-
----
+| 멤버 | 설명 |
+|---|---|
+| `bool LogsEnabled { get; set; }` | 모든 상태와 전이의 디버그 로그를 콘솔에 출력 |
 
 ### IStatechart : IStateMachineDebug
 
-상태 차트의 메인 인터페이스. 런타임 중 상태 구성 수정 불가.
-
-**메서드:**
-- `void Trigger(IStatechartEvent trigger)` - 이벤트를 run-to-completion 방식으로 처리. 일시정지 중에는 무시됨
-- `void Run()` - 현재 위치에서 상태 차트 실행 시작/재개. 이미 실행 중이면 무시
-- `void Pause()` - 상태 차트 일시정지. `Run()`으로 재개
-- `void Reset()` - 초기 상태로 리셋. 실행/정지 상태를 변경하지 않음
-
----
-
-### IStatechartEvent : IEquatable<IStatechartEvent>
-
-상태 차트를 전진시키는 고유 이벤트 입력.
-
-**프로퍼티:**
-- `uint Id { get; }` - 이벤트 고유 ID (자동 생성)
-- `string Name { get; }` - 이벤트 이름 (디버깅용)
-
----
-
-### IStateFactory
-
-상태 차트의 상태와 전이를 설정하는 팩토리.
-
-**메서드:**
-| 메서드 | 반환 타입 | 설명 |
-|--------|----------|------|
-| `Initial(string name)` | `IInitialState` | 초기 의사 상태 생성 |
-| `Final(string name)` | `IFinalState` | 최종 상태 생성 |
-| `State(string name)` | `ISimpleState` | 단순 상태 생성 |
-| `Transition(string name)` | `ITransitionState` | 전이 상태 생성 |
-| `Nest(string name)` | `INestState` | 중첩 상태 생성 |
-| `Choice(string name)` | `IChoiceState` | 선택 상태 생성 |
-| `Wait(string name)` | `IWaitState` | 대기 상태 생성 |
-| `TaskWait(string name)` | `ITaskWaitState` | 태스크 대기 상태 생성 |
-| `Split(string name)` | `ISplitState` | 분할 상태 생성 |
-| `Leave(string name)` | `ILeaveState` | 이탈 상태 생성 |
-
----
-
-### IState
-
-모든 상태의 기본 인터페이스.
-
-**프로퍼티:**
-- `bool LogsEnabled { get; set; }` - 이 상태의 디버그 로그 활성화
-
----
-
-### IStateEnter : IState
-
-상태 진입 시 액션 실행.
-
-**메서드:**
-- `void OnEnter(Action action)` - 상태 활성화 시 호출할 액션 추가. null이면 `NullReferenceException`
-
----
-
-### IStateExit : IState
-
-상태 퇴장 시 액션 실행.
-
-**메서드:**
-- `void OnExit(Action action)` - 상태 비활성화 시 호출할 액션 추가. null이면 `NullReferenceException`
-
----
-
-### IStateTransition : IState
-
-상태에 전이 설정.
-
-**메서드:**
-- `ITransition Transition()` - 전이 생성. 이미 존재하면 `InvalidOperationException`
-
----
-
-### IStateEvent : IState
-
-이벤트 기반 전이.
-
-**메서드:**
-- `ITransition Event(IStatechartEvent statechartEvent)` - 이벤트에 의한 전이 생성. null이면 `NullReferenceException`
-
----
-
-### ITransition
-
-두 상태 간의 전이.
-
-**메서드:**
-- `ITransition OnTransition(Action action)` - 전이 시 실행할 액션 추가 (체이닝 가능). null이면 `NullReferenceException`
-- `void Target(IState state)` - 전이 대상 상태 설정. null이면 `NullReferenceException`
-
----
-
-### ITransitionCondition : ITransition
-
-조건부 전이. `IChoiceState`에서 사용.
-
-**메서드:**
-- `ITransition Condition(Func<bool> condition)` - 전이 실행 조건 함수 설정. 실패하면 전이 미실행. null이면 `NullReferenceException`
-
----
-
-## 상태 인터페이스 상세
-
-### IInitialState : IStateExit, IStateTransition
-
-초기 의사 상태. 영역의 시작점. 각 영역에 하나만 가능.
-
-**상속 메서드:**
-- `ITransition Transition()` - 자동 전이 (단 하나만 허용)
-- `void OnExit(Action action)` - 퇴장 액션
-
----
-
-### IFinalState : IStateEnter
-
-최종 상태. 영역 완료 표시. 각 영역에 하나만 가능.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-
----
-
-### ISimpleState : IStateEnter, IStateExit, IStateEvent
-
-이벤트를 기다리며 차단하는 단순 상태.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-- `void OnExit(Action action)` - 퇴장 액션
-- `ITransition Event(IStatechartEvent statechartEvent)` - 이벤트 전이
-
----
-
-### ITransitionState : IStateEnter, IStateExit, IStateTransition
-
-비차단 통과 상태. 자동으로 대상 상태로 진행.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-- `void OnExit(Action action)` - 퇴장 액션
-- `ITransition Transition()` - 자동 전이 (단 하나만 허용)
-
----
-
-### INestState : IStateEnter, IStateExit, IStateEvent
-
-중첩 상태. 새로운 중첩 영역 생성.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-- `void OnExit(Action action)` - 퇴장 액션
-- `ITransition Event(IStatechartEvent statechartEvent)` - 외부 이벤트로 강제 종료
-
-**고유 메서드:**
-- `ITransition Nest(Action<IStateFactory> data)` - 중첩 영역 정의 (ExecuteExit=true, ExecuteFinal=true)
-- `ITransition Nest(NestedStateData data)` - 세밀한 제어가 가능한 중첩 영역 정의
-
-**동작:**
-- 완료 시 현재 활성 상태의 `OnExit` 실행 (`ExecuteExit`에 따라)
-- 완료 시 `IFinalState`는 실행하지 않음 (`ExecuteFinal`에 따라)
-
----
-
-### IWaitState : IStateEnter, IStateExit, IStateEvent
-
-활동 완료를 기다리는 대기 상태.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-- `void OnExit(Action action)` - 퇴장 액션
-- `ITransition Event(IStatechartEvent statechartEvent)` - 이벤트로 대기 중단 가능
-
-**고유 메서드:**
-- `ITransition WaitingFor(Action<IWaitActivity> waitAction)` - 대기 활동 정의
-
-**동작:**
-- 이벤트로 전이 시 대기 활동 강제 완료
-- 부모 Nest/Split에서 퇴장 시 강제 완료
-
----
-
-### ITaskWaitState : IStateEnter, IStateExit
-
-비동기 Task 완료를 기다리는 대기 상태.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-- `void OnExit(Action action)` - 퇴장 액션
-
-**고유 메서드:**
-- `ITransition WaitingFor(Func<Task> taskAwaitAction)` - Task 대기
-- `ITransition WaitingFor(Func<UniTask> taskAwaitAction)` - UniTask 대기
-
-**동작:**
-- 이벤트 처리 불가 (동시성 방지)
-- 부모 Nest/Split에서 퇴장 시 완료 대기 후 이벤트 큐잉
-
----
-
-### IChoiceState : IStateEnter, IStateExit
-
-조건 기반 분기 상태.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-- `void OnExit(Action action)` - 퇴장 액션
-
-**고유 메서드:**
-- `ITransitionCondition Transition()` - 조건부 전이 생성
-
-**제약:**
-- 최소 하나의 `Condition()` 전이 필요
-- 정확히 하나의 조건 없는 기본 전이 필요
-- 조건 없는 전이가 2개 이상이면 경고
-
----
-
-### ISplitState : IStateEnter, IStateExit, IStateEvent
-
-병렬 영역 분할 상태.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-- `void OnExit(Action action)` - 퇴장 액션
-- `ITransition Event(IStatechartEvent statechartEvent)` - 외부 이벤트로 강제 종료
-
-**고유 메서드:**
-- `ITransition Split(params Action<IStateFactory>[] data)` - 병렬 영역 정의 (간략)
-- `ITransition Split(params NestedStateData[] data)` - 병렬 영역 정의 (세밀 제어)
-
-**제약:**
-- 최소 2개의 중첩 영역 필요
-
----
-
-### ILeaveState : IStateEnter, IStateTransition
-
-이탈 상태. 중첩 영역에서 상위 영역으로 전이.
-
-**상속 메서드:**
-- `void OnEnter(Action action)` - 진입 액션
-- `ITransition Transition()` - 상위 영역의 상태를 타겟으로 지정
-
-**제약:**
-- Nest 또는 Split 내부에서만 사용 가능
-- 한 영역 레이어만 점프 가능
-
----
-
-### IWaitActivity
-
-대기 상태의 컨트롤러.
-
-**프로퍼티:**
-- `uint Id { get; }` - 고유 활동 ID
-
-**메서드:**
-- `bool Complete()` - 활동을 완료로 표시. 모든 내부 활동도 완료되었으면 true
-- `IWaitActivity Split()` - 새로운 내부 활동 계층 생성 (모든 자식 완료 시 부모 완료)
-
----
-
-## Public 클래스
+| 멤버 | 설명 |
+|---|---|
+| `void Trigger(IStatechartEvent trigger)` | 이벤트를 run-to-completion 방식으로 처리. 실행 중이 아니면(`Run` 전, `Pause` 후) 아무것도 하지 않고 이벤트는 버려짐 |
+| `void Run()` | 실행 플래그를 켜고 현재 상태에서 진행을 시작/재개. 일시정지 동안 완료된 Wait/TaskWait 는 이때 전이됨 |
+| `void Pause()` | 실행 플래그를 끔. 이후 `Trigger` 와 대기 완료 콜백에 의한 진행이 멈춤 |
+| `void Reset()` | 현재 상태를 최상위 Initial 상태로 되돌림. 실행/정지 상태는 그대로이며 현재 상태의 `OnExit` 은 호출하지 않음 |
 
 ### Statechart : IStatechart
 
-상태 차트 구현.
-
-**생성자:**
 ```csharp
 public Statechart(Action<IStateFactory> setup)
 ```
-- `setup` - 상태와 전이를 정의하는 콜백
-- Initial 상태가 없으면 `MissingMemberException`
 
-**프로퍼티:**
-- `bool LogsEnabled { get; set; }` - 전역 디버그 로그 활성화
-- `string CurrentState { get; }` - 현재 상태 이름 (UNITY_EDITOR 전용)
+- `setup` 안에서만 상태와 전이를 정의할 수 있다.
+- 최상위 영역에 Initial 상태가 없으면 `MissingMemberException`.
+- `UNITY_EDITOR || DEBUG` 에서는 생성 직후 모든 상태(중첩 포함)를 검증한다. 아래 [검증 규칙](#검증-규칙) 참고.
 
-**메서드:**
-- `void Trigger(IStatechartEvent trigger)` - 이벤트 트리거
-- `void Run()` - 실행 시작/재개
-- `void Pause()` - 일시정지
-- `void Reset()` - 초기 상태로 리셋
+| 멤버 | 설명 |
+|---|---|
+| `bool LogsEnabled { get; set; }` | `IStateMachineDebug` 구현 |
+| `string CurrentState { get; }` | 최상위 영역의 현재 상태 이름. `#if UNITY_EDITOR` 에서만 존재 |
+| `Trigger`, `Run`, `Pause`, `Reset` | `IStatechart` 구현 |
 
 ---
+
+## 이벤트
+
+### IStatechartEvent : IEquatable\<IStatechartEvent\>
+
+| 멤버 | 설명 |
+|---|---|
+| `uint Id { get; }` | 생성 시 자동 부여되는 고유 ID |
+| `string Name { get; }` | 디버깅용 이름 |
 
 ### StatechartEvent : IStatechartEvent
 
-상태 차트 이벤트 구현.
-
-**생성자:**
 ```csharp
 public StatechartEvent(string name)
 ```
-- `name` - 이벤트 이름
-- ID는 자동 생성 (정적 증가)
 
-**프로퍼티:**
-- `uint Id { get; }` - 고유 ID
-- `string Name { get; }` - 이벤트 이름
-
-**메서드:**
-- `bool Equals(IStatechartEvent statechartEvent)` - ID 기반 비교
+- `Id` 는 정적 카운터로 증가한다. 이름이 같아도 인스턴스가 다르면 다른 이벤트다.
+- `Equals(IStatechartEvent)`, `Equals(object)`, `GetHashCode()` 는 `Id` 기준. `ToString()` 은 `Name` 을 반환한다.
 
 ---
 
-## Public 구조체
+## IStateFactory
 
-### NestedStateData
+`Statechart` 생성자와 `Nest`/`Split` 의 각 영역마다 하나씩 전달된다.
 
-Nest/Split 상태의 중첩 설정 데이터.
+| 메서드 | 반환 | 비고 |
+|---|---|---|
+| `Initial(string name)` | `IInitialState` | 영역마다 하나. 두 번 호출하면 `InvalidOperationException` |
+| `Final(string name)` | `IFinalState` | 영역마다 최대 하나. 두 번 호출하면 `InvalidOperationException` |
+| `State(string name)` | `ISimpleState` | |
+| `Transition(string name)` | `ITransitionState` | |
+| `Nest(string name)` | `INestState` | |
+| `Choice(string name)` | `IChoiceState` | |
+| `Wait(string name)` | `IWaitState` | |
+| `TaskWait(string name)` | `ITaskWaitState` | |
+| `Split(string name)` | `ISplitState` | |
+| `Leave(string name)` | `ILeaveState` | |
 
-**필드:**
-| 이름 | 타입 | 설명 |
-|------|------|------|
-| `Setup` | `Action<IStateFactory>` | 중첩 상태 정의 콜백 |
-| `ExecuteExit` | `bool` | 중첩 떠날 때 현재 활성 상태의 OnExit 실행 여부 |
-| `ExecuteFinal` | `bool` | 이벤트/Leave로 떠날 때 FinalState의 OnEnter 실행 여부 |
+---
 
-**생성자:**
+## 상태 구성 요소 인터페이스
+
+| 인터페이스 | 멤버 | 설명 |
+|---|---|---|
+| `IState` | `bool LogsEnabled { get; set; }` | 이 상태만의 디버그 로그 |
+| `IStateEnter : IState` | `void OnEnter(Action action)` | 진입 액션 추가. 여러 번 호출하면 순서대로 실행. `null` 이면 `NullReferenceException` |
+| `IStateExit : IState` | `void OnExit(Action action)` | 퇴장 액션 추가. `null` 이면 `NullReferenceException` |
+| `IStateTransition : IState` | `ITransition Transition()` | 자동 전이 생성. 이미 있으면 `InvalidOperationException` |
+| `IStateEvent : IState` | `ITransition Event(IStatechartEvent statechartEvent)` | 이벤트 전이 생성. `null` 이면 `NullReferenceException`, 같은 이벤트를 두 번 등록하면 `ArgumentException` |
+
+## 전이
+
+### ITransition
+
+| 멤버 | 설명 |
+|---|---|
+| `ITransition OnTransition(Action action)` | 전이 시 실행할 액션 추가. 자신을 반환하므로 체이닝 가능. `null` 이면 `NullReferenceException` |
+| `void Target(IState state)` | 대상 상태 지정. `null` 이면 `NullReferenceException` |
+
+이벤트 전이(`Event`)에서 `Target` 을 지정하지 않으면 상태를 바꾸지 않고 `OnTransition` 액션만 실행한다.
+
+### ITransitionCondition : ITransition
+
+| 멤버 | 설명 |
+|---|---|
+| `ITransition Condition(Func<bool> condition)` | 전이 실행 조건 추가. `null` 이면 `NullReferenceException`. `IChoiceState.Transition()` 이 반환 |
+
+---
+
+## 상태 인터페이스
+
+| 인터페이스 | 상속 | 고유 멤버 |
+|---|---|---|
+| `IInitialState` | `IStateExit`, `IStateTransition` | 없음 |
+| `IFinalState` | `IStateEnter` | 없음 |
+| `ISimpleState` | `IStateEnter`, `IStateExit`, `IStateEvent` | 없음 |
+| `ITransitionState` | `IStateEnter`, `IStateExit`, `IStateTransition` | 없음 |
+| `IChoiceState` | `IStateEnter`, `IStateExit` | `ITransitionCondition Transition()` |
+| `INestState` | `IStateEnter`, `IStateExit`, `IStateEvent` | `ITransition Nest(Action<IStateFactory> data)`, `ITransition Nest(NestedStateData data)` |
+| `ISplitState` | `IStateEnter`, `IStateExit`, `IStateEvent` | `ITransition Split(params Action<IStateFactory>[] data)`, `ITransition Split(params NestedStateData[] data)` |
+| `IWaitState` | `IStateEnter`, `IStateExit`, `IStateEvent` | `ITransition WaitingFor(Action<IWaitActivity> waitAction)` |
+| `ITaskWaitState` | `IStateEnter`, `IStateExit` | `ITransition WaitingFor(Func<Task> taskAwaitAction)`, `ITransition WaitingFor(Func<UniTask> taskAwaitAction)` |
+| `ILeaveState` | `IStateEnter`, `IStateTransition` | 없음 |
+
+### 상태별 동작
+
+- **Initial**: 영역에 진입하면 곧바로 `Transition()` 의 대상으로 이동한다. `OnEnter` 는 없다.
+- **Final**: 영역의 완료 지점. 들어온 뒤에는 어떤 이벤트에도 반응하지 않는다.
+- **Simple**: 등록된 이벤트가 들어올 때까지 멈춘다.
+- **Transition**: 진입 후 멈추지 않고 `Transition()` 의 대상으로 이동한다.
+- **Choice**: 조건 전이를 등록 순서대로 검사해 처음으로 참인 전이를 탄다. 모두 거짓이면 조건 없는 기본 전이를 탄다. 멈추지 않는다.
+- **Nest / Split**
+  - `Nest` 는 하위 영역 1개, `Split` 은 2개 이상의 병렬 영역을 만든다. 각 영역은 별도의 `IStateFactory` 로 정의하며 Initial 이 필요하다.
+  - 모든 하위 영역이 Final 에 도달하면 `Nest()`/`Split()` 이 반환한 전이를 실행한다.
+  - 어느 영역이든 Leave 상태에 도달하면 그 Leave 상태의 전이로 바로 위 영역의 상태로 이동한다.
+  - 이벤트는 Nest/Split 자신의 `Event` 를 먼저 검사하고, 일치하지 않으면 하위 영역에 전달한다.
+  - 이벤트나 Leave 로 떠날 때 하위 영역의 현재 상태가 `Wait` 면 강제 완료하고, 실행 중인 `TaskWait` 면 태스크가 끝날 때까지 전이를 지연한다. 지연 중 들어온 이벤트는 첫 번째 하나만 그 `TaskWait` 에 큐잉되어 완료 후 처리된다.
+  - 상태를 떠날 때 각 하위 영역에 대해 `NestedStateData.ExecuteExit` 가 참이면 현재 내부 상태의 `OnExit` 을, `ExecuteFinal` 이 참이고 현재 내부 상태가 Final/Leave 가 아니면 그 영역 Final 상태의 `OnEnter` 를 실행한다.
+  - `Nest()`/`Split()` 을 같은 상태에 두 번 호출하면 `InvalidOperationException`.
+- **Wait**: 진입할 때마다 새 `IWaitActivity` 를 만들고 첫 진행 시 `waitAction(activity)` 를 호출한다. 활동(과 모든 자식 활동)이 완료되면 `WaitingFor()` 의 전이를 실행한다. `Target` 이 있는 이벤트 전이가 일어나면 활동을 강제 완료한다.
+- **TaskWait**: 첫 진행 시 태스크를 시작하고 완료되면 `WaitingFor()` 의 전이를 실행한다. `Func<Task>` 는 내부에서 `UniTask` 로 변환된다. 이벤트를 받지 않는다.
+- **Leave**: Nest/Split 내부에서만 의미가 있다. `Transition()` 의 대상은 바로 위 영역(한 레이어 위)의 상태여야 한다.
+
+`OnEnter`/`OnExit`/`OnTransition` 과 대기 액션에서 발생한 예외는 잡혀서 `Debug.LogError` + `Debug.LogException` 으로 출력되며 흐름은 계속된다.
+
+---
+
+## IWaitActivity
+
+`IWaitState.WaitingFor` 콜백에 전달되는 대기 컨트롤러.
+
+| 멤버 | 설명 |
+|---|---|
+| `uint Id { get; }` | 활동 고유 ID |
+| `bool Complete()` | 이 활동을 완료로 표시. 모든 자식 활동도 완료되었으면 `true` 를 반환하고 Wait 상태를 진행시킴 |
+| `IWaitActivity Split()` | 자식 활동 생성. 부모와 모든 자식이 완료되어야 부모가 완료됨 |
+
+---
+
+## NestedStateData (struct)
+
+`INestState.Nest`, `ISplitState.Split` 에 넘기는 하위 영역 설정.
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `Setup` | `Action<IStateFactory>` | 하위 영역 정의 콜백 |
+| `ExecuteExit` | `bool` | 상태를 떠날 때 하위 영역의 현재 상태 `OnExit` 실행 여부 |
+| `ExecuteFinal` | `bool` | 이벤트나 Leave 로 떠날 때 하위 영역 Final 상태의 `OnEnter` 실행 여부 |
+
 ```csharp
 public NestedStateData(Action<IStateFactory> setup, bool executeExit, bool executeFinal)
-public NestedStateData(Action<IStateFactory> setup) // executeExit=true, executeFinal=true
-```
-
-**암시적 변환:**
-```csharp
+public NestedStateData(Action<IStateFactory> setup) // executeExit = true, executeFinal = true
 public static implicit operator NestedStateData(Action<IStateFactory> setup)
 ```
 
+`Nest(Action<IStateFactory>)`, `Split(params Action<IStateFactory>[])` 는 두 옵션이 모두 `true` 인 것과 같다.
+
 ---
 
-## 검증 규칙 (UNITY_EDITOR / DEBUG)
+## 검증 규칙
 
-생성자에서 자동 실행되는 검증:
+`UNITY_EDITOR || DEBUG` 에서 `Statechart` 생성자가 실행한다. 별도 표기가 없으면 `InvalidOperationException`.
 
 | 상태 | 규칙 |
-|------|------|
-| `Statechart` | Initial 상태 필수 |
-| `InitialState` | 전이 타겟 필수, 자기 자신 전이 금지, 중복 전이 금지 |
-| `FinalState` | 검증 없음 |
-| `SimpleState` | 이벤트 전이의 자기 자신 전이 금지 |
-| `TransitionState` | 전이 타겟 필수, 자기 자신 전이 금지, 중복 전이 금지 |
-| `NestState` | 중첩 설정 1개 필수, 자기 자신 전이 금지, 내부 상태 검증 |
-| `SplitState` | 중첩 설정 2개 이상 필수, 자기 자신 전이 금지, 내부 상태 검증 |
-| `ChoiceState` | 최소 1개 조건 전이 + 정확히 1개 기본 전이, 자기 자신 전이 금지 |
-| `WaitState` | 대기 활동 필수, 전이 타겟 필수, 자기 자신 전이 금지 |
-| `TaskWaitState` | Task 액션 필수, 전이 타겟 필수, 자기 자신 전이 금지 |
-| `LeaveState` | 전이 타겟 필수, 타겟이 상위 영역 레이어에 있어야 함 |
+|---|---|
+| `Statechart` | 최상위 Initial 필수 (`MissingMemberException`, 빌드 종류와 무관하게 항상 검사) |
+| Initial | 전이 대상 필수 (`MissingMemberException`), 자기 자신 전이 금지 |
+| Final | 없음 |
+| Simple | 이벤트 전이의 자기 자신 전이 금지 |
+| Transition | 전이 대상 필수, 자기 자신 전이 금지 |
+| Choice | 모든 전이에 대상 필수, 자기 자신 전이 금지, 조건 전이 1개 이상, 기본 전이 1개 이상 (2개 이상이면 경고 로그) |
+| Nest | 하위 영역 정확히 1개, 하위 상태 검증, 완료 전이와 이벤트 전이의 자기 자신 전이 금지 |
+| Split | 하위 영역 2개 이상, 하위 상태 검증, 완료 전이와 이벤트 전이의 자기 자신 전이 금지 |
+| Wait | `WaitingFor` 필수, 전이 대상 필수, 자기 자신 전이 금지(완료 전이와 이벤트 전이) |
+| TaskWait | `WaitingFor` 필수, 전이 대상 필수, 자기 자신 전이 금지 |
+| Leave | 전이 대상 필수, 대상이 바로 위 영역 레이어에 있어야 함 |
 
----
-
-## 실행 흐름 요약
-
-```
-1. new Statechart(setup) -> 상태/전이 정의 + 검증
-2. statechart.Run() -> Initial 상태에서 시작
-3. Initial -> (자동 전이) -> 다음 상태
-4. State/Nest/Wait 등에서 대기
-5. statechart.Trigger(event) -> 이벤트 매칭 -> 전이 실행
-6. 반복 (Final 도달 시 정지)
-```
-
----
-
-## Internal 타입 (참고용)
-
-아래 타입들은 internal이지만 동작 이해에 도움이 됩니다.
-
-### StateInternal (internal abstract class)
-
-모든 상태의 기본 구현. `Id` (uint, 자동 증가), `Name` (string), `RegionLayer` (uint) 프로퍼티를 가짐. `Trigger()` 메서드에서 전이 로직 처리, Enter/Exit 호출 시 예외를 catch하여 `Debug.LogError`로 출력.
-
-### Transition (internal class)
-
-전이 구현. `_onTransition` (액션 리스트), `_condition` (조건 리스트), `TargetState` (대상 상태)를 관리. `CheckCondition()`은 모든 조건이 true일 때만 true 반환.
-
-### WaitActivity (internal class)
-
-`IWaitActivity` 구현. `Complete()` 호출 시 내부 활동이 모두 완료되어야 성공. `Split()`으로 자식 활동 생성 가능. `ForceComplete()`으로 강제 완료.
+하위 영역의 Initial 누락은 검증하지 않는다.

@@ -2,24 +2,22 @@
 
 Geuneda 패키지 개선에 참여해 주셔서 감사합니다.
 
-이 저장소는 `Packages/` 하위에 여러 UPM 패키지를 포함하는 **Unity 호스트 프로젝트**이며, 대부분의 패키지는 **git 서브모듈**로 관리됩니다.
+이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 9개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
 
 ## 기여 위치
 
-- **패키지 변경**: 해당 패키지 저장소에 기여하는 것을 권장합니다. 이 호스트 저장소에서 패키지는 일반적으로 다음 경로에 마운트됩니다:
-  - `Packages/com.geuneda.*`
-- **호스트 프로젝트 변경**: 다음과 관련된 변경 사항은 이 저장소에 기여해 주세요:
-  - Unity 프로젝트 설정, `Assets/` 하위의 샘플 씬, 또는 프로젝트 수준의 CI/문서
+- **패키지 변경**: `Packages/com.geuneda.<패키지>/` 는 각각 독립 레포(`https://github.com/geuneda/geuneda-<패키지>.git`)입니다. 변경은 그 패키지 레포에 커밋하고 PR 을 보냅니다.
+- **호스트 프로젝트 변경**: Unity 프로젝트 설정, `Assets/`, 루트 문서, `claude-skills/`, 서브모듈 포인터 갱신은 이 레포에 커밋합니다.
 
 ## 설정
 
-### 서브모듈과 함께 클론
+### 클론
 
 ```bash
-git clone --recurse-submodules <repo-url>
+git clone --recurse-submodules https://github.com/geuneda/geuneda-frameworks.git
 ```
 
-이미 클론한 경우:
+이미 클론했거나 `Packages/com.geuneda.*` 폴더가 비어 있으면:
 
 ```bash
 git submodule update --init --recursive
@@ -27,35 +25,86 @@ git submodule update --init --recursive
 
 ### Unity 버전
 
-- **Unity 6000.0+** 사용 (`ProjectSettings/ProjectVersion.txt` 참조).
+호스트 프로젝트는 Unity 6000.3.2f1 입니다(`ProjectSettings/ProjectVersion.txt`). services 와 gamesystems 의 최소 버전이 6000.3 이므로 6000.3 이상 에디터로 엽니다.
+
+## 서브모듈 워크플로우
+
+`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 gamesystems 만 `main` 이고 나머지 8개는 `master` 입니다.
+
+```bash
+cd Packages/com.geuneda.services
+git checkout master
+git pull
+# 변경, 커밋, 패키지 레포에 push
+```
+
+패키지 레포에 push 한 뒤에는 호스트 레포에서 바뀐 서브모듈 포인터를 커밋합니다.
+
+```bash
+cd <호스트 레포 루트>
+git add Packages/com.geuneda.services
+git commit -m "chore: services 포인터 갱신"
+```
+
+모든 서브모듈을 각 원격 기본 브랜치의 최신 커밋으로 옮기려면 `git submodule update --remote` 를 쓰고, 마찬가지로 포인터 변경을 커밋합니다.
 
 ## 코딩 표준
 
-- **C#**: C# 9.0
+- **C#**: C# 9.0 문법
 - **네임스페이스**: 명시적 네임스페이스 사용 (global usings 사용 금지)
 - **Runtime vs Editor**:
-  - Runtime 코드에서 `UnityEditor`를 참조하면 안 됩니다
-  - Editor 도구는 `Editor/` 및 Editor 어셈블리에 위치해야 합니다
-- **비동기**: 비동기 흐름을 사용하는 패키지에서는 UniTask를 권장합니다
+  - Runtime 코드에서 `UnityEditor` 를 참조하면 안 됩니다
+  - Editor 도구는 `Editor/` 폴더와 Editor 전용 asmdef 에 둡니다
+- **비동기**: 비동기 흐름이 필요한 패키지는 UniTask 를 씁니다
+- **의존성**: 패키지 간 순환 의존은 금지합니다. 새 의존성은 `package.json` 의 `dependencies` 와 asmdef 의 `references` 양쪽에 반영합니다
+- 프레임워크를 쓰는 게임 코드의 설계 규칙은 [CLAUDE.md](CLAUDE.md) 를 따릅니다
+
+## 테스트
+
+테스트는 Unity Test Framework 로 작성하고 **Window > General > Test Runner** 의 EditMode / PlayMode 탭에서 실행합니다.
+
+| 패키지 | 테스트 asmdef |
+|--------|---------------|
+| gamedata | `Tests/Editor` (`Geuneda.GameData.Editor.Tests`), `Tests/PlayMode` (`Geuneda.GameData.PlayMode.Tests`) |
+| services | `Tests/EditMode` (`Geuneda.Services.Editor.Tests`), `Tests/PlayMode` (`Geuneda.Services.Tests.Playmode`) |
+| uiservice | `Tests/EditMode` (`Geuneda.UiService.Tests`), `Tests/PlayMode` (`Geuneda.UiService.Tests.PlayMode`) |
+| statechart | `Tests/Editor` (`Geuneda.Statechart.Editor.Tests`) |
+| googlesheetimporter | `Tests/Editor` (`Geuneda.GoogleSheetImporter.Editor.Tests`) |
+| gamesystems | `Tests/EditMode` (`Geuneda.GameSystems.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.GameSystems.Tests.PlayMode`) |
+
+inputextensions, nativeui, notificationservice 에는 테스트가 없습니다. 패키지 테스트가 Test Runner 에 보이지 않으면 `Packages/manifest.json` 의 `testables` 에 패키지 이름을 추가합니다.
 
 ## 문서화 요구 사항
 
-- 동작이나 공개 API를 변경한 경우 다음을 업데이트하세요:
-  - 패키지 `README.md` (사용법 / 예제)
-  - `CHANGELOG.md` (사용자 대상 변경 사항)
-  - 아키텍처나 워크플로우가 변경된 경우 해당 패키지의 `AGENTS.md`
+동작이나 공개 API 를 바꾸면 같은 변경에서 다음을 갱신합니다.
 
-루트 `README.md`는 **이 호스트 저장소**에 대한 내용에 집중하고, 패키지 문서는 링크로 연결해야 합니다.
+- 패키지 `README.md` (와 `docs/` 가 있으면 해당 문서)
+- 패키지 `CHANGELOG.md` (사용자에게 보이는 변경)
+- 패키지 `AGENTS.md` (아키텍처나 워크플로우가 바뀐 경우, 있는 패키지만)
+- `claude-skills/geuneda-<패키지>/` 스킬 (`SKILL.md`, `references/api.md`)
+- 패키지 버전, 의존성, 최소 Unity 버전이 바뀌면 루트 `README.md` 의 패키지 목록과 의존성 표
+
+루트 `README.md` 는 호스트 레포와 패키지 목록을 다루고, 패키지 사용법은 패키지 문서로 링크합니다.
+
+### 새 패키지 추가
+
+1. `geuneda-<패키지>` 레포를 만들고 표준 UPM 구조(`package.json`, `Runtime/`, `Editor/`, `Tests/`, `README.md`, `CHANGELOG.md`, `LICENSE.md`)로 작성합니다
+2. `git submodule add https://github.com/geuneda/geuneda-<패키지>.git Packages/com.geuneda.<패키지>`
+3. `Packages/manifest.json` 에 git URL 의존성을 추가합니다
+4. 루트 `README.md` 의 패키지 목록, 의존성, 스킬 표에 추가합니다
+5. `claude-skills/geuneda-<패키지>/` 에 `SKILL.md` 와 `references/api.md` 를 만들고 `install.sh`, `uninstall.sh` 의 `SKILLS` 목록에 등록합니다
+6. `CLAUDE.md` 의 네임스페이스 -> 스킬 표에 행을 추가합니다
+7. `claude-skills/geuneda-frameworks/` 스킬의 패키지 목록과 의존성을 갱신합니다
 
 ## 풀 리퀘스트
 
-- PR은 가능한 한 집중적이고 작은 단위로 유지하세요.
-- 다음 내용을 포함해 주세요:
+- PR 은 가능한 한 작고 한 가지 목적에 집중합니다.
+- 다음 내용을 포함해 주세요.
   - 동기 / 배경
   - 변경 내용
-  - 검증 방법 (절차, 테스트, UI/에디터 관련인 경우 스크린샷)
+  - 검증 방법 (절차, 테스트, UI/에디터 관련이면 스크린샷)
 
 ## 라이선스
 
-- 이 저장소는 루트 `LICENSE`에 따라 라이선스가 적용됩니다.
-- `Packages/` 하위 패키지는 자체 라이선스를 가질 수 있으며, 해당 라이선스가 패키지 콘텐츠에 적용됩니다.
+- 이 레포는 루트 `LICENSE` 를 따릅니다.
+- `Packages/` 아래 패키지는 자체 라이선스 파일을 가질 수 있으며, 그 패키지에는 해당 라이선스가 적용됩니다.

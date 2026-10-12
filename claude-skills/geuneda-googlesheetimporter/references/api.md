@@ -1,305 +1,229 @@
-# Geuneda GoogleSheetImporter API Reference
+# Geuneda GoogleSheetImporter API
 
-## Runtime API
+`com.geuneda.googlesheetimporter` 의 공개 API 전체. 사용 패턴과 함정은 [../SKILL.md](../SKILL.md) 참고.
 
-네임스페이스: `Geuneda.GoogleSheetImporter`
+## 런타임 (`Geuneda.GoogleSheetImporter`, 어셈블리 `Geuneda.GoogleSheetImporter`)
 
----
+### `public static class CsvParser`
 
-### CsvParser (정적 클래스)
+#### 상수와 필드
 
-CSV 텍스트를 파싱하는 헬퍼 클래스.
-
-#### 상수 및 필드
-
-| 이름 | 타입 | 값 | 설명 |
+| 이름 | 선언 | 값 | 쓰임 |
 |------|------|-----|------|
-| `IGNORE_COLUMN_CHAR` | `string` | `"$"` | 무시할 열의 접두사 |
-| `IGNORE_FIELD_CHAR` | `string` | `"#"` | 무시할 필드/서브리스트 행의 Key 값 |
-| `SUB_LIST_SUFFIX` | `string` | `"[]"` | 서브 리스트 필드 접미사 |
-| `PairSplitChars` | `char[]` | `{ ':', '<', '>', '=', '\|' }` | 키-값 쌍 구분 문자 |
-| `ArraySplitChars` | `char[]` | `{ ',', '(', ')', '[', ']', '{', '}' }` | 배열 구분 문자 |
-| `NewLineChars` | `string[]` | `{ "\r\n", "\r", "\n" }` | 줄바꿈 문자 |
+| `IGNORE_COLUMN_CHAR` | `public const string` | `"$"` | 이 문자로 시작하는 헤더 열은 `ConvertCsv` 가 무시 |
+| `IGNORE_FIELD_CHAR` | `public const string` | `"#"` | 이 문자로 시작하는 줄은 `ConvertCsv` 가 건너뜀. 서브 리스트 데이터 행의 `Key` 값 |
+| `SUB_LIST_SUFFIX` | `public const string` | `"[]"` | 서브 리스트 필드 표시 접미사 |
+| `PairSplitChars` | `public static readonly char[]` | `':' '<' '>' '=' '\|'` | 키-값 쌍 구분 |
+| `ArraySplitChars` | `public static readonly char[]` | `',' '(' ')' '[' ']' '{' '}'` | 배열 요소 구분 |
+| `NewLineChars` | `public static readonly string[]` | `"\r\n" "\r" "\n"` | 선언만 있고 패키지 내부에서는 쓰지 않음 |
 
-#### 메서드
-
-##### ConvertCsv
+#### `ConvertCsv`
 
 ```csharp
 public static List<Dictionary<string, string>> ConvertCsv(string csv)
 ```
 
-전체 CSV 텍스트를 파싱한다. 각 행은 리스트의 요소이며, 각 열은 딕셔너리의 요소이다. 딕셔너리 키는 CSV 헤더가 된다.
+- `"\r\n"` 으로만 줄을 나눈다. 첫 줄이 헤더이며 딕셔너리 키가 된다.
+- `#` 으로 시작하는 줄은 건너뛴다.
+- `$` 로 시작하는 헤더 열은 결과에 넣지 않는다.
+- 값은 `Trim()` 되고, 값이 모자란 열은 `""` 로 채운다.
+- 헤더만 있거나 `\n` 만 쓰는 텍스트는 빈 리스트를 반환한다.
 
-- **매개변수**: `csv` - CSV 형식의 텍스트 (행 구분자: `\r\n`)
-- **반환**: `List<Dictionary<string, string>>` - 파싱된 데이터
-- **참고**: `$`로 시작하는 열 헤더는 무시된다
-
-##### DeserializeTo\<T\>
+#### `DeserializeTo`
 
 ```csharp
 public static T DeserializeTo<T>(Dictionary<string, string> data, params Func<string, Type, object>[] deserializers)
 public static object DeserializeTo(Type type, Dictionary<string, string> data, params Func<string, Type, object>[] deserializers)
 ```
 
-CSV 데이터 행(딕셔너리)을 지정된 타입의 객체로 역직렬화한다. 리플렉션으로 public 필드를 매핑한다.
+`Activator.CreateInstance(type)` 로 인스턴스를 만들고 `type.GetFields()`(public 필드)를 돈다. `data` 에 필드 이름 키가 없거나 `[ParseIgnore]` 가 붙은 필드는 건너뛰고, 나머지는 `DeserializeObject(data[field.Name], field.FieldType, deserializers)` 로 채운다.
 
-- `[ParseIgnore]` 어트리뷰트가 있는 필드는 무시된다
-- 딕셔너리에 없는 필드는 기본값으로 유지된다
-
-##### DeserializeObject
+#### `DeserializeObject`
 
 ```csharp
 public static object DeserializeObject(string data, Type type, params Func<string, Type, object>[] deserializers)
 ```
 
-단일 셀 값을 지정된 타입으로 역직렬화한다. 배열, 리스트, 딕셔너리, 단일 값을 자동으로 감지한다.
+| 조건 | 처리 |
+|------|------|
+| `type.IsArray` | `ArrayParse(data, elementType)` (반환은 `List<T>`) |
+| `IList` 할당 가능 | `ArrayParse(data, GenericTypeArguments[0])` |
+| 직접 기반 타입이 `UnitySerializedDictionary<,>` | 해당 파생 타입 인스턴스로 딕셔너리 파싱 |
+| `IDictionary` 할당 가능 | `Dictionary<K, V>` 로 딕셔너리 파싱 |
+| 그 외 | `Parse(data, type)` |
 
-- 배열(`T[]`): `ArrayParse` 호출
-- `IList`: `ArrayParse` 호출
-- `UnitySerializedDictionary<,>` 파생: `DictionaryParse` 호출
-- `IDictionary`: `DictionaryParse` 호출
-- 그 외: `Parse` 호출
+배열 필드는 `List<T>` 가 반환되므로 `T[]` 필드에 `field.SetValue` 하면 실패한다. 리스트 필드는 `List<T>` 로 선언한다.
 
-##### DeserializeSubList
+#### `DeserializeSubList`
 
 ```csharp
 public static object DeserializeSubList(List<Dictionary<string, string>> data, int startIndex, Type type, string fieldName, params Func<string, Type, object>[] deserializers)
 ```
 
-복합(비원시) 타입의 서브 리스트를 역직렬화한다. `startIndex` 행의 값이 서브 리스트 필드의 헤더가 되고, 이후 행들(`Key == "#"`)이 데이터가 된다.
+- `type.GetGenericArguments()[0]` 을 원소 타입으로 하는 `List<T>` 를 만들어 반환한다.
+- `data[startIndex]` 행에서 값이 `[]` 로 끝나지 않는 열마다 "열 이름 -> 하위 필드 이름" 매핑을 만든다.
+- `startIndex + 1` 부터 `Key` 열 값이 `"#"` 인 행을 읽어 `DeserializeTo(원소 타입, ...)` 로 변환한다. 다른 값이 나오면 멈춘다.
+- `fieldName` 은 현재 사용되지 않는다.
 
-##### Parse\<T\>
+#### `Parse`
 
 ```csharp
 public static T Parse<T>(string text, params Func<string, Type, object>[] deserializers)
 public static object Parse(string text, Type type, params Func<string, Type, object>[] deserializers)
 ```
 
-단일 텍스트를 지정된 타입으로 파싱한다.
+`text` 를 `Trim()` 한 뒤 다음 순서로 시도한다.
 
-파싱 순서:
-1. `string` -> 그대로 반환
-2. `enum` -> `Enum.Parse(type, text)`
-3. `KeyValuePair` 형태의 구조체 -> `Activator.CreateInstance(type, key, value)`
-4. 커스텀 `deserializers` 함수들 시도
+1. `string` -> 그대로
+2. enum -> `Enum.Parse(type, text)`
+3. 제네릭 값 타입이고 public 필드가 정확히 2개이며 이름이 (`Key` 또는 `Value1`), (`Value` 또는 `Value2`) -> `PairSplitChars` 로 나눠 각각 `Parse` 한 뒤 `Activator.CreateInstance(type, key, value)`
+4. `deserializers` 를 순서대로 호출해 처음으로 `null` 이 아닌 결과
 5. `DateTime` -> `DateTime.Parse(text)`
 6. `TimeSpan` -> `TimeSpan.Parse(text)`
-7. `Nullable<T>` -> `TypeDescriptor.GetConverter(type).ConvertFrom(text)`
-8. 값 타입 -> `Convert.ChangeType(text, type)`
+7. `Nullable<T>` -> `TypeDescriptor.GetConverter(type).ConvertFrom(text)` (빈 텍스트는 `null`)
+8. 값 타입 -> `Convert.ChangeType(text, type)` (현재 컬처)
 9. 참조 타입 -> `JsonConvert.DeserializeObject($"\"{text}\"", type)`
 
-##### ArrayParse\<T\>
+변환할 수 없으면 `FormatException` 등 하위 API 의 예외가 그대로 전파된다.
+
+#### `ArrayParse`
 
 ```csharp
 public static List<T> ArrayParse<T>(string text, params Func<string, Type, object>[] deserializers)
 public static object ArrayParse(string data, Type type, params Func<string, Type, object>[] deserializers)
 ```
 
-텍스트를 지정된 타입의 리스트로 파싱한다. `ArraySplitChars`로 분리한다.
+`ArraySplitChars` 로 나누고(빈 항목 제거) 각 항목을 `Parse` 해 `List<type>` 을 만든다. 예: `"1,[2],{3,4},(5),6"` -> `[1, 2, 3, 4, 5, 6]`. 구분자가 없으면 원소 1개, 빈 텍스트면 빈 리스트.
 
-- 예: `"1,2,3"` -> `[1, 2, 3]`
-- 예: `"[1,2]{3,4}(5)"` -> `[1, 2, 3, 4, 5]`
-
-##### DictionaryParse\<TKey, TValue\>
+#### `DictionaryParse`
 
 ```csharp
 public static Dictionary<TKey, TValue> DictionaryParse<TKey, TValue>(string text, params Func<string, Type, object>[] deserializers)
 ```
 
-텍스트를 딕셔너리로 파싱한다.
+- `ArrayParse<string>` 으로 나눈 항목이 0개면 `null`.
+- 첫 항목에 `PairSplitChars` 문자가 있으면 모든 항목을 쌍으로 파싱: `"1:2,(3>4)"` -> `{1:2, 3:4}`.
+- 아니면 연속 형식: `"1,2,3,4"` -> `{1:2, 3:4}`. 항목 수가 홀수면 `IndexOutOfRangeException`.
+- 중복 키는 `Dictionary.Add` 예외.
 
-- 쌍 형식: `"key1:value1,key2:value2"` (PairSplitChars 사용)
-- 연속 형식: `"key1,value1,key2,value2"` (짝수 개 필요)
-- 빈 데이터 -> `null` 반환
-- 홀수 개의 값 -> `IndexOutOfRangeException` 발생
+### `public class ParseIgnoreAttribute : Attribute`
 
----
+`[AttributeUsage(AttributeTargets.Field)]`. `DeserializeTo` 가 이 어트리뷰트가 붙은 필드를 건너뛴다.
 
-### ParseIgnoreAttribute (어트리뷰트)
+## 에디터 (`GeunedaEditor.GoogleSheetImporter`, 어셈블리 `Geuneda.GoogleSheetImporter.Editor`)
 
-`CsvParser.DeserializeTo`에서 특정 필드의 파싱을 무시하게 하는 어트리뷰트.
-
-- 대상: `AttributeTargets.Field`
-- 사용: `[ParseIgnore] public string FieldName;`
-
----
-
-## Editor API
-
-네임스페이스: `GeunedaEditor.GoogleSheetImporter`
-
----
-
-### IScriptableObjectImporter (인터페이스)
-
-단일 ScriptableObject를 임포트하기 위한 인터페이스.
-
-#### 프로퍼티
-
-| 프로퍼티 | 타입 | 설명 |
-|----------|------|------|
-| `ScriptableObjectType` | `Type` | 저장될 ScriptableObject의 타입 |
-
----
-
-### IGoogleSheetConfigsImporter (인터페이스)
-
-Google 시트 임포터의 기본 인터페이스.
-
-#### 프로퍼티
-
-| 프로퍼티 | 타입 | 설명 |
-|----------|------|------|
-| `GoogleSheetUrl` | `string` | 전체 Google 시트 URL |
-
-#### 메서드
-
-| 메서드 | 반환 타입 | 설명 |
-|--------|-----------|------|
-| `Import(List<Dictionary<string, string>> data)` | `void` | CsvParser.ConvertCsv에서 처리된 데이터를 임포트 |
-
----
-
-### GoogleSheetScriptableObjectImportContainer\<TScriptableObject\> (추상 클래스)
-
-임포트 결과를 ScriptableObject에 저장하는 기본 컨테이너.
-
-- 구현: `IScriptableObjectImporter`, `IGoogleSheetConfigsImporter`
-- 제약 조건: `TScriptableObject : ScriptableObject`
-- `Import()`: ScriptableObject를 찾거나 생성하고, `OnImport()` 호출 후 `EditorUtility.SetDirty()` 및 `OnImportComplete()` 호출
-
-#### 추상/가상 메서드
-
-| 메서드 | 설명 |
-|--------|------|
-| `GoogleSheetUrl` (abstract) | Google 시트 URL |
-| `OnImport(TScriptableObject, List<Dictionary<string, string>>)` (abstract, protected) | 실제 임포트 로직 |
-| `OnImportComplete(TScriptableObject)` (virtual, protected) | 임포트 완료 후 콜백 |
-
----
-
-### GoogleSheetConfigsImporter\<TConfig, TScriptableObject\> (추상 클래스)
-
-행 단위로 데이터를 임포트한다. 각 행이 1개의 `TConfig` 항목을 나타낸다.
-
-- 상속: `GoogleSheetScriptableObjectImportContainer<TScriptableObject>`
-- 제약 조건: `TConfig : struct`, `TScriptableObject : ScriptableObject, IConfigsContainer<TConfig>`
-- `OnImport()`: 각 행을 `Deserialize()`로 변환하여 `scriptableObject.Configs`에 저장
-
-#### 가상 메서드
-
-| 메서드 | 반환 타입 | 설명 |
-|--------|-----------|------|
-| `Deserialize(Dictionary<string, string> data)` (virtual, protected) | `TConfig` | 기본: `CsvParser.DeserializeTo<TConfig>(data)` |
-
----
-
-### GoogleSheetSingleConfigImporter\<TConfig, TScriptableObject\> (추상 클래스)
-
-시트 전체를 하나의 `TConfig` 객체로 임포트한다. Key/Value 형태의 시트에 적합하다.
-
-- 상속: `GoogleSheetScriptableObjectImportContainer<TScriptableObject>`
-- 제약 조건: `TConfig : struct`, `TScriptableObject : ScriptableObject, ISingleConfigContainer<TConfig>`
-- `OnImport()`: `Deserialize()`로 전체 데이터를 변환하여 `scriptableObject.Config`에 저장
-
-#### 추상 메서드
-
-| 메서드 | 반환 타입 | 설명 |
-|--------|-----------|------|
-| `Deserialize(List<Dictionary<string, string>> data)` (abstract, protected) | `TConfig` | 전체 시트 데이터를 단일 설정으로 변환 |
-
----
-
-### GoogleSheetSingleConfigSubListImporter\<TConfig, TScriptableObject\> (추상 클래스)
-
-단일 설정 내 서브 리스트 임포트를 지원하는 확장.
-
-- 상속: `GoogleSheetSingleConfigImporter<TConfig, TScriptableObject>`
-- `Deserialize()`: Key/Value 행을 순회하며 `[]` 접미사가 있는 필드는 `CsvParser.DeserializeSubList()`로 처리
-
-#### 추상 메서드
-
-| 메서드 | 반환 타입 | 설명 |
-|--------|-----------|------|
-| `GetDeserializers()` (abstract, protected) | `Func<string, Type, object>[]` | 커스텀 역직렬화 함수 배열 반환 |
-
----
-
-### GoogleSheetImportOrderAttribute (어트리뷰트)
-
-임포트 순서를 제어하는 어트리뷰트.
-
-- 대상: `AttributeTargets.Class`
-- 기본 순서: `int.MaxValue` (어트리뷰트 없으면 마지막에 실행)
-- 값이 작을수록 먼저 임포트된다
-- 같은 순서 값이면 클래스 이름의 알파벳 순서로 정렬
-
-#### 프로퍼티
-
-| 프로퍼티 | 타입 | 설명 |
-|----------|------|------|
-| `ImportOrder` | `int` | 임포트 순서 값 |
-
-#### 생성자
+### `public interface IGoogleSheetConfigsImporter`
 
 ```csharp
-public GoogleSheetImportOrderAttribute(int importOrder)
+string GoogleSheetUrl { get; }
+void Import(List<Dictionary<string, string>> data);
 ```
 
----
+`data` 는 `CsvParser.ConvertCsv` 결과다. 이 인터페이스를 구현한 비추상 타입은 모두 자동 수집된다(public 매개변수 없는 생성자 필요).
 
-### GoogleSheetImporter (ScriptableObject)
+### `public interface IScriptableObjectImporter`
 
-Google 시트 임포트 도구의 설정 ScriptableObject.
+```csharp
+Type ScriptableObjectType { get; }
+```
 
-- CreateAssetMenu: `ScriptableObjects/Editor/GoogleSheetImporter`
+인스펙터의 **Select Object** 버튼이 이 타입으로 에셋을 찾는다.
 
-#### 필드
+### `public interface ICsvSyncTarget`
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| `ReplaceSpreadsheetId` | `string` | (선택) 기본 시트 ID를 대체할 Spreadsheet ID. 테스트용 시트 복제 시 사용 |
+```csharp
+string CsvSyncPath { get; }
+```
 
-#### 메뉴
+`IGoogleSheetConfigsImporter` 와 함께 구현하면, `Import` 가 끝난 직후 다운로드한 원본 CSV 를 LF 와 끝 개행 1개로 정규화해 `CsvSyncPath`(프로젝트 상대 경로)에 `File.WriteAllText` 로 쓰고 `AssetDatabase.ImportAsset` 한다. `null`/공백이면 건너뛴다. 실패는 경고 로그만 남긴다.
 
-- `Tools/GoogleSheet Importer/Select GoogleSheetImporter.asset`: 설정 에셋 선택
+### `public abstract class GoogleSheetScriptableObjectImportContainer<TScriptableObject>`
 
----
+`: IScriptableObjectImporter, IGoogleSheetConfigsImporter where TScriptableObject : ScriptableObject`
 
-### GoogleSheetToolImporter (CustomEditor)
+| 멤버 | 설명 |
+|------|------|
+| `public abstract string GoogleSheetUrl { get; }` | 시트 URL |
+| `public Type ScriptableObjectType` | `typeof(TScriptableObject)` |
+| `public void Import(List<Dictionary<string, string>> data)` | `FindAssets("t:<타입 이름>")` 첫 결과를 로드하거나 `Assets/<타입 이름>.asset` 을 생성 -> `OnImport` -> `EditorUtility.SetDirty` -> `OnImportComplete` |
+| `protected abstract void OnImport(TScriptableObject scriptableObject, List<Dictionary<string, string>> data)` | 저장 로직 |
+| `protected virtual void OnImportComplete(TScriptableObject scriptableObject)` | 후처리. 기본은 빈 구현 |
 
-`GoogleSheetImporter`의 커스텀 인스펙터. 모든 `IGoogleSheetConfigsImporter` 구현체를 검색하고 관리한다.
+### `public abstract class GoogleSheetConfigsImporter<TConfig, TScriptableObject>`
 
-#### 메뉴
+`: GoogleSheetScriptableObjectImportContainer<TScriptableObject> where TConfig : struct where TScriptableObject : ScriptableObject, IConfigsContainer<TConfig>`
 
-- `Tools/GoogleSheet Importer/Import Google Sheet Data`: 모든 시트 데이터 임포트
+| 멤버 | 설명 |
+|------|------|
+| `protected override void OnImport(...)` | 행마다 `Deserialize(row)` 를 호출해 새 리스트를 만들고 `scriptableObject.Configs` 에 대입 |
+| `protected virtual TConfig Deserialize(Dictionary<string, string> data)` | 기본: `CsvParser.DeserializeTo<TConfig>(data)` |
 
-#### 기능
+### `public abstract class GoogleSheetSingleConfigImporter<TConfig, TScriptableObject>`
 
-- 모든 `IGoogleSheetConfigsImporter` 구현체를 자동 검색
-- `GoogleSheetImportOrderAttribute` 순서대로 정렬
-- 개별 또는 전체 시트 임포트 버튼 제공
-- ScriptableObject 선택 버튼 제공
-- `ReplaceSpreadsheetId`로 시트 ID 대체 가능
+`: GoogleSheetScriptableObjectImportContainer<TScriptableObject> where TConfig : struct where TScriptableObject : ScriptableObject, ISingleConfigContainer<TConfig>`
 
-#### 임포트 프로세스
+| 멤버 | 설명 |
+|------|------|
+| `protected override void OnImport(...)` | `scriptableObject.Config = Deserialize(data)` |
+| `protected abstract TConfig Deserialize(List<Dictionary<string, string>> data)` | 시트 전체를 설정 1개로 변환 |
 
-1. Google 시트 URL에서 `edit#`를 `export?format=csv&`로 변환
-2. `UnityWebRequest.Get()`으로 CSV 데이터 다운로드
-3. `CsvParser.ConvertCsv()`로 CSV 파싱
-4. `IGoogleSheetConfigsImporter.Import()`로 데이터 임포트
+### `public abstract class GoogleSheetSingleConfigSubListImporter<TConfig, TScriptableObject>`
 
----
+`: GoogleSheetSingleConfigImporter<TConfig, TScriptableObject>` (제약 동일)
+
+| 멤버 | 설명 |
+|------|------|
+| `protected override TConfig Deserialize(List<Dictionary<string, string>> data)` | 각 행의 `Key` 를 필드 이름으로 본다. `[]` 로 끝나면 `CsvParser.DeserializeSubList`, 아니면 `CsvParser.DeserializeObject(row["Value"], ...)`. 없는 필드 이름(예: `#`)은 건너뜀 |
+| `protected abstract Func<string, Type, object>[] GetDeserializers()` | 위 두 호출에 넘길 역직렬화기. 없으면 빈 배열 반환 |
+
+시트에 `Key`, `Value` 열이 있어야 한다.
+
+### `public class GoogleSheetImportOrderAttribute : Attribute`
+
+`[AttributeUsage(AttributeTargets.Class)]`
+
+| 멤버 | 설명 |
+|------|------|
+| `public GoogleSheetImportOrderAttribute(int importOrder)` | 생성자 |
+| `public int ImportOrder { get; }` | 작을수록 먼저. 어트리뷰트가 없으면 `int.MaxValue` |
+
+같은 순서 값은 타입 이름의 ordinal 비교로 정렬한다.
+
+### `public class GoogleSheetImporter : ScriptableObject`
+
+- `[CreateAssetMenu(fileName = "GoogleSheetImporter", menuName = "ScriptableObjects/Editor/GoogleSheetImporter")]`
+- `public string ReplaceSpreadsheetId`: 비어 있지 않으면 인스펙터에서 실행한 임포트의 URL 에서 `/d/` 와 `/edit` 사이 ID 를 이 값으로 바꾼다.
+- 메뉴 `Tools/GoogleSheet Importer/Select GoogleSheetImporter.asset`: 첫 에셋을 선택하고, 없으면 `Assets/GoogleSheetImporter.asset` 을 만든다.
+
+### `public class GoogleSheetToolImporter : Editor`
+
+`[CustomEditor(typeof(GoogleSheetImporter))]`. 공개 멤버는 `OnInspectorGUI()` 와 `[DidReloadScripts] public static void OnCompileScripts()`(임포터 목록 재수집)뿐이다.
+
+- 메뉴 `Tools/GoogleSheet Importer/Import Google Sheet Data`: 전체 임포트. `ReplaceSpreadsheetId` 는 적용되지 않는다.
+- 인스펙터: `ReplaceSpreadsheetId` 입력, **Import All Sheets**, 임포터별 **Import**, `IScriptableObjectImporter` 구현체에는 **Select Object**.
+
+임포트 동작:
+
+1. URL 에 `/d/` 와 `/edit` 가 없으면 실패. `edit#` 를 `export?format=csv&` 로 치환해 `UnityWebRequest.Get` 으로 요청한다.
+2. 전체 임포트는 최대 6개를 동시에 다운로드한다. 다운로드 중 진행 바에서 취소할 수 있다.
+3. HTTP 401/403/429/5xx 는 1초부터 2배씩(최대 60초) 기다리며 최대 6회 시도한다. 그 밖의 오류는 바로 실패.
+4. 다운로드가 끝나면 `AssetDatabase.StartAssetEditing`/`StopAssetEditing` 안에서 임포트 순서대로 `ConvertCsv` -> `Import` -> CSV 역동기화를 수행한다. `ConvertCsv` 결과가 비면 "CSV 형식 아님" 경고와 함께 실패로 센다.
+5. 끝나면 `SaveAssets`, `Refresh` 후 성공/실패 수를 로그로 남긴다.
+6. 임포트 중 도메인 리로드가 일어나면 상태를 초기화하고 경고를 남긴다. 임포트 중 다른 임포트 요청은 무시된다.
+
+## 사용하는 gamedata 타입 (`Geuneda.DataExtensions`, 어셈블리 `Geuneda.GameData`)
+
+```csharp
+public interface IConfigsContainer<T> { List<T> Configs { get; set; } }
+public interface ISingleConfigContainer<T> { T Config { get; set; } }
+public abstract class UnitySerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+public struct StructPair<TKey, TValue> where TKey : struct where TValue : struct // Key, Value 필드 + (key, value) 생성자
+```
 
 ## 시트 URL 형식
-
-Google 시트 URL은 다음 형식이어야 한다:
 
 ```
 https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit#gid={SHEET_TAB_ID}
 ```
 
-- `SPREADSHEET_ID`: 스프레드시트 고유 ID
-- `SHEET_TAB_ID`: 특정 시트 탭의 ID
-- 시트는 반드시 공개 접근 가능(링크가 있는 모든 사용자)이거나 인증이 되어 있어야 한다
+시트는 "링크가 있는 모든 사용자" 보기 권한으로 공유해야 한다. 요청에 인증 정보를 붙이지 않는다.

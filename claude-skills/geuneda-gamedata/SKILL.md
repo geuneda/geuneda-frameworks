@@ -1,400 +1,187 @@
 ---
 name: geuneda-gamedata
-description: Unity 게임용 핵심 게임 데이터 패키지(com.geuneda.gamedata). Observable 반응형 데이터 타입, 타입 안전 설정 저장소(ConfigsProvider), 결정론적 부동소수점(floatP), JSON 직렬화, Unity 직렬화 헬퍼 관련 코드를 작성하거나 수정할 때 사용한다. 기존 DataExtensions와 ConfigsProvider가 통합된 패키지이다.
+description: com.geuneda.gamedata(네임스페이스 Geuneda.DataExtensions) 코드를 작성, 수정, 리뷰할 때 사용한다. ObservableField/List/Dictionary/HashSet, ComputedField, ObservableBatch 같은 반응형 데이터, ConfigsProvider/ConfigsSerializer/ConfigsScriptableObject 설정 저장소, floatP/MathfloatP 결정론적 수학, UnitySerializedDictionary/EnumSelector 직렬화, 설정 유효성 검사와 MigrationRunner 를 다룰 때 이 스킬을 쓴다. 예전 DataExtensions/ConfigsProvider 패키지 코드도 이 패키지로 옮겨졌다.
 ---
 
 # Geuneda GameData
 
-Unity 게임을 위한 핵심 게임 데이터 패키지. 기존 DataExtensions와 ConfigsProvider가 통합되었다. Observable 반응형 데이터 타입, 의존성 추적 기반 ComputedField, 타입 안전 설정 저장소, 결정론적 수학, JSON 직렬화/역직렬화, Unity 인스펙터 직렬화 헬퍼를 제공한다.
-
-## 활성화 시점
-
-- ObservableField, ObservableList, ObservableDictionary, ObservableHashSet 등 반응형 데이터 타입을 사용하거나 구현할 때
-- ComputedField로 파생 상태를 자동 계산하는 코드를 작성할 때
-- ConfigsProvider를 통해 설정 데이터를 추가/조회하는 코드를 작성할 때
-- ConfigsSerializer로 설정을 JSON 직렬화/역직렬화할 때
-- floatP/MathfloatP로 결정론적 부동소수점 연산을 수행할 때
-- UnitySerializedDictionary, EnumSelector 등 Unity 직렬화 타입을 사용할 때
-- ConfigsScriptableObject 기반 ScriptableObject 컨테이너를 생성할 때
-- ObservableResolverField/List/Dictionary를 사용할 때
+Unity 게임용 데이터 기반 패키지. 반응형 데이터 타입, 타입 안전 설정 저장소, 결정론적 수학, 직렬화 헬퍼를 제공한다. 예전 DataExtensions 와 ConfigsProvider 패키지가 여기로 합쳐졌다.
 
 ## 패키지 정보
 
-- **네임스페이스**: `Geuneda.DataExtensions`
-- **패키지명**: `com.geuneda.gamedata`
-- **설치**: `https://github.com/geuneda/geuneda-gamedata.git`
-- **Unity**: 6000.0+ (Unity 6)
-- **의존성**: Newtonsoft.Json (3.2.1), UniTask (2.5.10), TextMeshPro (3.0.6)
-- **어셈블리**: `Geuneda.GameData` (Runtime), `Geuneda.GameData.Editor` (Editor)
+- 패키지명: `com.geuneda.gamedata`
+- 설치: `https://github.com/geuneda/geuneda-gamedata.git` (특정 버전 고정은 `#<태그>`)
+- 런타임 네임스페이스: `Geuneda.DataExtensions` (어셈블리 `Geuneda.GameData`)
+- 에디터 네임스페이스: `GeunedaEditor.GameData` (`MigrationRunner`, `IConfigMigration`, `ConfigMigrationAttribute`, `EditorConfigValidator`, `EnumSelectorPropertyDrawer<T>`), 에디터 창은 `Geuneda.DataExtensions.Editor` (어셈블리 `Geuneda.GameData.Editor`)
+- Unity 6000.0 이상
+- 의존성: `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.textmeshpro` 3.0.6. UniTask 는 Unity 레지스트리에 없으므로 manifest 에 git URL(`https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask`)로 먼저 넣어야 한다.
 
 ## 핵심 API
 
-### Observable 데이터 타입
+전체 시그니처는 [references/api.md](references/api.md) 에 있다.
 
-#### ObservableField<T>
-변경 콜백이 있는 단일 값 반응형 래퍼. `IObservableField<T>` (읽기/쓰기), `IObservableFieldReader<T>` (읽기 전용) 인터페이스 구현.
+### Observable
 
 ```csharp
+using Geuneda.DataExtensions;
+
 var score = new ObservableField<int>(0);
-// 또는 이름 지정 (디버그용)
-var score = new ObservableField<int>(0, "PlayerScore");
-
-// 옵저빙
 score.Observe((prev, curr) => Debug.Log($"{prev} -> {curr}"));
-
-// 값 변경
+score.InvokeObserve((prev, curr) => Debug.Log(curr)); // 현재 값으로 즉시 한 번 호출한 뒤 구독
 score.Value = 100;
+score.StopObservingAll(this); // 콜백 Target 이 this 인 것만 해제. 인자 없으면 전부 해제
 
-// 옵저빙 중지
-score.StopObserving(callback);
-score.StopObservingAll();
-
-// 일괄 업데이트
-using (score.BeginBatch()) {
-    score.Value = 10;
-    score.Value = 20;
-}
-// 배치 완료 후 최종 값으로 한 번만 통지
-
-// ComputedField 의존성 구독
-score.Subscribe(computedDep);
-score.Unsubscribe(computedDep);
-```
-
-#### ObservableList<T>
-추가/삭제/업데이트 콜백이 있는 리스트 래퍼. `IObservableList<T>` (읽기/쓰기), `IObservableListReader<T>` (읽기 전용).
-
-```csharp
 var list = new ObservableList<string>(new List<string>());
-list.Observe((index, prev, curr, updateType) => { /* ... */ });
+list.Observe((index, prev, curr, type) => { });
+list.Add("Sword");       // Added
+list[0] = "Axe";         // Updated
+list.RemoveAt(0);        // Removed
 
-list.Add("item");           // ObservableUpdateType.Added
-list[0] = "updated";        // ObservableUpdateType.Updated
-list.Remove("updated");     // ObservableUpdateType.Removed
-list.RemoveAt(0);
-list.Clear();
-
-// 읽기 전용 접근
-IReadOnlyList<string> readOnly = list.ReadOnlyList;
-int count = list.Count;
-bool has = list.Contains("item");
-int idx = list.IndexOf("item");
-```
-
-#### ObservableDictionary<TKey, TValue>
-키 기반 콜백이 있는 딕셔너리 래퍼.
-
-```csharp
 var dict = new ObservableDictionary<string, int>(new Dictionary<string, int>());
+dict.Observe("hp", (key, prev, curr, type) => { });   // 키 구독 (기본 설정에서 동작)
+dict.ObservableUpdateFlag = ObservableUpdateFlag.Both; // 키 없는 구독도 받으려면 필요
+dict.Observe((key, prev, curr, type) => { });
+dict.Add("hp", 100);
 
-// 전체 키 옵저빙
-dict.Observe((key, prev, curr, updateType) => { /* ... */ });
-
-// 특정 키만 옵저빙
-dict.Observe("health", (key, prev, curr, updateType) => { /* ... */ });
-
-dict.Add("health", 100);
-dict["health"] = 120;
-dict.Remove("health");
-dict.Clear();
-
-bool has = dict.ContainsKey("health");
-dict.TryGetValue("health", out var val);
-```
-
-#### ObservableHashSet<T>
-HashSet 래퍼.
-
-```csharp
 var set = new ObservableHashSet<string>();
-set.Observe((item, updateType) => { /* ... */ });
-set.Add("tag");
-set.Remove("tag");
-set.Contains("tag");
-set.Clear();
+set.Observe((item, type) => { });
+set.Add("tag");          // 새로 추가된 경우에만 통지, bool 반환
 ```
 
-#### ObservableBatch
-여러 Observable의 일괄 업데이트 관리. `IDisposable`.
+리졸버 타입은 다른 저장소를 감싼다.
 
 ```csharp
-using (var batch = health.BeginBatch()) {
-    health.Value = 80;
-    mana.Value = 40;
-}
-// 또는 수동 추가
-var batch = new ObservableBatch();
-batch.Add(health);
-batch.Add(mana);
-// Dispose 시 모든 옵저버 한 번에 호출
+var resolved = new ObservableResolverField<int>(() => save.Gold, v => save.Gold = v);
+var ids = new ObservableResolverList<int, string>(rawIds, s => int.Parse(s), i => i.ToString());
 ```
 
-#### ObservableResolverField<T>
-리졸버 함수로 값을 동적으로 해결하는 ObservableField 확장.
+### ComputedField
 
-```csharp
-var resolved = new ObservableResolverField<int>(() => source.Value * 2, (val) => source.Value = val / 2);
-int v = resolved.Value;      // getter 호출
-resolved.Value = 10;          // setter 호출
-resolved.Rebind(newGetter, newSetter);
-```
-
-#### ObservableUpdateType (enum)
-```
-Added, Updated, Removed
-```
-
-### ComputedField<T>
-의존성을 자동 추적하고 의존하는 Observable이 변경되면 자동으로 재계산하는 파생 값.
-
-```csharp
-var baseHp = new ObservableField<int>(100);
-var bonus = new ObservableField<int>(25);
-var total = new ComputedField<int>(() => baseHp.Value + bonus.Value);
-
-total.Observe((prev, curr) => Debug.Log($"HP: {prev} -> {curr}"));
-baseHp.Value = 120;  // 자동 재계산 및 통지
-
-// 정리
-total.Dispose();  // 모든 의존성 구독 해제
-```
-
-**ComputedTracker**: ComputedField의 의존성 자동 추적을 담당하는 정적 클래스.
-- `BeginTracking(IComputedFieldInternal)`: 추적 시작
-- `EndTracking()`: 추적 종료
-- `OnRead(IComputedDependency)`: 읽기 감지하여 의존성 등록
-
-### ObservableExtensions (확장 메서드)
-```csharp
-// Select: 값 변환
-var doubled = score.Select(x => x * 2);
-
-// CombineWith: 여러 Observable 결합
-var combined = a.CombineWith(b, (va, vb) => va + vb);
-var combined3 = a.CombineWith(b, c, (va, vb, vc) => va + vb + vc);
-var combined4 = a.CombineWith(b, c, d, (va, vb, vc, vd) => va + vb + vc + vd);
-```
-
-### ConfigsProvider
-O(1) 조회와 버저닝을 지원하는 타입 안전 설정 저장소. `IConfigsProvider`, `IConfigsAdder` 구현.
-
-```csharp
-var provider = new ConfigsProvider();
-
-// 컬렉션 추가 (ID 리졸버 필요)
-provider.AddConfigs(item => item.Id, itemConfigs);
-
-// 싱글톤 설정 추가
-provider.AddSingletonConfig(new GameSettings { Difficulty = 2 });
-
-// 모든 설정 일괄 추가
-provider.AddAllConfigs(otherProvider);
-
-// 조회
-var item = provider.GetConfig<ItemConfig>(42);            // ID로
-var settings = provider.GetConfig<GameSettings>();         // 싱글톤
-bool found = provider.TryGetConfig<ItemConfig>(42, out var config);
-
-// 컬렉션 접근
-var list = provider.GetConfigsList<ItemConfig>();                  // List<T> (할당)
-var dict = provider.GetConfigsDictionary<ItemConfig>();            // IReadOnlyDictionary
-foreach (var e in provider.EnumerateConfigs<EnemyConfig>()) { }   // 컬렉션 복사 없음 (열거자 박싱 1회)
-foreach (var (id, e) in provider.EnumerateConfigsWithIds<EnemyConfig>()) { }
-
-// 버저닝
-provider.SetVersion(new ConfigsProvider(), "v2.1");
-int version = provider.Version;
-
-// 다른 Provider 내용으로 업데이트
-provider.UpdateTo(newProvider);
-```
-
-### ConfigsSerializer
-JSON 직렬화/역직렬화 (Newtonsoft.Json 기반). `IConfigsSerializer` 구현.
-
-```csharp
-var serializer = new ConfigsSerializer();  // TrustedOnly 기본
-var serializer = new ConfigsSerializer(SerializationSecurityMode.Secure);
-
-// 허용 타입 등록
-serializer.RegisterAllowedTypes(typeof(ItemConfig), typeof(EnemyConfig));
-serializer.RegisterAllowedTypesFromProvider(provider);
-
-// 직렬화
-string json = serializer.Serialize(provider);
-
-// 역직렬화
-T config = serializer.Deserialize<T>(json);
-provider = serializer.Deserialize(json, provider);  // Provider에 직접 로드
-```
-
-**SerializationSecurityMode**: `TrustedOnly` (TypeNameHandling.Auto + Binder), `Secure` (TypeNameHandling.None)
-
-### ConfigTypesBinder
-화이트리스트 기반 타입 바인더. 허용되지 않은 타입의 역직렬화를 차단.
-
-```csharp
-var binder = new ConfigTypesBinder(typeof(ItemConfig), typeof(EnemyConfig));
-var binder = ConfigTypesBinder.FromProvider(provider);
-binder.AddAllowedType(typeof(NewConfig));
-```
-
-### ConfigsScriptableObject<TKey, TValue>
-인스펙터에서 설정을 편집할 수 있는 ScriptableObject 컨테이너.
-
-```csharp
-[CreateAssetMenu(menuName = "Config/Items")]
-public class ItemConfigAsset : ConfigsScriptableObject<int, ItemConfig>
-{
-}
-
-// 접근
-var asset = Resources.Load<ItemConfigAsset>("ItemConfigs");
-IReadOnlyList<ItemConfig> configs = asset.Configs;
-IReadOnlyDictionary<int, ItemConfig> dict = asset.ConfigsDictionary;
-```
-
-### floatP (결정론적 부동소수점)
-크로스 플랫폼 재현 가능한 부동소수점 struct. `IEquatable`, `IComparable` 구현.
-
-```csharp
-floatP a = 3.14f;              // float에서 암시적 변환
-floatP b = 2;                  // int에서 암시적 변환
-floatP sum = a + b;            // 산술 연산 (+, -, *, /, %)
-float result = (float)sum;     // float로 암시적 변환
-int intVal = (int)sum;         // int로 암시적 변환
-
-// 비교 연산: ==, !=, <, >, <=, >=
-// 정적 프로퍼티: Zero, One, MinusOne, NaN, PositiveInfinity, NegativeInfinity, MaxValue, MinValue, Epsilon
-// 메서드: IsNaN, IsInfinity, IsFinite, IsPositive, IsNegative, IsZero, Sign, CompareTo
-// 내부: FromRaw, FromParts, FromIeeeRaw, ToIeeeRaw
-```
-
-### MathfloatP
-floatP 전용 수학 함수 (정적 클래스).
-
-```csharp
-MathfloatP.Abs(x)              MathfloatP.Max(a, b)
-MathfloatP.Min(a, b)           MathfloatP.Clamp(x, min, max)
-MathfloatP.Clamp01(x)          MathfloatP.Lerp(a, b, t)
-MathfloatP.LerpUnclamped(a,b,t) MathfloatP.SmoothStep(a, b, t)
-MathfloatP.InverseLerp(a,b,v)  MathfloatP.MoveTowards(curr, target, delta)
-MathfloatP.Sign(x)             MathfloatP.Repeat(t, length)
-MathfloatP.PingPong(t, length) MathfloatP.DeltaAngle(a, b)
-MathfloatP.LerpAngle(a, b, t)  MathfloatP.MoveTowardsAngle(curr, target, delta)
-MathfloatP.Approximately(a, b) MathfloatP.Round(x)
-MathfloatP.Floor(x)            MathfloatP.Ceil(x)
-MathfloatP.Truncate(x)         MathfloatP.Sqrt(x)
-MathfloatP.Exp(x)              MathfloatP.Pow(base, exp)
-MathfloatP.Pow2(x)             MathfloatP.Log(x)
-MathfloatP.Log(x, base)        MathfloatP.Log2(x)
-MathfloatP.Log10(x)            MathfloatP.Sin(x)
-MathfloatP.Cos(x)              MathfloatP.Tan(x)
-MathfloatP.Asin(x)             MathfloatP.Acos(x)
-MathfloatP.Atan(x)             MathfloatP.Atan2(y, x)
-MathfloatP.Hypothenuse(a, b)   MathfloatP.Mod(a, b)
-MathfloatP.ScaleB(x, n)
-// 상수: RawPi, RawPiOver2, RawPiOver4, Raw2Pi, Raw3PiOver4
-```
-
-### UnitySerializedDictionary<TKey, TValue>
-Unity 인스펙터에서 표시되는 Dictionary. `Dictionary<TKey, TValue>` 상속, `ISerializationCallbackReceiver` 구현.
-
-```csharp
-[Serializable]
-public class StringIntDictionary : UnitySerializedDictionary<string, int> { }
-
-[SerializeField] private StringIntDictionary _data;
-```
-
-### EnumSelector<T>
-enum 이름 기반으로 저장되어 enum 값 변경에 안전한 드롭다운.
-
-```csharp
-[SerializeField] private EnumSelector<ItemType> _itemType;
-
-ItemType type = _itemType.GetSelection();
-_itemType.SetSelection(ItemType.Weapon);
-bool valid = _itemType.HasValidSelection();
-T val = (T)_itemType;  // 암시적 변환
-```
-
-### IConfigBackendService
-원격 설정 동기화를 위한 인터페이스.
-
-```csharp
-public interface IConfigBackendService
-{
-    UniTask<int> GetRemoteVersion();
-    UniTask<IConfigsProvider> FetchRemoteConfiguration();
-}
-```
-
-### Validation Attributes
-설정 값 검증용 어트리뷰트.
-- `[Required]`: 필수 필드
-- `[Range(min, max)]`: 범위 제한
-- `[MinLength(n)]`: 최소 길이
-- `[ReadOnly]`: 인스펙터에서 읽기 전용
-- `ValidationAttribute`: 커스텀 검증의 기본 클래스
-
-## 사용 패턴
-
-### 반응형 UI 바인딩
-```csharp
-public class PlayerHUD : MonoBehaviour
-{
-    [SerializeField] private TMP_Text _healthText;
-    private ObservableField<int> _health;
-
-    void Start()
-    {
-        _health = new ObservableField<int>(100, "Health");
-        _health.Observe((prev, curr) => _healthText.text = $"HP: {curr}");
-    }
-}
-```
-
-### 설정 로드 및 사용
-```csharp
-public class GameBootstrap
-{
-    public void LoadConfigs(ItemConfig[] items, GameSettings settings)
-    {
-        var provider = new ConfigsProvider();
-        provider.AddConfigs(item => item.Id, items);
-        provider.AddSingletonConfig(settings);
-
-        var serializer = new ConfigsSerializer();
-        serializer.RegisterAllowedTypesFromProvider(provider);
-        string json = serializer.Serialize(provider);
-    }
-}
-```
-
-### 파생 상태 자동 계산
 ```csharp
 var baseAtk = new ObservableField<int>(50);
 var weapon = new ObservableField<int>(20);
-var buff = new ObservableField<float>(1.2f);
 
-var totalAtk = new ComputedField<int>(() =>
-    (int)((baseAtk.Value + weapon.Value) * buff.Value));
+var total = new ComputedField<int>(() => baseAtk.Value + weapon.Value);
+total.Observe((prev, curr) => Debug.Log($"ATK {prev} -> {curr}"));
+baseAtk.Value = 60; // "ATK 70 -> 80"
+total.Dispose();
 
-totalAtk.Observe((prev, curr) =>
-    Debug.Log($"공격력: {prev} -> {curr}"));
+var doubled = baseAtk.Select(x => x * 2);
+var sum = baseAtk.CombineWith(weapon, (a, b) => a + b);   // 2~4개
+var sum2 = ObservableField.Combine(baseAtk, weapon, (a, b) => a + b);
 ```
 
-## 주의사항
+### ObservableBatch
 
-- `GetConfigsList<T>()`는 호출할 때마다 새 List를 할당한다. `EnumerateConfigs<T>()`는 컬렉션을 복사하지 않지만 반환 타입이 `IEnumerable<T>`라 foreach마다 열거자가 박싱되어 1회 할당이 발생한다 (제로 할당이 아니다). 매 프레임 도는 루프라면 초기화 시점에 `GetConfigsList<T>()`로 한 번 캐싱해두고 캐싱된 `List<T>`를 인덱스 루프로 순회할 것.
-- `ObservableField.Value` setter에서 이전 값과 같으면 통지가 발생하지 않을 수 있다 (배치 모드 예외).
-- `ComputedField`는 사용 후 반드시 `Dispose()`를 호출하여 의존성 구독을 해제할 것.
-- `floatP`는 소프트웨어 에뮬레이션이므로 일반 float보다 느리다. 결정론이 필요한 로직에만 사용.
-- `ConfigsSerializer`의 `TrustedOnly` 모드는 신뢰할 수 있는 데이터 소스에만 사용. 외부 입력에는 `Secure` 모드.
-- `UnitySerializedDictionary`는 직렬화를 위해 구체 타입 클래스를 선언해야 한다.
-- Observable의 `StopObservingAll()`은 모든 옵저버와 의존성 구독을 제거하므로 주의.
+```csharp
+using (var batch = new ObservableBatch())
+{
+    batch.Add(health);   // IBatchable: Observable 타입과 ComputedField 모두 해당
+    batch.Add(mana);
+    health.Value = 80;
+    mana.Value = 40;
+} // 여기서 한 번에 통지
 
-## 참조 문서
+using (health.BeginBatch()) { health.Value = 10; health.Value = 20; } // 자기 자신만 배치. (배치 전 값, 20) 으로 한 번 통지
+```
 
-상세 API 문서는 `references/api.md` 참조.
+### ConfigsProvider / ConfigsSerializer
+
+```csharp
+var provider = new ConfigsProvider();
+provider.AddConfigs(item => item.Id, itemList);          // IList<T> 필요
+provider.AddSingletonConfig(new GameSettings());
+
+ItemConfig item = provider.GetConfig<ItemConfig>(42);
+GameSettings settings = provider.GetConfig<GameSettings>();
+bool found = provider.TryGetConfig<ItemConfig>(42, out var cfg);
+IReadOnlyDictionary<int, ItemConfig> all = provider.GetConfigsDictionary<ItemConfig>();
+ulong version = provider.Version;
+
+var serializer = new ConfigsSerializer();                 // TrustedOnly
+string json = serializer.Serialize(provider, "2");        // version 은 문자열, ulong 으로 파싱
+var loaded = serializer.Deserialize<ConfigsProvider>(json);  // loaded.Version == 2
+```
+
+### ConfigsScriptableObject
+
+```csharp
+[CreateAssetMenu(menuName = "Configs/Items")]
+public class ItemConfigsAsset : ConfigsScriptableObject<int, ItemConfig> { }
+
+List<Pair<int, ItemConfig>> entries = asset.Configs;
+IReadOnlyDictionary<int, ItemConfig> byId = asset.ConfigsDictionary;
+provider.AddConfigs(c => c.Id, asset.Configs.ConvertAll(p => p.Value));
+```
+
+### Unity 직렬화
+
+```csharp
+[Serializable] public class StringIntDictionary : UnitySerializedDictionary<string, int> { }
+
+[Serializable]
+public sealed class ItemTypeSelector : EnumSelector<ItemType>
+{
+    public ItemTypeSelector() : base(ItemType.Weapon) { }
+    public ItemTypeSelector(ItemType value) : base(value) { }
+}
+
+// Editor 어셈블리
+[CustomPropertyDrawer(typeof(ItemTypeSelector))]
+public sealed class ItemTypeSelectorDrawer : GeunedaEditor.GameData.EnumSelectorPropertyDrawer<ItemType> { }
+
+ItemType type = selector.GetSelection();  // 또는 암시적 변환 ItemType t = selector;
+```
+
+### floatP
+
+```csharp
+floatP a = 3.14f;                 // float -> floatP 암시적
+floatP b = 2;                     // int -> floatP 암시적
+floatP c = MathfloatP.Sqrt(a * b);
+float f = c;                      // floatP -> float 암시적
+int i = c;                        // floatP -> int 암시적 (소수부 버림)
+```
+
+### 유효성 검사 / 마이그레이션 (에디터)
+
+```csharp
+public class EnemyConfig
+{
+    [Required] public string Name;
+    [Geuneda.DataExtensions.Range(1, 1000)] public int Health;
+    [MinLength(1)] public List<string> Tags;
+}
+
+ValidationResult result = EditorConfigValidator.ValidateAll(provider); // result.IsValid, result.Errors
+
+[ConfigMigration(typeof(EnemyConfig))]
+public class EnemyConfigMigration_v1_v2 : IConfigMigration
+{
+    public ulong FromVersion => 1;
+    public ulong ToVersion => 2;
+    public void Migrate(JObject configJson) { configJson["Armor"] = 10; }
+}
+```
+
+## 함정
+
+- `ObservableField.Value` setter 는 같은 값이어도 항상 통지한다. 중복 통지를 막으려면 호출 쪽에서 비교한다.
+- `ObservableDictionary` 의 `ObservableUpdateFlag` 기본값은 `KeyUpdateOnly` 다. 키 없는 `Observe(action)` 구독은 `UpdateOnly` 나 `Both` 로 바꾸기 전에는 호출되지 않는다.
+- `ObservableDictionary` 인덱서 setter 는 이전 값을 먼저 읽으므로 없는 키에 쓰면 `KeyNotFoundException` 이다. 새 키는 `Add` 로 넣는다.
+- `ObservableList` 생성자에 `List<T>` 를 넘기면 복사하지 않고 그 인스턴스를 그대로 감싼다. 원본 리스트를 직접 고치면 통지가 나가지 않는다. `ReadOnlyList` 는 호출마다 새 `List<T>` 를 할당한다.
+- `ObservableList.InvokeObserve(index, action)` 과 `ObservableDictionary.InvokeObserve(key, action)` 은 구독 후 `InvokeUpdate` 를 호출하므로 새 콜백뿐 아니라 해당 인덱스/키를 받는 기존 구독자에게도 `Updated` 가 전달된다. `ObservableField.InvokeObserve` 는 새 콜백만 호출한다.
+- 컬렉션(List/Dictionary/HashSet)을 배치에 넣으면 배치 종료 시 변경분이 아니라 전체 요소에 대해 통지한다. List/Dictionary 는 이전 값 `default` 의 `Updated`, HashSet 은 `Added` 다.
+- `ComputedField` 는 다 쓰면 `Dispose()` 해야 원본 Observable 의 의존성 구독이 풀린다. `Select`/`CombineWith` 결과도 `ComputedField` 다.
+- `StopObservingAll()` 은 `Observe` 콜백만 지운다. `ComputedField` 가 걸어 둔 의존성 구독은 남는다.
+- `ConfigsProvider.TryGetConfig<T>(int id, out T)` 와 `GetConfig<T>(int id)`, `GetConfigsDictionary<T>()` 는 등록되지 않은 타입에 대해 `KeyNotFoundException` 을 던진다. `TryGetConfig<T>(out T)` (싱글톤)만 타입이 없을 때 false 를 반환한다.
+- 같은 타입으로 `AddConfigs`/`AddSingletonConfig` 를 두 번 호출하면 `ArgumentException` 이다. 교체는 `AddAllConfigs` 또는 `UpdateTo` 를 쓴다. 버전은 `UpdateTo(version, configs)` 로만 바꿀 수 있다(`SetVersion` 은 internal).
+- `GetConfigsList<T>()` 는 호출마다 새 `List<T>` 를 할당한다. `EnumerateConfigs<T>()` 는 복사는 없지만 `IEnumerable<T>` 반환이라 foreach 마다 열거자 박싱 1회가 생긴다. 매 프레임 루프라면 초기화 때 `GetConfigsList<T>()` 로 한 번 캐싱하고 인덱스로 순회한다.
+- `ConfigsSerializer.Serialize` 는 `[Serializable]` 이 없는 설정 타입에서 예외를 던진다. 서버로 보내지 않을 타입은 `[IgnoreServerSerialization]` 을 붙인다.
+- `TrustedOnly` 는 `Serialize` 한 타입만 자동으로 허용 목록에 넣는다. 새 `ConfigsSerializer` 로 역직렬화할 때는 먼저 `RegisterAllowedTypes(IEnumerable<Type>)` 나 `RegisterAllowedTypesFromProvider` 를 호출한다. `Secure` 모드는 타입 메타데이터가 없어 역직렬화할 수 없다(신뢰할 수 없는 대상에 보내는 직렬화 전용).
+- `ConfigsScriptableObject.ConfigsDictionary` 는 `OnAfterDeserialize` 에서만 다시 만들어진다. 런타임에 `Configs` 를 바꿔도 반영되지 않는다. 중복 키는 에러 로그 후 건너뛴다.
+- `EnumSelector<T>` 의 저장 필드는 `HideInInspector` 다. 하위 클래스와 `EnumSelectorPropertyDrawer<T>` 하위 드로어가 없으면 인스펙터에 보이지 않는다. 생성자가 private/protected 이므로 `new EnumSelector<T>()` 도 불가능하다.
+- `UnitySerializedDictionary` 는 abstract 다. `[Serializable]` 구체 클래스를 선언한다.
+- `floatP` 는 `float`/`int` 로 암시적 변환되므로 `Mathf.Sqrt(x)` 같은 float API 에 그대로 넘겨도 컴파일된다. 그 순간 결정론이 깨진다. 결정론이 필요한 계산은 `MathfloatP` 만 쓴다. `MathfloatP.Pow2(x)` 는 x 의 제곱이다.
+- `Geuneda.DataExtensions.RangeAttribute` 는 `UnityEngine.RangeAttribute` 와 이름이 같다. 두 `using` 이 함께 있으면 전체 이름이나 별칭으로 구분한다.
+- `ObservableDebugRegistry`, `ConfigsProviderDebugRegistry` 의 멤버는 `#if UNITY_EDITOR` 안에만 있다. 런타임 코드에서 호출하지 않는다.

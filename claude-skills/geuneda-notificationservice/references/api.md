@@ -1,241 +1,187 @@
-# Geuneda NotificationService API Reference
+# Geuneda NotificationService API 레퍼런스
 
-## 네임스페이스: Geuneda.NotificationService
-
----
-
-## Public 인터페이스
-
-### INotificationService
-
-알림 서비스의 주요 인터페이스.
-
-**이벤트:**
-- `event Action<PendingNotification> OnLocalNotificationDeliveredEvent` - 포그라운드에서 로컬 알림 전달 시
-- `event Action<PendingNotification> OnLocalNotificationExpiredEvent` - 큐에 있는 알림이 만료되어 취소될 때
-
-**프로퍼티:**
-- `IReadOnlyList<PendingNotification> PendingNotifications { get; }` - 예약/큐 알림 목록
-
-**메서드:**
-- `IGameNotification CreateNotification()` - 플랫폼에 적합한 알림 객체 생성
-- `PendingNotification ScheduleNotification(IGameNotification gameNotification)` - 알림 예약
-- `void CancelNotification(int notificationId)` - 예약된 알림 취소
-- `void DismissNotification(int notificationId)` - 표시된 알림 닫기
-- `void CancelAllScheduledNotifications()` - 모든 예약 알림 취소
-- `void DismissAllDisplayedNotifications()` - 모든 표시 알림 닫기
+네임스페이스와 어셈블리: `Geuneda.NotificationService`. 모든 공개 타입은 `Runtime/` 아래에 있다. 사용 패턴과 함정은 [../SKILL.md](../SKILL.md) 참고.
 
 ---
 
-### IGameNotification
+## INotificationService (interface)
 
-알림 데이터를 나타내는 인터페이스.
+`Runtime/MobileNotificationService.cs`
 
-**프로퍼티:**
-| 이름 | 타입 | 설명 |
-|------|------|------|
-| `Id` | `int?` | 고유 식별자. null이면 예약 시 자동 생성 |
-| `Title` | `string` | 알림 제목 |
-| `Body` | `string` | 알림 본문 텍스트 |
-| `Subtitle` | `string` | 부제목 (iOS 전용) |
-| `Channel` | `string` | 채널 식별자 (Android: 채널 ID, iOS: CategoryIdentifier) |
-| `BadgeNumber` | `int?` | 배지 번호. null이면 미표시 |
-| `ShouldAutoCancel` | `bool` | 탭 시 자동 닫힘 (Android 전용) |
-| `DeliveryTime` | `DateTime?` | 로컬 시간 기준 전달 시간 |
-| `Scheduled` | `bool` | OS에 예약 완료 여부 (읽기 전용) |
-| `SmallIcon` | `string` | 소형 아이콘 (Android 전용) |
-| `LargeIcon` | `string` | 대형 아이콘 (Android 전용) |
+| 멤버 | 설명 |
+|------|------|
+| `event Action<PendingNotification> OnLocalNotificationDeliveredEvent` | 앱이 포그라운드일 때 예약된 로컬 알림이 전달되면 발생하도록 선언됨. `MobileNotificationService` 에서는 실제로 호출되지 않음 |
+| `event Action<PendingNotification> OnLocalNotificationExpiredEvent` | 큐에 있던 알림이 표시 시점에 앱이 포그라운드여서 취소될 때 발생하도록 선언됨. `MobileNotificationService` 에서는 실제로 호출되지 않음 |
+| `IReadOnlyList<PendingNotification> PendingNotifications { get; }` | 예약되었거나 큐에 있는 알림 |
+| `IGameNotification CreateNotification()` | 현재 플랫폼용 알림 객체 생성 |
+| `PendingNotification ScheduleNotification(IGameNotification gameNotification)` | 알림 예약 |
+| `void CancelNotification(int notificationId)` | 예약된 알림 취소 |
+| `void DismissNotification(int notificationId)` | 표시된 알림 닫기 |
+| `void CancelAllScheduledNotifications()` | 모든 예약 알림 취소 |
+| `void DismissAllDisplayedNotifications()` | 모든 표시 알림 닫기 |
 
----
+## MobileNotificationService : INotificationService (class)
 
-## Public 클래스
-
-### MobileNotificationService : INotificationService
-
-`INotificationService`의 구체 구현. 내부에서 `GameNotificationsMonoBehaviour`를 생성하고 관리합니다.
-
-**생성자:**
 ```csharp
 public MobileNotificationService(params GameNotificationChannel[] channels)
 ```
-- `channels` - 등록할 알림 채널 목록 (Android 필수)
-- 내부적으로 `DontDestroyOnLoad` GameObject 생성
 
-**메서드:**
-- `IGameNotification CreateNotification()` - 에디터에서는 `EditorGameNotification`, 런타임에서는 플랫폼별 알림 반환
-- `PendingNotification ScheduleNotification(IGameNotification gameNotification)` - 에디터에서는 ID 자동 생성 후 `PendingNotification` 반환
-- `void CancelNotification(int notificationId)` - 내부 MonoBehaviour에 위임
-- `void DismissNotification(int notificationId)` - 내부 MonoBehaviour에 위임
-- `void CancelAllScheduledNotifications()` - 내부 MonoBehaviour에 위임
-- `void DismissAllDisplayedNotifications()` - 내부 MonoBehaviour에 위임
+- `"NotificationService"` GameObject 에 `GameNotificationsMonoBehaviour` 를 붙이고 `Initialize(channels)` 를 호출한 뒤 `DontDestroyOnLoad` 를 적용한다.
+- 내부 MonoBehaviour 를 노출하지 않으므로 `Mode` 는 기본값 `NoQueue` 로 고정된다.
+- 이벤트: 생성자에서 이벤트의 현재 값(`null`)을 MonoBehaviour 필드에 복사하므로, 이후 구독한 핸들러는 호출되지 않는다.
+- `CreateNotification()`: 에디터(`UNITY_EDITOR`)에서는 `EditorGameNotification`, 그 외에는 `GameNotificationsMonoBehaviour.CreateNotification()` 결과(지원하지 않는 플랫폼이면 `null`).
+- `ScheduleNotification(...)`: 에디터에서는 `Id` 가 없으면 시간 기반 해시로 생성하고 `new PendingNotification(gameNotification)` 만 반환한다(예약하지 않고 `PendingNotifications` 에도 추가하지 않음). 그 외에는 MonoBehaviour 에 위임.
+- `CancelNotification` / `DismissNotification` 은 같은 이름의 MonoBehaviour 메서드에, `CancelAllScheduledNotifications` 는 `CancelAllNotifications` 에, `DismissAllDisplayedNotifications` 는 `DismissAllNotifications` 에 위임한다.
 
 ---
 
-### PendingNotification
+## IGameNotification (interface)
 
-예약된 알림의 래퍼 클래스.
+`Runtime/IGameNotification.cs`
 
-**필드:**
-- `bool Reschedule` - 포그라운드 전환 시 재예약 여부 (`RescheduleAfterClearing` 모드에서만 유효)
+| 프로퍼티 | 타입 | 설명 |
+|----------|------|------|
+| `Id` | `int?` (get/set) | 고유 식별자 |
+| `Title` | `string` (get/set) | 제목 |
+| `Body` | `string` (get/set) | 본문 |
+| `Subtitle` | `string` (get/set) | 부제목. Android 에서는 무시 |
+| `Channel` | `string` (get/set) | Android: 채널 ID, iOS: `CategoryIdentifier` |
+| `BadgeNumber` | `int?` (get/set) | 배지 번호. `null` 이면 표시하지 않음 |
+| `ShouldAutoCancel` | `bool` (get/set) | 탭하면 자동으로 닫힘. Android 에서만 동작 |
+| `DeliveryTime` | `DateTime?` (get/set) | 로컬 시간 기준 전달 시간 |
+| `Scheduled` | `bool` (get) | OS 에 예약되었는지 여부 |
+| `SmallIcon` | `string` (get/set) | 소형 아이콘. iOS 에서는 무시 |
+| `LargeIcon` | `string` (get/set) | 대형 아이콘. iOS 에서는 무시 |
 
-**프로퍼티:**
-- `IGameNotification Notification { get; }` (readonly) - 원본 알림 데이터
+## PendingNotification (class)
 
-**생성자:**
+`Runtime/PendingNotification.cs`
+
+| 멤버 | 설명 |
+|------|------|
+| `public bool Reschedule` (필드) | 포그라운드 복귀 후 재예약 여부. `Mode` 에 `ClearOnForegrounding` 과 `RescheduleAfterClearing` 이 모두 있을 때만 유효. 시간 기반이 아닌 전달에는 동작하지 않음 |
+| `public readonly IGameNotification Notification` (필드) | 예약된 알림 |
+| `PendingNotification(IGameNotification notification)` | `notification` 이 `null` 이면 `ArgumentNullException` |
+
+---
+
+## GameNotificationsMonoBehaviour : MonoBehaviour (sealed class)
+
+`Runtime/GameNotificationsMonoBehaviour.cs`
+
+| 멤버 | 설명 |
+|------|------|
+| `public OperatingMode Mode` | 동작 모드. 기본값 `NoQueue` |
+| `public bool AutoBadging` | `Queue` 모드에서 배지 번호가 하나도 설정되지 않았으면 전달 시간순으로 1부터 자동 부여. 기본값 `true` |
+| `public Action<PendingNotification> OnLocalNotificationDelivered` | 앱이 포그라운드일 때 대기 목록에 있는 알림이 전달되면 호출 |
+| `public Action<PendingNotification> OnLocalNotificationExpired` | `Queue` 모드에서 전달 시간이 지난 큐 알림을 제거할 때 호출 |
+| `List<PendingNotification> PendingNotifications { get; }` | 예약/큐 알림 목록 |
+| `bool Initialized { get; }` | 초기화 여부 |
+| `void Initialize(params GameNotificationChannel[] channels)` | 플랫폼 구현 생성, Android 채널 등록(첫 채널이 기본 채널). 두 번 호출하면 `InvalidOperationException` |
+| `IGameNotification CreateNotification()` | 플랫폼용 알림 생성. 플랫폼이 없으면 `null` |
+| `PendingNotification ScheduleNotification(IGameNotification notification)` | `notification` 이 `null` 이면 `null` 반환. `Queue` 모드이고 `DeliveryTime` 이 있으면 백그라운드 전환 때까지 큐에 보관(ID 없으면 생성), 아니면 즉시 예약. 결과를 `PendingNotifications` 에 추가 |
+| `void CancelNotification(int notificationId)` | 예약 취소 후 목록에서 제거 |
+| `void CancelAllNotifications()` | 모든 예약 취소 후 목록 비움 |
+| `void DismissNotification(int notificationId)` | 표시된 알림 닫기 |
+| `void DismissAllNotifications()` | 모든 표시 알림 닫기 |
+
+- `Initialize` 외의 메서드는 초기화 전에 호출하면 `InvalidOperationException`.
+- 플랫폼 구현은 `UNITY_ANDROID` 면 Android, `UNITY_IOS` 면 iOS 이며, 둘 다 아니면 없다(에디터에서도 빌드 타깃 기준).
+- 포그라운드 전환(`OnApplicationFocus(true)`, `Initialize` 시 포함): 목록을 비우고 `PlayerPrefs` 키 `notifications` 에서 저장된 알림을 읽는다. `ClearOnForegrounding` 이면 예약을 모두 취소하고, `RescheduleAfterClearing` 이면 미래 알림을 `Reschedule = true` 로 다시 예약한다. 그렇지 않으면 미래 알림을 목록에만 복원한다.
+- 백그라운드 전환(`OnApplicationFocus(false)`): `Queue` 모드면 아직 예약되지 않은 알림 중 전달 시간이 2초 이내이거나 지난 것을 버리고(필요하면 배지 자동 부여) 나머지를 예약한다. 이어서 저장 대상(`ClearOnForegrounding` 이 없으면 예약된 모든 알림, `RescheduleAfterClearing` 까지 있으면 `Reschedule` 이고 예약되었으며 시간이 있는 알림)을 `PlayerPrefs` 키 `notifications` 에 쓴다.
+
+## OperatingMode (`[Flags]` enum)
+
+`Runtime/GameNotificationsMonoBehaviour.cs`
+
+| 값 | 설명 |
+|----|------|
+| `NoQueue = 0x00` | 모든 알림을 즉시 OS 에 예약 |
+| `Queue = 0x01` | 백그라운드 전환 때까지 큐에 보관, 배지 자동 부여 |
+| `ClearOnForegrounding = 0x02` | 포그라운드 전환 시 예약된 알림 모두 취소 |
+| `RescheduleAfterClearing = 0x04` | 취소 후 `Reschedule` 로 표시된 미래 알림 재예약. `ClearOnForegrounding` 과 함께일 때만 유효 |
+| `QueueAndClear` | `Queue` + `ClearOnForegrounding` |
+| `QueueClearAndReschedule` | `Queue` + `ClearOnForegrounding` + `RescheduleAfterClearing` |
+
+---
+
+## GameNotificationChannel (readonly struct)
+
+`Runtime/GameNotificationChannel.cs`. Android 알림 채널에 대응하며 iOS 에서는 아무 동작도 하지 않는다.
+
 ```csharp
-public PendingNotification(IGameNotification notification)
-```
-- `notification`이 null이면 `ArgumentNullException` 발생
-
----
-
-### GameNotificationsMonoBehaviour : MonoBehaviour
-
-알림 관리 핵심 MonoBehaviour. 직접 사용하지 않으며 `MobileNotificationService`가 내부적으로 관리합니다.
-
-**Public 필드:**
-- `OperatingMode Mode` - 동작 모드 (기본값: `NoQueue`)
-- `bool AutoBadging` - 배지 자동 증가 (기본값: `true`)
-- `Action<PendingNotification> OnLocalNotificationDelivered` - 포그라운드 알림 전달 이벤트
-- `Action<PendingNotification> OnLocalNotificationExpired` - 큐 알림 만료 이벤트
-
-**프로퍼티:**
-- `List<PendingNotification> PendingNotifications { get; }` - 대기 알림 목록
-- `bool Initialized { get; }` - 초기화 상태
-
-**메서드:**
-- `void Initialize(params GameNotificationChannel[] channels)` - 초기화 (중복 호출 시 `InvalidOperationException`)
-- `IGameNotification CreateNotification()` - 플랫폼별 알림 생성 (미초기화 시 `InvalidOperationException`)
-- `PendingNotification ScheduleNotification(IGameNotification notification)` - 알림 예약
-- `void CancelNotification(int notificationId)` - 알림 취소
-- `void CancelAllNotifications()` - 모든 알림 취소
-- `void DismissNotification(int notificationId)` - 표시 알림 닫기
-- `void DismissAllNotifications()` - 모든 표시 알림 닫기
-
----
-
-## Public 구조체
-
-### GameNotificationChannel (readonly struct)
-
-Android 알림 채널의 크로스 플랫폼 래퍼.
-
-**필드:**
-| 이름 | 타입 | 기본값 | 설명 |
-|------|------|--------|------|
-| `Id` | `string` | - | 채널 고유 식별자 |
-| `Name` | `string` | - | 사용자에게 표시되는 이름 |
-| `Description` | `string` | - | 사용자에게 표시되는 설명 |
-| `ShowsBadge` | `bool` | `true` | 배지 표시 여부 |
-| `ShowLights` | `bool` | `false` | LED 깜빡임 여부 |
-| `Vibrates` | `bool` | `true` | 진동 여부 |
-| `HighPriority` | `bool` | `false` | 방해 금지 우회 여부 |
-| `Style` | `NotificationStyle` | `Popup` | 알림 스타일 |
-| `Privacy` | `PrivacyMode` | `Public` | 잠금 화면 표시 모드 |
-| `VibrationPattern` | `int[]` | `null` | 사용자 정의 진동 패턴 |
-
-**생성자:**
-```csharp
-// 기본 설정
+// Style = Popup, ShowsBadge = true, ShowLights = false, Vibrates = true,
+// HighPriority = false, Privacy = Public, VibrationPattern = null
 public GameNotificationChannel(string id, string name, string description)
 
-// 전체 설정
 public GameNotificationChannel(string id, string name, string description,
     NotificationStyle style, bool showsBadge = true, bool showLights = false,
     bool vibrates = true, bool highPriority = false,
     PrivacyMode privacy = PrivacyMode.Public, long[] vibrationPattern = null)
 ```
 
-**중첩 열거형:**
+| 필드 (`public readonly`) | 타입 | 설명 |
+|--------------------------|------|------|
+| `Id` | `string` | 채널 식별자 |
+| `Name` | `string` | 사용자에게 표시되는 이름 |
+| `Description` | `string` | 사용자에게 표시되는 설명 |
+| `ShowsBadge` | `bool` | 배지 표시 |
+| `ShowLights` | `bool` | 기기 조명 깜빡임 |
+| `Vibrates` | `bool` | 진동 |
+| `HighPriority` | `bool` | 방해 금지 우회 |
+| `Style` | `NotificationStyle` | 표시 스타일(Android 중요도) |
+| `Privacy` | `PrivacyMode` | 잠금 화면 표시 방식 |
+| `VibrationPattern` | `int[]` | 진동 패턴. 생성자의 `long[]` 을 `int` 로 변환해 저장, `null` 이면 기본값 |
 
-`NotificationStyle`:
-| 값 | 설명 |
-|----|------|
-| `None = 0` | 상태 표시줄에 미표시 |
+중첩 열거형:
+
+| `NotificationStyle` | 설명 |
+|---------------------|------|
+| `None = 0` | 상태 표시줄에 나타나지 않음 |
 | `NoSound = 2` | 소리 없음 |
 | `Default = 3` | 소리 재생 |
-| `Popup = 4` | 헤드업 팝업 포함 |
+| `Popup = 4` | 헤드업 팝업 표시 |
 
-`PrivacyMode`:
-| 값 | 설명 |
-|----|------|
-| `Secret = -1` | 보안 잠금 화면에서 미표시 |
-| `Private = 0` | 아이콘만 표시, 내용 숨김 |
-| `Public = 1` | 모든 잠금 화면에 표시 |
-
----
-
-## Public 열거형
-
-### OperatingMode (Flags)
-
-알림 관리자의 동작 모드.
-
-| 값 | 설명 |
-|----|------|
-| `NoQueue = 0x00` | 큐잉 없이 즉시 OS에 예약 |
-| `Queue = 0x01` | 백그라운드 전환 시까지 큐에 보관, 배지 번호 자동 증가 |
-| `ClearOnForegrounding = 0x02` | 포그라운드 전환 시 모든 대기 알림 지우기 |
-| `RescheduleAfterClearing = 0x04` | 지운 후 `Reschedule=true`인 미래 알림 재예약 |
-| `QueueAndClear = 0x03` | Queue + ClearOnForegrounding |
-| `QueueClearAndReschedule = 0x07` | Queue + ClearOnForegrounding + RescheduleAfterClearing |
+| `PrivacyMode` | 설명 |
+|---------------|------|
+| `Secret = -1` | 보안 잠금 화면에 표시하지 않음 |
+| `Private = 0` | 아이콘만 표시, 보안 잠금 화면에서 내용 숨김 |
+| `Public` (= 1) | 모든 잠금 화면에 표시 |
 
 ---
 
-## 플랫폼별 구현 (Public)
+## 플랫폼별 구현 (public, 조건부 컴파일)
 
 ### AndroidGameNotification : IGameNotification
 
-Android 전용 알림 구현.
+`Runtime/Android/AndroidGameNotification.cs`, `#if UNITY_ANDROID` 에서만 존재. `using Unity.Notifications.Android` 타입을 노출한다.
 
-**추가 프로퍼티:**
-- `AndroidNotification InternalNotification { get; }` - 내부 Android 알림 객체
-- `string DeliveredChannel { get; set; }` - 알림 채널
-
-**참고:**
-- `Subtitle` 미지원 (항상 null 반환)
-- `Id`가 없으면 예약 시 자동 생성
-- `DeliveryTime`은 `AndroidNotification.FireTime`에 매핑
+- `AndroidGameNotification()` 생성자
+- `AndroidNotification InternalNotification { get; }`
+- `string DeliveredChannel { get; set; }` - `Channel` 과 같은 값
+- `Title`/`Body`/`SmallIcon`/`LargeIcon`/`ShouldAutoCancel` 은 `InternalNotification` 의 `Title`/`Text`/`SmallIcon`/`LargeIcon`/`ShouldAutoCancel` 에 매핑
+- `BadgeNumber` 는 `InternalNotification.Number` 에 매핑(`-1` 이 `null`)
+- `DeliveryTime` 은 `InternalNotification.FireTime` 에 매핑. `null` 을 넣으면 `ArgumentNullException`
+- `Subtitle` 은 항상 `null`, 설정은 무시
+- `Id` 가 없으면 예약할 때 `AndroidNotificationCenter.SendNotification` 이 반환한 ID 로 채워짐
 
 ### iOSGameNotification : IGameNotification
 
-iOS 전용 알림 구현.
+`Runtime/iOS/iOSGameNotification.cs`, `#if UNITY_IOS` 에서만 존재. `using Unity.Notifications.iOS` 타입을 노출한다.
 
-**추가 프로퍼티:**
-- `iOSNotification InternalNotification { get; }` - 내부 iOS 알림 객체
-- `string CategoryIdentifier { get; set; }` - 카테고리 식별자
-
-**참고:**
-- `Id`는 내부적으로 문자열로 저장, int 파싱
-- `Channel`은 `CategoryIdentifier`에 매핑
-- `DeliveryTime`은 `iOSNotificationCalendarTrigger`를 사용
-- `SmallIcon`/`LargeIcon` 미지원 (항상 null 반환)
-- 기본적으로 `ShowInForeground = true`
+- `iOSGameNotification()` 생성자 - 내부 알림을 `ShowInForeground = true` 로 생성
+- `iOSNotification InternalNotification { get; }`
+- `string CategoryIdentifier { get; set; }` - `Channel` 과 같은 값
+- `Id` 는 내부 `Identifier` 문자열에 저장. 정수로 파싱할 수 없으면 경고 로그와 함께 `null`, `null` 을 넣으면 `ArgumentNullException`
+- `BadgeNumber` 는 `InternalNotification.Badge` 에 매핑(`-1` 이 `null`)
+- `DeliveryTime` 은 `iOSNotificationCalendarTrigger` 로 저장(밀리초 무시). 다른 트리거면 `null` 반환, `null` 설정은 무시
+- `SmallIcon`/`LargeIcon` 은 항상 `null`, 설정은 무시. `ShouldAutoCancel` 은 값만 보관
 
 ---
 
-## Internal 타입 (참고용)
+## internal 타입 (참고용, 직접 사용 불가)
 
-### IGameNotificationsPlatform (internal interface)
-
-플랫폼별 알림 처리 인터페이스.
-
-- `event Action<IGameNotification> NotificationReceived`
-- `IGameNotification CreateNotification()`
-- `void ScheduleNotification(IGameNotification gameNotification)`
-- `void CancelNotification(int notificationId)`
-- `void DismissNotification(int notificationId)`
-- `void CancelAllScheduledNotifications()`
-- `void DismissAllDisplayedNotifications()`
-- `void OnForeground()`
-- `void OnBackground()`
-
-### SerializableNotification (internal struct)
-
-디스크 직렬화용 알림 구조체. `PlayerPrefs`에 JSON으로 저장됩니다.
-
-필드: `Id`, `Title`, `Body`, `Subtitle`, `Channel`, `BadgeNumber`, `DeliveryTime`
-
-### EditorGameNotification (internal class)
-
-에디터 전용 `IGameNotification` 구현. 모든 프로퍼티를 단순 자동 프로퍼티로 구현하며 `Scheduled`는 항상 `false`.
+- `IGameNotificationsPlatform` / `IGameNotificationsPlatform<TNotificationType>` - 플랫폼 추상화(`NotificationReceived` 이벤트, 생성/예약/취소/닫기, `OnForeground`, `OnBackground`)
+- `AndroidNotificationsPlatform`, `iOSNotificationsPlatform` - 위 인터페이스의 구현. iOS 는 `OnForeground` 에서 `iOSNotificationCenter.ApplicationBadge = 0`
+- `EditorGameNotification` - 에디터용 `IGameNotification`. 모든 값이 자동 프로퍼티이며 `Scheduled` 는 항상 `false`
+- `SerializableNotification` / `SerializableNotificationConverter` - `PlayerPrefs` 저장용 구조체(`Id`, `Title`, `Body`, `Subtitle`, `Channel`, `BadgeNumber`, `DeliveryTime`)와 변환 확장 메서드
