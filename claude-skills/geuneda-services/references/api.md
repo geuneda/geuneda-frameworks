@@ -224,14 +224,18 @@ public 필드 `Action OnUpdate`, `Action OnFixedUpdate`, `Action OnLateUpdate`. 
 
 | 멤버 | 설명 |
 |------|------|
-| `void SaveData<T>() where T : class` | `PlayerPrefs` 키 `typeof(T).Name` 에 JSON 저장 후 `PlayerPrefs.Save()` |
+| `void SaveData<T>() where T : class` | `PlayerPrefs` 키 `typeof(T).FullName` 에 `{"version":n,"data":{...}}` 저장 후 `PlayerPrefs.Save()` |
 | `void SaveAllData()` | 메모리의 모든 타입 저장 |
-| `T LoadData<T>() where T : class` | 저장값이 없으면 `Activator.CreateInstance<T>()`. 결과를 메모리에 등록 |
+| `T LoadData<T>() where T : class` | 저장값이 없으면 `Activator.CreateInstance<T>()`. 저장된 버전이 낮으면 등록된 마이그레이션 적용. 읽지 못하면 예외 대신 `{키}.corrupt` 백업·에러 로그·`OnDataLoadFailed` 후 새 인스턴스. 결과를 메모리에 등록 |
 | `void AddOrReplaceData<T>(T data) where T : class` | 메모리만 변경 |
 
 ### class DataService : IDataService
 
-생성자 `DataService()`. `protected virtual void OnDataSaved(string key, object data, Type type)` 확장 지점. 직렬화는 Newtonsoft.Json(`JsonConvert`).
+생성자 `DataService()`. 확장 지점 `protected virtual void OnDataSaved(string key, object data, Type type)`, `protected virtual void OnDataLoadFailed(string key, string rawData, Exception exception)`, `protected virtual void SaveCorruptBackup(string key, string rawData)`(기본 `{키}.corrupt`). 백업·훅의 예외는 로그만 남기고 새 인스턴스로 계속한다. 더 새 버전 세이브를 읽은 타입은 `AddOrReplaceData` 전까지 `SaveData`/`SaveAllData` 에서 건너뛴다(경고). `void AddMigration<T>(int fromVersion, Func<JToken, JToken> migration)`(한 단계씩, 잘못된 인자면 `ArgumentNullException`/`ArgumentOutOfRangeException`/`ArgumentException`). 정적 `string GetSaveKey(Type)`(FullName), `int GetDataVersion(Type)`, `const string CorruptKeySuffix = ".corrupt"`. 직렬화는 Newtonsoft.Json.
+
+### sealed class DataVersionAttribute : Attribute
+
+`[DataVersion(int version)]`, 클래스에만. 데이터 타입의 세이브 스키마 버전(음수면 `ArgumentOutOfRangeException`). 없으면 0.
 
 ---
 
