@@ -206,5 +206,3 @@ geuneda-<패키지>/
 ## 라이선스
 
 MIT License. 루트 [LICENSE](LICENSE) 를 따르며, `Packages/` 아래 각 패키지는 자체 라이선스 파일을 가질 수 있습니다.
-
-원본: GameLovers Frameworks by Miguel Tomas
