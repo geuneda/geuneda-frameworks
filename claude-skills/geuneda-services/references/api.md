@@ -337,7 +337,8 @@ public 필드 `int Seed`, `int Count`, `int[] State`. `RngService` 가 직접 �
 | `string Branch` / `Commit` / `BuildNumber` | 로드 실패 시 `string.Empty` |
 | `void LoadVersionData()` | 동기 로드 (호출 시마다 다시 읽음) |
 | `Task LoadVersionDataAsync()` | 비동기 로드 |
-| `bool IsOutdatedVersion(string version)` | `version` 이 `VersionExternal` 보다 높으면 `true`. 세 부분 아니면 예외 |
+| `bool IsOutdatedVersion(string version)` | `version` 이 `VersionExternal` 보다 높으면 `true`. 아래 오버로드의 규칙을 따름 |
+| `bool IsOutdatedVersion(string currentVersion, string otherVersion)` | `otherVersion` 이 더 높으면 `true`. `Major[.Minor[.Patch]]`, 빠진 부분 0, 각 부분의 앞쪽 숫자만 비교(접미사 무시). Major 를 읽을 수 없거나 어느 부분이 `int` 범위를 넘으면 경고 후 `false` |
 | `string FormatInternalVersion(VersionData data)` | `{Application.version}-{BuildNumber}.{BranchName}.{CommitHash}[.{BuildType}]` |
 
 `SubsystemRegistration` 에서 자동 로드되고, 프로퍼티 접근 시 로드를 한 번도 시도하지 않았으면 지연 로드한다(실패해도 재시도하지 않음).
@@ -434,7 +435,8 @@ Addressables 래퍼. 작업이 실패하면 `OperationException` 을 던진다.
 
 | 타입 | 멤버 |
 |------|------|
-| `static class VersionEditorUtils` | `void SetAndSaveInternalVersion(bool isStoreBuild)`(`prod`/`dev`), `string LoadVersionDataSerializedSync()` |
+| `static class VersionEditorUtils` | `void SetAndSaveInternalVersion(bool isStoreBuild)`(`prod`/`dev`, 활성 빌드 타깃의 빌드 번호), `void SetAndSaveInternalVersion(bool isStoreBuild, BuildTarget buildTarget)`, `string LoadVersionDataSerializedSync()`. 빌드 번호는 Android 면 `bundleVersionCode`, 그 밖에는 `iOS.buildNumber` |
+| `internal sealed class VersionBuildProcessor` | `IPreprocessBuildWithReport`/`IPostprocessBuildWithReport`. 빌드 직전 개발 빌드가 아니면 `prod`, 개발 빌드면 `dev` 와 대상 플랫폼 빌드 번호를 쓰고, 성공 후처리 또는 빌드가 끝난 뒤 첫 에디터 업데이트(실패·취소)에서 `dev` 로 되돌림 |
 | `class GitEditorProcess : IDisposable` | 생성자 `(string workingDir, string pathToGitBinary = ...)`, `int ExitCode`, `bool IsValidRepo()`, `string GetBranch()`, `string GetCommitHash()`, `string GetDiffFromCommit(string commitHash)` |
 
 ### Geuneda.Services.Editor.Explorer
