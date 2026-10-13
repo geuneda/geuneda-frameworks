@@ -2,7 +2,7 @@
 
 Geuneda 패키지 개선에 참여해 주셔서 감사합니다.
 
-이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 12개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
+이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 13개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
 
 ## 기여 위치
 
@@ -29,7 +29,7 @@ git submodule update --init --recursive
 
 ## 서브모듈 워크플로우
 
-`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
+`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, account, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
 
 ```bash
 cd Packages/com.geuneda.services
@@ -68,6 +68,7 @@ git commit -m "chore: services 포인터 갱신"
 | core | `Tests/EditMode` (`Geuneda.Core.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.Core.Tests.PlayMode`) |
 | http | `Tests/EditMode` (`Geuneda.Http.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.Http.Tests.PlayMode`, 로컬 HttpListener) |
 | realtime | `Tests/EditMode` (`Geuneda.Realtime.Tests.EditMode`, 가짜 전송과 로컬 TcpListener WebSocket 서버, 생성된 클라이언트, `[Explicit]` 샘플 서버 상호 운용), `Tests/MessagePack` (`Geuneda.Realtime.MessagePack.Tests.EditMode`, MessagePack 이 있을 때만). 서버·생성기는 `dotnet test "Packages/com.geuneda.realtime/Server~/Geuneda.Realtime.Server.slnx"`(.NET 10 SDK) |
+| account | `Tests/EditMode` (`Geuneda.Account.Tests.EditMode`, 가짜 인증 서버 전송, `[Explicit]` 샘플 서버 상호 운용). 서버는 `dotnet test "Packages/com.geuneda.account/Server~/Geuneda.Account.Server.slnx"`(.NET 10 SDK) |
 | gamedata | `Tests/Editor` (`Geuneda.GameData.Editor.Tests`), `Tests/PlayMode` (`Geuneda.GameData.PlayMode.Tests`) |
 | services | `Tests/EditMode` (`Geuneda.Services.Editor.Tests`), `Tests/PlayMode` (`Geuneda.Services.Tests.Playmode`) |
 | uiservice | `Tests/EditMode` (`Geuneda.UiService.Tests`), `Tests/PlayMode` (`Geuneda.UiService.Tests.PlayMode`) |

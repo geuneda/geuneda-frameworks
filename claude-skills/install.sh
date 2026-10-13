@@ -10,6 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_DIR="${HOME}/.claude/skills"
 
 SKILLS=(
+    "geuneda-account"
     "geuneda-core"
     "geuneda-gamedata"
     "geuneda-gamesystems"

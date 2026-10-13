@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -137,7 +137,7 @@
 
 - **버전 / 최소 Unity**: 0.2.0 / 2021.3
 - **package.json 의존성**: 없음
-- **이 패키지에 의존하는 패키지**: services, http, realtime
+- **이 패키지에 의존하는 패키지**: services, http, realtime, account
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드, Android R8 keep 규칙 훅)
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
 - **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인)
@@ -172,6 +172,18 @@
 
 ---
 
+## 13. com.geuneda.account
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **package.json 의존성**: `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
+- **어셈블리 / 네임스페이스**: `Geuneda.Account`
+- **주요 기능**: `IAuthService`/`AuthService`(게스트·제공자 로그인, `SignInSilentlyAsync`, `GetAccessTokenAsync` 재발급 single-flight, 로그아웃, 연동·충돌·옮겨오기·해제·계정 삭제, 계정 작업 동시 하나 `InProgress`), `AuthTokenMiddleware`(Bearer, 401 재발급 후 한 번 재전송, `RetryMiddleware` 바깥), `IAuthProvider`/`GuestAuthProvider`, `IAppSession`/`AppSession`(다음 세션 ID 예약, 백그라운드 10분 시간 초과, 대칭 이벤트), `AccountResultCodes`(3000 블록)
+- **서버**: `Server~/` 의 ASP.NET Core 인증 서버 `Geuneda.Account.Server`(`AddGeunedaAccount`/`MapGeunedaAccount`, JWT, refresh 회전·재사용 감지, `IAccountStore`·`IRefreshTokenStore`·`IPlatformVerifier`, 게임 서버용 `AddGeunedaAccessTokenValidation`), 샘플 서버, xUnit 테스트(.NET 10)
+- **테스트**: EditMode `Geuneda.Account.Tests.EditMode`(가짜 인증 서버 전송, `[Explicit]` 샘플 서버 상호 운용), `dotnet test Server~/Geuneda.Account.Server.slnx`
+- **문서**: `README.md`(서버 경로 표 포함), `AGENTS.md`
+
+---
+
 ## 호스트 프로젝트 manifest.json
 
 호스트 레포 `Packages/manifest.json` 의 주요 항목(Unity 모듈과 IDE 패키지는 생략). 호스트에서는 같은 이름의 서브모듈 폴더가 우선 사용된다.
@@ -182,6 +194,7 @@
     "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
     "com.geuneda.http": "https://github.com/geuneda/geuneda-http.git",
     "com.geuneda.realtime": "https://github.com/geuneda/geuneda-realtime.git",
+    "com.geuneda.account": "https://github.com/geuneda/geuneda-account.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
