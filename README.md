@@ -26,7 +26,7 @@ Geuneda Unity Package Manager(UPM) 패키지 9개를 개발, 테스트, 검증�
 | `com.geuneda.statechart` | 0.9.6 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](Packages/com.geuneda.inputextensions/README.md) |
 | `com.geuneda.nativeui` | 0.2.7 | 2020.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](Packages/com.geuneda.nativeui/README.md) |
-| `com.geuneda.notificationservice` | 0.1.9 | 2019.4 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](Packages/com.geuneda.notificationservice/README.md) |
+| `com.geuneda.notificationservice` | 0.1.9 | 2021.3 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](Packages/com.geuneda.notificationservice/README.md) |
 | `com.geuneda.googlesheetimporter` | 0.9.1 | 6000.0 | Google 스프레드시트 데이터를 ScriptableObject 설정 데이터로 가져오는 에디터 도구 | [README](Packages/com.geuneda.googlesheetimporter/README.md) |
 | `com.geuneda.gamesystems` | 0.2.1 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷) | [README](Packages/com.geuneda.gamesystems/README.md) |
 
@@ -60,7 +60,7 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | statechart | `com.cysharp.unitask` 2.5.10 |
 | inputextensions | `com.unity.inputsystem` 1.1.1, `com.unity.ugui` 1.0.0 |
 | nativeui | 없음 |
-| notificationservice | `com.unity.mobile.notifications` 1.3.0 |
+| notificationservice | `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
 | gamesystems | `com.geuneda.services` 2.1.0 |
 

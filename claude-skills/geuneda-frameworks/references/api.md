@@ -98,12 +98,12 @@
 
 ## 7. com.geuneda.notificationservice
 
-- **버전 / 최소 Unity**: 0.1.9 / 2019.4
-- **package.json 의존성**: `com.unity.mobile.notifications` 1.3.0
+- **버전 / 최소 Unity**: 0.1.9 / 2021.3
+- **package.json 의존성**: `com.unity.mobile.notifications` 2.4.2
 - **어셈블리**: `Geuneda.NotificationService`
 - **네임스페이스**: `Geuneda.NotificationService`
-- **주요 기능**: `MobileNotificationService`(알림 생성/예약/취소/해제), `GameNotificationChannel`, Android/iOS 플랫폼 구현
-- **테스트**: 없음
+- **주요 기능**: `MobileNotificationService`(알림 생성/예약/취소/해제, 앱 안 알림 설정 `IsEnabled`, OS 권한 `Permission`/`RequestPermission`), `GameNotificationChannel`, Android/iOS 플랫폼 구현
+- **테스트**: PlayMode `Geuneda.NotificationService.Tests.PlayMode`
 - **문서**: `README.md`
 
 ---

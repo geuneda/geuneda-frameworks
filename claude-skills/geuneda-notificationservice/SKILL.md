@@ -5,11 +5,11 @@ description: Geuneda.NotificationService 네임스페이스(com.geuneda.notifica
 
 # Geuneda Notification Service
 
-Unity Mobile Notifications(`com.unity.mobile.notifications`)를 감싸 Android/iOS 로컬 알림을 하나의 API 로 다루는 패키지. 원격(푸시) 알림 수신과 알림 권한 요청은 포함하지 않는다.
+Unity Mobile Notifications(`com.unity.mobile.notifications`)를 감싸 Android/iOS 로컬 알림을 하나의 API 로 다루는 패키지. 앱 안 알림 설정과 OS 알림 권한의 2단 게이트를 제공한다(Unreleased). 원격(푸시) 알림 수신은 포함하지 않는다.
 
 - 네임스페이스/어셈블리: `Geuneda.NotificationService`
 - 설치: `https://github.com/geuneda/geuneda-notificationservice.git` (고정하려면 `#<태그>`)
-- 의존성: `com.unity.mobile.notifications` 1.3.0 (`package.json` 선언), Unity 2019.4 이상
+- 의존성: `com.unity.mobile.notifications` 2.4.2 (`package.json` 선언), Unity 2021.3 이상
 - 전체 공개 API: [references/api.md](references/api.md)
 
 ## 핵심 API
@@ -19,7 +19,11 @@ public interface INotificationService
 {
     event Action<PendingNotification> OnLocalNotificationDeliveredEvent; // 포그라운드에서 대기 목록의 알림이 전달될 때
     event Action<PendingNotification> OnLocalNotificationExpiredEvent;   // Queue 모드에서 큐 알림이 시간을 지나 제거될 때
+    event Action<bool> OnEnabledChanged;                                 // 앱 안 알림 설정이 바뀔 때(켜지면 다시 예약)
     IReadOnlyList<PendingNotification> PendingNotifications { get; }
+    bool IsEnabled { get; set; }                                         // 앱 안 알림 설정(PlayerPrefs 저장, 기본 true)
+    NotificationPermission Permission { get; }                           // OS 알림 권한
+    void RequestPermission(Action<NotificationPermission> onCompleted);  // OS 알림 권한 요청
     IGameNotification CreateNotification();
     PendingNotification ScheduleNotification(IGameNotification gameNotification);
     void CancelNotification(int notificationId);
@@ -39,7 +43,8 @@ public class MobileNotificationService : INotificationService
 - `PendingNotification`: `public readonly IGameNotification Notification`, `public bool Reschedule` (둘 다 필드)
 - `GameNotificationChannel` (`readonly struct`): `(id, name, description)` 또는 `(id, name, description, NotificationStyle style, bool showsBadge = true, bool showLights = false, bool vibrates = true, bool highPriority = false, PrivacyMode privacy = PrivacyMode.Public, long[] vibrationPattern = null)`
 - `OperatingMode` (`[Flags]`): `NoQueue`, `Queue`, `ClearOnForegrounding`, `RescheduleAfterClearing`, `QueueAndClear`, `QueueClearAndReschedule`
-- `GameNotificationsMonoBehaviour`: 실제 관리자. `Mode`, `AutoBadging`, `OnLocalNotificationDelivered`, `OnLocalNotificationExpired` 필드와 `Initialize(params GameNotificationChannel[])` 를 가진다
+- `NotificationPermission`: `NotDetermined`, `Pending`, `Granted`, `Denied`
+- `GameNotificationsMonoBehaviour`: 실제 관리자. `Mode`, `AutoBadging`, `OnLocalNotificationDelivered`, `OnLocalNotificationExpired`, `OnNotificationsEnabledChanged` 필드와 `Initialize(params GameNotificationChannel[])`, `SetNotificationsEnabled(bool)`, `RequestPermission(...)` 을 가진다
 
 ## 사용 패턴
 
@@ -70,6 +75,29 @@ notifications.DismissAllDisplayedNotifications();       // 표시된 알림 모�
 
 Geuneda.Services 를 함께 쓰는 프로젝트라면 생성한 인스턴스를 `MainInstaller.Bind<INotificationService>(notifications);` 로 등록하고 `MainInstaller.Resolve<INotificationService>()` 로 가져온다. `MobileNotificationService` 는 생성할 때마다 `DontDestroyOnLoad` GameObject 를 새로 만들므로 한 번만 생성한다.
 
+### 알림 설정과 OS 권한 (2단 게이트)
+
+```csharp
+// ScheduleAll 은 CancelAllScheduledNotifications() 후 필요한 알림을 모두 예약한다(여러 번 불러도 겹치지 않음)
+
+// OS 권한: 게임 흐름에 맞는 시점에 요청(Android 13+ POST_NOTIFICATIONS, iOS 알림·배지·소리).
+// iOS 는 권한이 없던 동안의 예약을 버리므로 허용되면 다시 예약한다
+notifications.RequestPermission(permission =>
+{
+    if (permission == NotificationPermission.Granted && notifications.IsEnabled) ScheduleAll();
+});
+
+// 시작: 저장된 앱 안 설정으로 토글을 맞추고 켜져 있으면 한 번 예약
+toggle.SetIsOnWithoutNotify(notifications.IsEnabled);
+if (notifications.IsEnabled) ScheduleAll();
+
+// 이후 사용자 조작: 끄면 예약·표시된 알림을 모두 지우고 이후 예약은 null. 켜지면 되살리지 않으므로 다시 예약
+notifications.OnEnabledChanged += enabled => { if (enabled) ScheduleAll(); };
+toggle.onValueChanged.AddListener(isOn => notifications.IsEnabled = isOn);
+
+var isOn = notifications.IsEnabled && notifications.Permission == NotificationPermission.Granted; // 설정 화면 표시 값
+```
+
 ### OperatingMode 와 이벤트
 
 ```csharp
@@ -80,7 +108,10 @@ notifications.OnLocalNotificationDeliveredEvent += pending => Debug.Log(pending.
 notifications.OnLocalNotificationExpiredEvent += pending => Debug.Log($"만료: {pending.Notification.Id}");
 
 var pending = notifications.ScheduleNotification(notification); // notification 은 CreateNotification() 으로 만든 알림
-pending.Reschedule = true;              // RescheduleAfterClearing 모드에서 포그라운드 복귀 후 재예약
+if (pending != null)                    // 앱 안 알림 설정이 꺼져 있으면 null
+{
+    pending.Reschedule = true;          // RescheduleAfterClearing 모드에서 포그라운드 복귀 후 재예약
+}
 ```
 
 ### GameNotificationsMonoBehaviour 직접 사용
@@ -106,7 +137,10 @@ if (n != null)
     n.Body = "다시 플레이하세요.";
     n.DeliveryTime = DateTime.Now.AddMinutes(30);
     var pending = manager.ScheduleNotification(n);
-    pending.Reschedule = true;          // RescheduleAfterClearing 모드에서 포그라운드 복귀 후 재예약
+    if (pending != null)                // 앱 안 알림 설정이 꺼져 있으면 null
+    {
+        pending.Reschedule = true;      // RescheduleAfterClearing 모드에서 포그라운드 복귀 후 재예약
+    }
 }
 ```
 
@@ -132,11 +166,15 @@ notification.Channel = "urgent"; // Android: 채널 ID, iOS: CategoryIdentifier
 ## 함정
 
 - `MobileNotificationService` 의 `Mode` 는 생성자에서만 정한다. 인자 없는 채널 생성자는 `NoQueue` 이고, 이 상태에서 `PendingNotification.Reschedule` 은 의미가 없다.
-- 에디터에서 `MobileNotificationService.CreateNotification()` 은 internal `EditorGameNotification` 을 반환하고, `ScheduleNotification` 은 실제로 예약하지 않으며 `PendingNotifications` 에도 추가하지 않는다(ID 만 생성). 그래서 에디터에서는 전달/만료 이벤트도 발생하지 않는다.
+- 에디터에서 `MobileNotificationService.CreateNotification()` 은 internal `EditorGameNotification` 을 반환하고, `ScheduleNotification` 은 실제로 예약하지 않으며 `PendingNotifications` 에도 추가하지 않는다(ID 만 부여). 그래서 에디터에서는 전달/만료 이벤트도 발생하지 않는다.
 - `MobileNotificationService.ScheduleNotification(null)` 은 `ArgumentNullException`. `GameNotificationsMonoBehaviour.ScheduleNotification(null)` 은 `null` 을 반환한다.
+- 앱 안 알림 설정(`IsEnabled`)이 꺼져 있으면 `ScheduleNotification` 이 예약하지 않고 `null` 을 반환한다(에디터 포함). 반환값을 바로 쓰는 코드는 null 을 확인한다. 다시 켜도 지운 알림은 돌아오지 않으므로 `OnEnabledChanged` 와 시작 시점에 필요한 알림을 예약한다.
+- OS 권한은 예약을 막지 않는다. 다만 iOS 는 권한이 없는 동안 OS 가 예약을 버리고(서비스 대기 목록에는 예약됨으로 남음) 권한이 나중에 생겨도 되살아나지 않으므로, 권한 허용 콜백에서 다시 예약한다. 예약 함수는 "전체 취소 후 다시 예약"으로 만들어 여러 번 불러도 겹치지 않게 한다. 설정 화면에는 `IsEnabled && Permission == Granted` 를 보여 주고, 사용자가 기기 설정에서 바꿀 수 있으므로 화면을 열 때마다 `Permission` 을 다시 읽는다. 에디터에서는 항상 `Granted`.
+- `Id` 를 지정하지 않으면 1,000,000 부터 늘어나는 ID 가 부여된다(실행 간 이어짐, 대기 목록의 ID 는 건너뜀). 직접 지정하는 ID 는 1,000,000 미만으로 둔다.
+- 백그라운드 판단은 `OnApplicationPause` 기준이다. 결제창·광고로 포커스만 잃으면 큐 예약과 저장을 하지 않는다(Unreleased).
 - Android 는 채널이 최소 하나 필요하다. 첫 번째 채널이 `Channel` 미지정 알림의 기본 채널이 된다. iOS 에서 채널 등록은 아무 동작도 하지 않는다.
-- Android: `DeliveryTime = null` 은 `ArgumentNullException`, `Subtitle` 은 무시된다. ID 미지정 시 예약하면서 OS 발급 ID 가 채워진다.
+- Android: `DeliveryTime = null` 은 `ArgumentNullException`, `Subtitle` 은 무시된다.
 - iOS: `Id = null` 은 `ArgumentNullException`, 내부 식별자가 숫자가 아니면 `Id` 는 경고 로그와 함께 `null`. `SmallIcon`/`LargeIcon` 은 무시, `ShouldAutoCancel` 은 효과 없음, 포그라운드 전환 시 앱 배지를 0 으로 초기화한다.
 - `AndroidGameNotification`/`iOSGameNotification` 은 각각 `#if UNITY_ANDROID`/`#if UNITY_IOS` 안에서만 존재한다. 직접 참조하면 같은 지시문으로 감싼다.
-- 알림 권한(iOS, Android 13 이상) 요청은 이 패키지가 하지 않는다. Unity Mobile Notifications API 로 직접 요청한다.
+- iOS 는 Unity Mobile Notifications 의 기본 설정(Project Settings > Mobile Notifications > iOS > Request Authorization on App Launch = 켬)이면 앱 시작 때 권한 창을 띄운다. `RequestPermission` 으로 요청 시점을 정하려면 이 설정을 끈다. 켜 두면 `RequestPermission` 은 이미 결정된 값을 바로 돌려준다.
 - 백그라운드 전환 시 `PlayerPrefs` 키 `notifications` 에 상태를 저장하고 포그라운드 복귀 시 읽는다. 같은 키를 쓰지 않는다. `SmallIcon`/`LargeIcon`/`ShouldAutoCancel` 도 저장된다. 예약을 지우지 않는 모드에서 복원한 알림은 다시 예약하지 않고 `Scheduled` 상태로 되살린다(다음 백그라운드 전환 때 다시 저장된다). 0.1.7 이하가 저장한 값은 빈 상태로 읽힌다.

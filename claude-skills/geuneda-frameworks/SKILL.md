@@ -27,7 +27,7 @@ Geuneda UPM 패키지 9개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.statechart` | 0.9.6 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 포인터 드래그, 스와이프/탭, 게임패드 | `geuneda-inputextensions` |
 | `com.geuneda.nativeui` | 0.2.7 | 2020.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
-| `com.geuneda.notificationservice` | 0.1.9 | 2019.4 | 모바일 로컬 알림 예약/취소/해제 | `geuneda-notificationservice` |
+| `com.geuneda.notificationservice` | 0.1.9 | 2021.3 | 모바일 로컬 알림 예약/취소/해제, 앱 안 설정과 OS 권한 게이트 | `geuneda-notificationservice` |
 | `com.geuneda.googlesheetimporter` | 0.9.1 | 6000.0 | Google 스프레드시트 -> ScriptableObject 설정 데이터 임포트(에디터 도구) | `geuneda-googlesheetimporter` |
 | `com.geuneda.gamesystems` | 0.2.1 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷) | `geuneda-gamesystems` |
 
@@ -134,7 +134,7 @@ git commit -m "chore: services 포인터 갱신"
 
 ## 테스트
 
-Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems 이고, inputextensions, nativeui, notificationservice 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
+Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
 
 ## 새 패키지 추가 절차
 

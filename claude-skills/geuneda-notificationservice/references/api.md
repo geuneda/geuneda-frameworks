@@ -12,9 +12,13 @@
 |------|------|
 | `event Action<PendingNotification> OnLocalNotificationDeliveredEvent` | 앱이 포그라운드일 때 대기 목록에 있는 로컬 알림이 전달되면 발생 |
 | `event Action<PendingNotification> OnLocalNotificationExpiredEvent` | 큐에 있던 알림이 표시 시점에 앱이 포그라운드여서 제거될 때 발생(`Queue` 모드) |
+| `event Action<bool> OnEnabledChanged` | 앱 안 알림 설정(`IsEnabled`)이 바뀔 때 바뀐 값으로 발생. 켜졌을 때 다시 예약하는 데 쓴다 |
 | `IReadOnlyList<PendingNotification> PendingNotifications { get; }` | 예약되었거나 큐에 있는 알림 |
+| `bool IsEnabled { get; set; }` | 앱 안 알림 설정(기본값 `true`, `PlayerPrefs` 키 `geuneda.notificationservice.enabled`). `false` 로 바꾸면 예약 취소, 표시 알림 닫기, 저장 목록 삭제 후 이후 예약은 `null`. 같은 값이면 아무것도 안 함 |
+| `NotificationPermission Permission { get; }` | 현재 OS 알림 권한. `RequestPermission` 요청에 아직 응답이 없으면 `Pending`. 에디터에서는 항상 `Granted`. 권한이 없어도 예약은 막지 않지만 iOS 는 그 예약을 OS 가 버린다 |
+| `void RequestPermission(Action<NotificationPermission> onCompleted)` | OS 알림 권한 요청. 이미 결정되었으면 바로, 아니면 응답 후 콜백. 진행 중이면 그 결과를 함께 받음. 에디터에서는 바로 `Granted`. `onCompleted` 가 `null` 이면 `ArgumentNullException` |
 | `IGameNotification CreateNotification()` | 현재 플랫폼용 알림 객체 생성 |
-| `PendingNotification ScheduleNotification(IGameNotification gameNotification)` | 알림 예약 |
+| `PendingNotification ScheduleNotification(IGameNotification gameNotification)` | 알림 예약. `Id` 가 없으면 자동 ID 부여. `IsEnabled` 가 꺼져 있으면 `null` |
 | `void CancelNotification(int notificationId)` | 예약된 알림 취소 |
 | `void DismissNotification(int notificationId)` | 표시된 알림 닫기 |
 | `void CancelAllScheduledNotifications()` | 모든 예약 알림 취소 |
@@ -31,7 +35,8 @@ public MobileNotificationService(OperatingMode mode, params GameNotificationChan
 - 내부 MonoBehaviour 를 노출하지 않으므로 `Mode` 는 생성할 때만 정한다. `AutoBadging` 은 `public bool AutoBadging { get; set; }` 프로퍼티로 내부 값을 읽고 쓴다(기본값 `true`, v0.1.9).
 - 이벤트: MonoBehaviour 의 `OnLocalNotificationDelivered` / `OnLocalNotificationExpired` 가 호출될 때 그 시점의 구독자에게 전달한다.
 - `CreateNotification()`: 에디터(`UNITY_EDITOR`)에서는 `EditorGameNotification`, 그 외에는 `GameNotificationsMonoBehaviour.CreateNotification()` 결과(지원하지 않는 플랫폼이면 `null`).
-- `ScheduleNotification(...)`: `null` 이면 `ArgumentNullException`. 에디터에서는 `Id` 가 없으면 시간 기반 해시로 생성하고 `new PendingNotification(gameNotification)` 만 반환한다(예약하지 않고 `PendingNotifications` 에도 추가하지 않음). 그 외에는 MonoBehaviour 에 위임.
+- `ScheduleNotification(...)`: `null` 이면 `ArgumentNullException`. 에디터에서는 `IsEnabled` 가 꺼져 있으면 `null`, 아니면 `Id` 가 없을 때 자동 ID 를 부여하고 `new PendingNotification(gameNotification)` 만 반환한다(예약하지 않고 `PendingNotifications` 에도 추가하지 않음). 그 외에는 MonoBehaviour 에 위임.
+- `IsEnabled` 는 MonoBehaviour 의 `NotificationsEnabled`/`SetNotificationsEnabled` 에, `Permission`/`RequestPermission` 은 에디터가 아니면 MonoBehaviour 에 위임한다. `OnEnabledChanged` 는 MonoBehaviour 의 `OnNotificationsEnabledChanged` 가 호출될 때 그 시점의 구독자에게 전달한다.
 - `CancelNotification` / `DismissNotification` 은 같은 이름의 MonoBehaviour 메서드에, `CancelAllScheduledNotifications` 는 `CancelAllNotifications` 에, `DismissAllDisplayedNotifications` 는 `DismissAllNotifications` 에 위임한다.
 
 ---
@@ -80,7 +85,12 @@ public MobileNotificationService(OperatingMode mode, params GameNotificationChan
 | `bool Initialized { get; }` | 초기화 여부 |
 | `void Initialize(params GameNotificationChannel[] channels)` | 플랫폼 구현 생성, Android 채널 등록(첫 채널이 기본 채널). 두 번 호출하면 `InvalidOperationException` |
 | `IGameNotification CreateNotification()` | 플랫폼용 알림 생성. 플랫폼이 없으면 `null` |
-| `PendingNotification ScheduleNotification(IGameNotification notification)` | `notification` 이 `null` 이면 `null` 반환. `Queue` 모드이고 `DeliveryTime` 이 있으면 백그라운드 전환 때까지 큐에 보관(ID 없으면 생성), 아니면 즉시 예약. 결과를 `PendingNotifications` 에 추가 |
+| `PendingNotification ScheduleNotification(IGameNotification notification)` | `notification` 이 `null` 이거나 앱 안 알림 설정이 꺼져 있으면 `null` 반환. `Id` 가 없으면 자동 ID(1,000,000 부터, `PlayerPrefs` 키 `geuneda.notificationservice.lastId` 로 실행 간 이어짐, 대기 목록의 ID 는 건너뜀) 부여. `Queue` 모드이고 `DeliveryTime` 이 있으면 백그라운드 전환 때까지 큐에 보관, 아니면 즉시 예약. 결과를 `PendingNotifications` 에 추가 |
+| `public Action<bool> OnNotificationsEnabledChanged` | 앱 안 알림 설정이 바뀔 때 호출 |
+| `bool NotificationsEnabled { get; }` / `void SetNotificationsEnabled(bool enabled)` | 앱 안 알림 설정 읽기/바꾸기. 끄면 예약 취소, 표시 알림 닫기, 목록과 저장값 삭제 |
+| `NotificationPermission Permission { get; }` | 진행 중인 권한 요청이 있으면 `Pending`, 아니면 플랫폼의 OS 알림 권한. 플랫폼이 없으면 `Granted` |
+| `internal void InitializeWithPlatform(IGameNotificationsPlatform platform)` | 플랫폼 구현을 받아 초기화(`Initialize` 가 플랫폼을 만든 뒤 호출). 테스트에서 가짜 플랫폼을 넣는 데 쓴다 |
+| `void RequestPermission(Action<NotificationPermission> onCompleted)` | OS 권한 요청. 요청 상태는 `Update` 에서 매 프레임 확인하고 끝나면 기다리던 콜백 모두에 알림(콜백 예외는 로그). 플랫폼이 없으면 바로 `Granted` |
 | `void CancelNotification(int notificationId)` | 예약 취소 후 목록에서 제거 |
 | `void CancelAllNotifications()` | 모든 예약 취소 후 목록 비움 |
 | `void DismissNotification(int notificationId)` | 표시된 알림 닫기 |
@@ -88,8 +98,9 @@ public MobileNotificationService(OperatingMode mode, params GameNotificationChan
 
 - `Initialize` 외의 메서드는 초기화 전에 호출하면 `InvalidOperationException`.
 - 플랫폼 구현은 `UNITY_ANDROID` 면 Android, `UNITY_IOS` 면 iOS 이며, 둘 다 아니면 없다(에디터에서도 빌드 타깃 기준).
-- 포그라운드 전환(`OnApplicationFocus(true)`, `Initialize` 시 포함): 목록을 비우고 `PlayerPrefs` 키 `notifications` 에서 저장된 알림을 읽는다. `ClearOnForegrounding` 이면 예약을 모두 취소하고, `RescheduleAfterClearing` 이면 미래 알림을 `Reschedule = true` 로 다시 예약한다. 그렇지 않으면 미래 알림을 다시 예약하지 않고 `Scheduled` 상태로 목록에 복원한다(OS 예약이 남아 있으므로).
-- 백그라운드 전환(`OnApplicationFocus(false)`): `Queue` 모드면 아직 예약되지 않은 알림 중 전달 시간이 2초 이내이거나 지난 것을 버리고(필요하면 배지 자동 부여) 나머지를 예약한다. 이어서 저장 대상(`ClearOnForegrounding` 이 없으면 예약된 모든 알림, `RescheduleAfterClearing` 까지 있으면 `Reschedule` 이고 예약되었으며 시간이 있는 알림)을 `PlayerPrefs` 키 `notifications` 에 쓴다.
+- 포그라운드 전환(`OnApplicationPause(false)`, `Initialize` 시 포함): 목록을 비운다. 앱 안 알림 설정이 꺼져 있으면 OS 예약을 모두 취소하고 끝낸다. 켜져 있으면 `PlayerPrefs` 키 `notifications` 에서 저장된 알림을 읽는다. `ClearOnForegrounding` 이면 예약을 모두 취소하고, `RescheduleAfterClearing` 이면 미래 알림을 `Reschedule = true` 로 다시 예약한다. 그렇지 않으면 미래 알림을 다시 예약하지 않고 `Scheduled` 상태로 목록에 복원한다(OS 예약이 남아 있으므로).
+- 포커스가 아니라 일시 정지 기준이라 결제창·광고로 포커스만 잃은 경우는 전환으로 보지 않는다. 상태가 바뀌지 않은 호출(시작 직후 `OnApplicationPause(false)` 등)은 무시한다(Unreleased).
+- 백그라운드 전환(`OnApplicationPause(true)`): `Queue` 모드면 아직 예약되지 않은 알림 중 전달 시간이 2초 이내이거나 지난 것을 버리고(필요하면 배지 자동 부여) 나머지를 예약한다. 이어서 저장 대상(`ClearOnForegrounding` 이 없으면 예약된 모든 알림, `RescheduleAfterClearing` 까지 있으면 `Reschedule` 이고 예약되었으며 시간이 있는 알림)을 `PlayerPrefs` 키 `notifications` 에 쓴다.
 
 ## OperatingMode (`[Flags]` enum)
 
@@ -164,7 +175,7 @@ public GameNotificationChannel(string id, string name, string description,
 - `BadgeNumber` 는 `InternalNotification.Number` 에 매핑(`-1` 이 `null`)
 - `DeliveryTime` 은 `InternalNotification.FireTime` 에 매핑. `null` 을 넣으면 `ArgumentNullException`
 - `Subtitle` 은 항상 `null`, 설정은 무시
-- `Id` 가 없으면 예약할 때 `AndroidNotificationCenter.SendNotification` 이 반환한 ID 로 채워짐
+- 서비스가 예약 전에 자동 ID 를 부여하므로 `AndroidNotificationCenter.SendNotificationWithExplicitID` 로 예약된다. 플랫폼 구현을 직접 써서 `Id` 없이 예약할 때만 `SendNotification` 이 반환한 ID 로 채워짐
 
 ### iOSGameNotification : IGameNotification
 
@@ -173,7 +184,7 @@ public GameNotificationChannel(string id, string name, string description,
 - `iOSGameNotification()` 생성자 - 내부 알림을 `ShowInForeground = true` 로 생성
 - `iOSNotification InternalNotification { get; }`
 - `string CategoryIdentifier { get; set; }` - `Channel` 과 같은 값
-- `Id` 는 내부 `Identifier` 문자열에 저장. 정수로 파싱할 수 없으면 경고 로그와 함께 `null`, `null` 을 넣으면 `ArgumentNullException`
+- `Id` 는 내부 `Identifier` 문자열에 저장. 새 알림은 식별자 없이 만들어 `Id` 가 `null` 이고(서비스가 예약할 때 자동 ID 부여, Unreleased), 정수로 파싱할 수 없으면 경고 로그와 함께 `null`, `null` 을 넣으면 `ArgumentNullException`
 - `BadgeNumber` 는 `InternalNotification.Badge` 에 매핑(`-1` 이 `null`)
 - `DeliveryTime` 은 `iOSNotificationCalendarTrigger` 로 저장(밀리초 무시). 다른 트리거면 `null` 반환, `null` 설정은 무시
 - `SmallIcon`/`LargeIcon` 은 항상 `null`, 설정은 무시. `ShouldAutoCancel` 은 값만 보관

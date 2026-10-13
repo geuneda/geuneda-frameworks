@@ -71,8 +71,9 @@ git commit -m "chore: services 포인터 갱신"
 | statechart | `Tests/Editor` (`Geuneda.Statechart.Editor.Tests`) |
 | googlesheetimporter | `Tests/Editor` (`Geuneda.GoogleSheetImporter.Editor.Tests`) |
 | gamesystems | `Tests/EditMode` (`Geuneda.GameSystems.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.GameSystems.Tests.PlayMode`) |
+| notificationservice | `Tests/PlayMode` (`Geuneda.NotificationService.Tests.PlayMode`) |
 
-inputextensions, nativeui, notificationservice 에는 테스트가 없습니다. 패키지 테스트가 Test Runner 에 보이지 않으면 `Packages/manifest.json` 의 `testables` 에 패키지 이름을 추가합니다.
+inputextensions, nativeui 에는 테스트가 없습니다. 패키지 테스트가 Test Runner 에 보이지 않으면 `Packages/manifest.json` 의 `testables` 에 패키지 이름을 추가합니다.
 
 ### 테스트 의존성
 
