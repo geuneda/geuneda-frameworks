@@ -1,6 +1,6 @@
 # Geuneda Realtime API 레퍼런스
 
-네임스페이스: `Geuneda.Realtime`. 어셈블리: `Geuneda.Realtime`, 선택 `Geuneda.Realtime.MessagePack`. 사용 패턴과 함정은 [../SKILL.md](../SKILL.md) 참고.
+네임스페이스: `Geuneda.Realtime`(클라이언트·공유), `Geuneda.Realtime.Server`(서버). 어셈블리: `Geuneda.Realtime`, 선택 `Geuneda.Realtime.MessagePack`, 서버 `Geuneda.Realtime.Server`(.NET 10, `Server~/`), 분석기 `Geuneda.Realtime.Generator`. 사용 패턴과 함정은 [../SKILL.md](../SKILL.md) 참고.
 
 ---
 
@@ -50,7 +50,7 @@
 
 - `interface IRpcSerializer { string Name; byte[] Serialize<T>(T value); T Deserialize<T>(ArraySegment<byte> payload); }` — 빈 본문 → `default`, 읽기 실패는 `RpcSerializationException` 만. 스레드 안전해야 함.
 - `JsonRpcSerializer(JsonSerializerSettings settings = null)` — Name `json`, UTF-8 Newtonsoft.
-- `MessagePackRpcSerializer(MessagePackSerializerOptions options = null)` — Name `msgpack`. `org.nuget.messagepack` ≥ 3.0.0 또는 `GEUNEDA_MESSAGEPACK` 일 때만 컴파일.
+- `MessagePackRpcSerializer(MessagePackSerializerOptions options = null)` — Name `msgpack`, 기본 옵션은 `UntrustedData` 보안. `org.nuget.messagepack` ≥ 3.0.0 또는 `GEUNEDA_MESSAGEPACK` 일 때만 컴파일.
 
 ## 프로토콜
 
@@ -66,8 +66,35 @@
 - `readonly struct RealtimeReceiveResult { bool IsClosed; ArraySegment<byte> Message; int CloseStatus; string CloseReason; }`
 - `ClientWebSocketTransport` — `ClientWebSocket`. 바이너리만, 메시지 최대 16MB(넘으면 1009), 텍스트 1003. 소켓 작업은 `ConfigureAwait(false)`.
 
+## 계약과 생성 코드
+
+- `[RpcService]`(interface), `[RpcAllowAnonymous]`(method). 경로 이름 `"인터페이스 이름/메서드 이름"`, ID 는 FNV-1a.
+- 허용 모양: `Task<TRes> M(TReq)`, `Task M(TReq)`, `Task<TRes> M()`, `Task M()`, 그리고 각각 끝에 `CancellationToken`. 인터페이스 안의 중첩 형식·상수 허용.
+- 클라이언트 생성 코드(계약 어셈블리가 `Geuneda.Realtime` 참조 시, 계약과 같은 네임스페이스·접근성):
+  - `static class XxxMethods { static readonly RpcMethod <메서드>; }`
+  - `interface IXxxClient`, `sealed class XxxClient(IRpcCaller caller)` — 메서드마다 `UniTask<Result<TRes>>`(응답 없으면 `UniTask<Result>`) `M(TReq request, CancellationToken cancellationToken = default)`. 인자 없는 메서드는 `M(CancellationToken)`.
+- 서버 생성 코드(`Geuneda.Realtime.Server.RpcRoute` 참조 시): `namespace <어셈블리 이름> { public static class GeneratedRpcRoutes { IReadOnlyList<RpcRoute> All } }`.
+- 진단(모두 오류): GRPC001 반환 형식, GRPC002 인자, GRPC003 제네릭 메서드, GRPC004 오버로드, GRPC005 제네릭 인터페이스, GRPC006 중첩 인터페이스, GRPC007 상속, GRPC008 속성·이벤트·static·기본 구현, GRPC009 인터페이스 이름 중복, GRPC010 ID 충돌, GRPC011 UniTask·Geuneda.Core 참조 없음, GRPC012 메서드 이름이 생성 멤버 이름과 같음, GRPC013 서비스끼리 생성 형식 이름이 같음, GRPC014 생성할 형식이 이미 있음. 오류가 있으면 코드를 만들지 않음. 예약어 메서드 이름은 이스케이프됨.
+
+## 서버 (`Geuneda.Realtime.Server`)
+
+| 멤버 | 설명 |
+|------|------|
+| `IServiceCollection.AddRealtimeRpc(Action<RealtimeServerOptions>)` | 레지스트리·핸들러·`IRpcContext`(scoped) 등록. 계약 구현은 따로 `AddScoped<IShopRpc, ShopRpc>()` |
+| `IEndpointRouteBuilder.MapRealtimeRpc(string pattern)` | `UseWebSockets()` 뒤. 설정·라우트 ID 중복·구현 미등록이면 `InvalidOperationException` |
+| `RealtimeServerOptions` | `Routes`/`AddRoutes`, `Serializers`(기본 JSON), `MaxMessageSize` 16MB, `IdleTimeout` 60초, `MaxQueuedRequests` 256(넘치면 Overloaded), `CloseTimeout` 5초 |
+| `IRpcContext` | `Session`, `Route`, `RequestId`, `CallAborted`(세션이 닫히기 시작하면 취소), `SignIn(userId)`(다른 사용자로 다시 부르면 `InvalidOperationException`, 닫히는 세션이면 `OperationCanceledException`). 호출 밖에서 쓰면 `InvalidOperationException` |
+| `IRealtimeSession` | `Id`, `UserId`, `IsAuthenticated`, `SubProtocol`, `Items`, `Closed`, `PushAsync<T>(RpcTopic, T, ct) → Task<bool>`, `CloseAsync(int status)`(보낼 수 없는 코드면 `ArgumentOutOfRangeException`, 남은 요청 미실행) |
+| `IRealtimeSessions` | `FindByUser(userId)`, `All`. 사용자당 세션 하나 |
+| `RpcStatusException(int status, string message = null)` | 응답 상태로 실패. 100000 미만이면 `ArgumentOutOfRangeException` |
+| `RpcRoute` | `Name`, `Id`, `ServiceType`, `AllowAnonymous`, `Create<TService,TReq,TRes>`/`Create<TService,TReq>`(생성 코드가 씀, ID 가 이름 해시가 아니면 `ArgumentException`), `RpcEmpty`(인자 없는 메서드의 요청 형식) |
+
+동작: 서브프로토콜은 클라이언트가 요청한 것 중 서버 `Serializers` 의 첫 것(없으면 서브프로토콜 없이 받고 1002), 세션당 순차 실행, 핑 즉시 응답, 텍스트 1003·크기 초과 1009·잘못된 프레임 1002·무응답 1001, 클라이언트 종료 코드 되돌림.
+
 ## 코드
 
 - `static class RealtimeResultCodes` — `RangeStart = 2000`(코드 아님), `NotConnected = 2001`, `NotReconnectable = 2002`, `Closed = 2003`, `InvalidResponse = 2004`, `ProtocolMismatch = 2005`.
+- `static class RpcStatusCodes`(응답 상태, 클라이언트·서버 공유) — `Success = 0`, `InternalError = 100000`, `Unauthenticated = 100001`, `MethodNotFound = 100002`, `BadRequest = 100003`, `Overloaded = 100004`, `FrameworkRangeEnd = 100999`, `GameRangeStart = 101000`.
+- `static class RpcProtocol` — `SubProtocolPrefix = "geuneda.rpc.v1."`, `SubProtocolOf(serializerName)`.
 - `static class RealtimeCloseCodes` — `Normal 1000`, `GoingAway 1001`, `ProtocolError 1002`, `UnsupportedData 1003`, `Abnormal 1006`, `MessageTooBig 1009`, `PolicyRangeStart 4000`, `PolicyRangeEnd 4999`, `DuplicateLogin 4001`, `Maintenance 4002`, `Kicked 4003`, `static bool IsReconnectable(int)`.
 - `readonly struct RealtimeDisconnectInfo { int CloseStatus; string Reason; bool WillReconnect; }`, `enum RealtimeState { Disconnected, Connecting, Connected }`.

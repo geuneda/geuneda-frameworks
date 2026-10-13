@@ -160,13 +160,14 @@
 
 ## 12. com.geuneda.realtime
 
-- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **버전 / 최소 Unity**: 0.2.0 / 2021.3
 - **package.json 의존성**: `com.geuneda.core` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
 - **선택 의존성**: `org.nuget.messagepack` 3.x(+ `org.nuget.microsoft.net.stringtools`) 또는 define `GEUNEDA_MESSAGEPACK` 이 있으면 `Geuneda.Realtime.MessagePack` 컴파일
 - **어셈블리**: `Geuneda.Realtime`, `Geuneda.Realtime.MessagePack`(선택)
 - **네임스페이스**: `Geuneda.Realtime`
 - **주요 기능**: `IRealtimeClient`/`RealtimeClient`/`RealtimeClientOptions`(single-flight 연결, 연결마다 `LoginAsync`, 지수 백오프+지터 재연결, 정책 종료 4000~4999 재연결 안 함), `IRpcCaller.CallAsync`, `Subscribe<TPush>`, 이름 해시 경로 `RpcMethod`/`RpcTopic`(FNV-1a), 바이너리 프레임 `RpcFrame`/`RpcFrameCodec`, `IRpcSerializer`(`JsonRpcSerializer`, `MessagePackRpcSerializer`), `IRealtimeTransport`/`ClientWebSocketTransport`, `RealtimeResultCodes`(2000 블록), `RealtimeCloseCodes`
-- **테스트**: EditMode `Geuneda.Realtime.Tests.EditMode`(가짜 전송, 로컬 TcpListener WebSocket 서버), `Geuneda.Realtime.MessagePack.Tests.EditMode`(MessagePack 이 있을 때만)
+- **계약·서버**: `[RpcService]` 계약에서 소스 생성기(`Runtime/Generator` 분석기 DLL, Roslyn 4.3)가 클라이언트 프록시(`XxxClient`)와 서버 라우트(`GeneratedRpcRoutes`)를 만듦. ASP.NET Core 서버 `Geuneda.Realtime.Server`·생성기 소스·샘플·xUnit 테스트는 `Server~/`(.NET 10, Unity 가 가져오지 않음)
+- **테스트**: EditMode `Geuneda.Realtime.Tests.EditMode`(가짜 전송, 로컬 TcpListener WebSocket 서버, 생성된 클라이언트, `[Explicit]` 샘플 서버 상호 운용), `Geuneda.Realtime.MessagePack.Tests.EditMode`(MessagePack 이 있을 때만), `dotnet test Server~/Geuneda.Realtime.Server.slnx`
 - **문서**: `README.md`(서버용 프로토콜 포함), `AGENTS.md`
 
 ---

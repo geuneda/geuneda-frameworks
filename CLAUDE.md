@@ -21,7 +21,7 @@ geuneda-frameworks 패키지를 쓰는 모든 Unity 프로젝트에 적용하는
 - 실행 중 일어날 수 있는 실패(네트워크, 타임아웃, 취소, 서버 거절, 중복 실행)는 `Geuneda.Core` 의 `Result`/`Result<T>` 코드로 돌려준다. 예외를 밖으로 던지지 않는다
 - 오용(잘못된 인자, 잘못된 상태에서 호출)은 결과로 숨기지 않고 즉시 예외로 거절한다
 - 예외를 결과로 바꿀 때는 정상 실패 예외(취소, 타임아웃, 연결 실패)만 타입별로 잡는다. `catch (Exception)` 으로 오용·버그를 `Unknown` 결과로 숨기지 않는다. 정상 실패는 Error 로그로 남기지 않는다
-- 결과 코드 범위: 0 성공, 1~999 core 공용(`ResultCodes`), 패키지별 1000 단위 블록, 게임 100000 이상(core `README.md`)
+- 결과 코드 범위: 0 성공, 1~999 core 공용(`ResultCodes`), 패키지별 1000 단위 블록, 실시간 RPC 서버 프레임워크 100000~100999, 게임 101000 이상(core `README.md`)
 
 ## 빌드 환경
 
@@ -123,7 +123,7 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 | `Geuneda.GameSystems.*` (예: `Geuneda.GameSystems.RedDot`) | `/geuneda-gamesystems` |
 | `Geuneda.Core` | `/geuneda-core` |
 | `Geuneda.Http` | `/geuneda-http` |
-| `Geuneda.Realtime` | `/geuneda-realtime` |
+| `Geuneda.Realtime`, `Geuneda.Realtime.Server`, `[RpcService]` 계약 | `/geuneda-realtime` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|

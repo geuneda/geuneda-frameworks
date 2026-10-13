@@ -67,7 +67,7 @@ git commit -m "chore: services 포인터 갱신"
 |--------|---------------|
 | core | `Tests/EditMode` (`Geuneda.Core.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.Core.Tests.PlayMode`) |
 | http | `Tests/EditMode` (`Geuneda.Http.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.Http.Tests.PlayMode`, 로컬 HttpListener) |
-| realtime | `Tests/EditMode` (`Geuneda.Realtime.Tests.EditMode`, 가짜 전송과 로컬 TcpListener WebSocket 서버), `Tests/MessagePack` (`Geuneda.Realtime.MessagePack.Tests.EditMode`, MessagePack 이 있을 때만) |
+| realtime | `Tests/EditMode` (`Geuneda.Realtime.Tests.EditMode`, 가짜 전송과 로컬 TcpListener WebSocket 서버, 생성된 클라이언트, `[Explicit]` 샘플 서버 상호 운용), `Tests/MessagePack` (`Geuneda.Realtime.MessagePack.Tests.EditMode`, MessagePack 이 있을 때만). 서버·생성기는 `dotnet test "Packages/com.geuneda.realtime/Server~/Geuneda.Realtime.Server.slnx"`(.NET 10 SDK) |
 | gamedata | `Tests/Editor` (`Geuneda.GameData.Editor.Tests`), `Tests/PlayMode` (`Geuneda.GameData.PlayMode.Tests`) |
 | services | `Tests/EditMode` (`Geuneda.Services.Editor.Tests`), `Tests/PlayMode` (`Geuneda.Services.Tests.Playmode`) |
 | uiservice | `Tests/EditMode` (`Geuneda.UiService.Tests`), `Tests/PlayMode` (`Geuneda.UiService.Tests.PlayMode`) |

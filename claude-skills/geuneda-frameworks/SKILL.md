@@ -23,7 +23,7 @@ Geuneda UPM 패키지 12개와 그것을 개발, 테스트, 검증하는 Unity �
 |--------|------|-----------|------|------|
 | `com.geuneda.core` | 0.1.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID | `geuneda-core` |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트(미들웨어 체인, `Result<HttpResponse>`, JSON, 선택형 타임아웃·재시도) | `geuneda-http` |
-| `com.geuneda.realtime` | 0.1.0 | 2021.3 | WebSocket 실시간 RPC 클라이언트(single-flight 연결, 재로그인, 지수 백오프 재연결, 서버 푸시, JSON/MessagePack 직렬화) | `geuneda-realtime` |
+| `com.geuneda.realtime` | 0.2.0 | 2021.3 | WebSocket 실시간 RPC 클라이언트(single-flight 연결, 재로그인, 지수 백오프 재연결, 서버 푸시, JSON/MessagePack 직렬화), `[RpcService]` 계약 소스 생성기, ASP.NET Core 서버(`Server~/`) | `geuneda-realtime` |
 | `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 3.0.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG, 시간, 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit | `geuneda-uiservice` |
@@ -179,7 +179,7 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 설정 ScriptableObject 읽기(.user 덮어쓰기, 환경별 값) | core |
 | 설치 ID, 재설치해도 유지되는 기기 ID(iOS 키체인) | core |
 | REST API 호출(미들웨어, 타임아웃·재시도, JSON) | http |
-| 실시간 서버 연결(WebSocket RPC, 서버 푸시, 자동 재연결) | realtime |
+| 실시간 서버 연결(WebSocket RPC, 서버 푸시, 자동 재연결), 서버·클라이언트 공유 RPC 계약과 ASP.NET Core 서버 | realtime |
 
 ## 참조
 
