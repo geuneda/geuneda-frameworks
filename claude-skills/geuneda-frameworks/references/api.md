@@ -148,11 +148,12 @@
 
 ## 호스트 프로젝트 manifest.json
 
-호스트 레포 `Packages/manifest.json` 의 주요 항목(Unity 모듈과 IDE 패키지는 생략). 호스트에서는 같은 이름의 서브모듈 폴더가 우선 사용된다. core 는 서브모듈(임베디드 패키지)로만 들어 있고, core 원격에 내용을 푸시할 때 git URL 을 추가한다.
+호스트 레포 `Packages/manifest.json` 의 주요 항목(Unity 모듈과 IDE 패키지는 생략). 호스트에서는 같은 이름의 서브모듈 폴더가 우선 사용된다.
 
 ```json
 {
   "dependencies": {
+    "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
