@@ -5,7 +5,7 @@ description: Geuneda Unity 패키지 프레임워크 전체의 구조, 의존성
 
 # Geuneda Frameworks
 
-Geuneda UPM 패키지 11개와 그것을 개발, 테스트, 검증하는 Unity 호스트 레포(`https://github.com/geuneda/geuneda-frameworks.git`). 각 패키지는 독립 git 레포이고 호스트 레포의 `Packages/com.geuneda.<패키지>/` 에 서브모듈로 들어 있다. 원본은 GameLovers Frameworks by Miguel Tomas, 라이선스는 MIT.
+Geuneda UPM 패키지 12개와 그것을 개발, 테스트, 검증하는 Unity 호스트 레포(`https://github.com/geuneda/geuneda-frameworks.git`). 각 패키지는 독립 git 레포이고 호스트 레포의 `Packages/com.geuneda.<패키지>/` 에 서브모듈로 들어 있다. 원본은 GameLovers Frameworks by Miguel Tomas, 라이선스는 MIT.
 
 ## 활성화 시점
 
@@ -15,7 +15,7 @@ Geuneda UPM 패키지 11개와 그것을 개발, 테스트, 검증하는 Unity �
 - 새 패키지를 프레임워크에 추가할 때
 - Unity 버전 변경처럼 여러 패키지에 영향을 주는 변경을 할 때
 
-## 패키지 (11개)
+## 패키지 (12개)
 
 버전과 최소 Unity 는 2026-10-13 시점 `package.json` 값이다. 작업 전에 `package.json` 으로 다시 확인한다.
 
@@ -23,6 +23,7 @@ Geuneda UPM 패키지 11개와 그것을 개발, 테스트, 검증하는 Unity �
 |--------|------|-----------|------|------|
 | `com.geuneda.core` | 0.1.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID | `geuneda-core` |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트(미들웨어 체인, `Result<HttpResponse>`, JSON, 선택형 타임아웃·재시도) | `geuneda-http` |
+| `com.geuneda.realtime` | 0.1.0 | 2021.3 | WebSocket 실시간 RPC 클라이언트(single-flight 연결, 재로그인, 지수 백오프 재연결, 서버 푸시, JSON/MessagePack 직렬화) | `geuneda-realtime` |
 | `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 3.0.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG, 시간, 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit | `geuneda-uiservice` |
@@ -44,7 +45,8 @@ Geuneda UPM 패키지 11개와 그것을 개발, 테스트, 검증하는 Unity �
 ```
 core
   ├── services (gamedata 에도 의존)
-  └── http
+  ├── http
+  └── realtime
 gamedata
   ├── services
   │     └── gamesystems
@@ -53,9 +55,9 @@ gamedata
 독립(다른 Geuneda 패키지에 의존하지 않음): uiservice, statechart, inputextensions, nativeui, notificationservice
 ```
 
-core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`)와 http(결과 규약 `Result`)가 참조한다. 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
+core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`), http 와 realtime(결과 규약 `Result`)이 참조한다. 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
 
-- core API 를 바꾸면 services, http, gamesystems 를 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems 를 확인한다.
+- core API 를 바꾸면 services, http, realtime, gamesystems 를 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems 를 확인한다.
 - uiservice 는 gamedata/services 에 의존하지 않는다.
 - 패키지 간 순환 의존은 금지한다.
 - 외부 의존성과 버전은 `references/api.md` 의 패키지별 카드를 본다.
@@ -84,6 +86,7 @@ UPM 은 git 전용 의존성을 자동으로 받지 못하므로 직접 함께 �
 | googlesheetimporter | gamedata, UniTask |
 | gamesystems | services, gamedata, core, UniTask |
 | http | core, UniTask |
+| realtime | core, UniTask(MessagePack 을 쓰면 UnityNuGet 의 `org.nuget.messagepack`, `org.nuget.microsoft.net.stringtools`) |
 
 ## 호스트 레포 구조
 
@@ -92,14 +95,14 @@ geuneda-frameworks/
   Assets/                 # 호스트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
   Packages/
     manifest.json         # 호스트 의존성 (Geuneda 패키지는 git URL 로 선언)
-    com.geuneda.*/        # 패키지 11개, 각각 서브모듈
+    com.geuneda.*/        # 패키지 12개, 각각 서브모듈
   ProjectSettings/        # ProjectVersion.txt: 6000.3.2f1
   UserSettings/
   claude-skills/
     install.sh            # ~/.claude/skills/ 로 스킬 복사
     uninstall.sh          # ~/.claude/skills/<스킬> 삭제
     geuneda-frameworks/   # 이 스킬
-    geuneda-<패키지>/     # 패키지별 스킬 11개
+    geuneda-<패키지>/     # 패키지별 스킬 12개
   .gitmodules
   AGENTS.md               # 에이전트용 레포 가이드
   CLAUDE.md               # 프레임워크를 쓰는 프로젝트의 공용 규칙, 네임스페이스 -> 스킬 표
@@ -118,7 +121,7 @@ git clone --recurse-submodules https://github.com/geuneda/geuneda-frameworks.git
 git submodule update --init --recursive
 ```
 
-서브모듈은 호스트가 기록한 커밋에 detached HEAD 로 체크아웃된다. 고치기 전에 기본 브랜치로 전환한다. 기본 브랜치는 core, http, gamesystems 가 `main`, 나머지 8개는 `master` 다.
+서브모듈은 호스트가 기록한 커밋에 detached HEAD 로 체크아웃된다. 고치기 전에 기본 브랜치로 전환한다. 기본 브랜치는 core, http, realtime, gamesystems 가 `main`, 나머지 8개는 `master` 다.
 
 ```bash
 cd Packages/com.geuneda.services
@@ -139,11 +142,11 @@ git commit -m "chore: services 포인터 갱신"
 - 새 의존성은 `package.json` `dependencies` 와 asmdef `references` 양쪽에 반영한다
 - `Packages/` 안에 새 파일을 만들면 `.meta` 도 필요하다
 - 서드파티 API 는 `Library/PackageCache/` 의 로컬 소스를 우선 참조한다(Unity 가 프로젝트를 연 뒤 생김)
-- 패키지에 `AGENTS.md` 가 있으면 그 패키지 작업 규칙의 원천이다: services(테스트는 `Tests/AGENTS.md`), uiservice, gamesystems, core, http
+- 패키지에 `AGENTS.md` 가 있으면 그 패키지 작업 규칙의 원천이다: services(테스트는 `Tests/AGENTS.md`), uiservice, gamesystems, core, http, realtime
 
 ## 테스트
 
-Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 core, http, gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
+Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 core, http, realtime, gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
 
 ## 새 패키지 추가 절차
 
@@ -176,8 +179,9 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 설정 ScriptableObject 읽기(.user 덮어쓰기, 환경별 값) | core |
 | 설치 ID, 재설치해도 유지되는 기기 ID(iOS 키체인) | core |
 | REST API 호출(미들웨어, 타임아웃·재시도, JSON) | http |
+| 실시간 서버 연결(WebSocket RPC, 서버 푸시, 자동 재연결) | realtime |
 
 ## 참조
 
 - `references/api.md`: 패키지별 상세 카드(의존성, asmdef, 네임스페이스, 문서 위치, 테스트), 구성 예시
-- 패키지 API 는 해당 패키지 스킬: `geuneda-gamedata`, `geuneda-services`, `geuneda-uiservice`, `geuneda-statechart`, `geuneda-inputextensions`, `geuneda-nativeui`, `geuneda-notificationservice`, `geuneda-googlesheetimporter`, `geuneda-gamesystems`, `geuneda-core`, `geuneda-http`
+- 패키지 API 는 해당 패키지 스킬: `geuneda-gamedata`, `geuneda-services`, `geuneda-uiservice`, `geuneda-statechart`, `geuneda-inputextensions`, `geuneda-nativeui`, `geuneda-notificationservice`, `geuneda-googlesheetimporter`, `geuneda-gamesystems`, `geuneda-core`, `geuneda-http`, `geuneda-realtime`

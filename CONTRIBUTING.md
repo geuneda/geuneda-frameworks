@@ -2,7 +2,7 @@
 
 Geuneda 패키지 개선에 참여해 주셔서 감사합니다.
 
-이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 11개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
+이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 12개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
 
 ## 기여 위치
 
@@ -29,7 +29,7 @@ git submodule update --init --recursive
 
 ## 서브모듈 워크플로우
 
-`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
+`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
 
 ```bash
 cd Packages/com.geuneda.services
@@ -67,6 +67,7 @@ git commit -m "chore: services 포인터 갱신"
 |--------|---------------|
 | core | `Tests/EditMode` (`Geuneda.Core.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.Core.Tests.PlayMode`) |
 | http | `Tests/EditMode` (`Geuneda.Http.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.Http.Tests.PlayMode`, 로컬 HttpListener) |
+| realtime | `Tests/EditMode` (`Geuneda.Realtime.Tests.EditMode`, 가짜 전송과 로컬 TcpListener WebSocket 서버), `Tests/MessagePack` (`Geuneda.Realtime.MessagePack.Tests.EditMode`, MessagePack 이 있을 때만) |
 | gamedata | `Tests/Editor` (`Geuneda.GameData.Editor.Tests`), `Tests/PlayMode` (`Geuneda.GameData.PlayMode.Tests`) |
 | services | `Tests/EditMode` (`Geuneda.Services.Editor.Tests`), `Tests/PlayMode` (`Geuneda.Services.Tests.Playmode`) |
 | uiservice | `Tests/EditMode` (`Geuneda.UiService.Tests`), `Tests/PlayMode` (`Geuneda.UiService.Tests.PlayMode`) |
@@ -79,14 +80,15 @@ inputextensions, nativeui 에는 테스트가 없습니다. 패키지 테스트�
 
 ### 테스트 의존성
 
-gamedata, services, statechart, uiservice 테스트는 아래 두 라이브러리가 있어야 컴파일됩니다. 호스트 `Packages/manifest.json` 에 들어 있습니다.
+gamedata, services, statechart, uiservice 테스트와 realtime 의 MessagePack 테스트는 아래 라이브러리가 있어야 컴파일됩니다. 호스트 `Packages/manifest.json` 에 들어 있습니다.
 
 | 라이브러리 | 패키지 | 쓰는 곳 |
 |------------|--------|---------|
 | Unity Performance Testing | `com.unity.test-framework.performance` | `[Performance]` 테스트 (gamedata, services, uiservice) |
 | NSubstitute | `org.nuget.nsubstitute` (UnityNuGet 레지스트리 `https://unitynuget-registry.openupm.com`, scope `org.nuget`) | 목 객체 (gamedata, services, statechart) |
+| MessagePack | `org.nuget.messagepack` 3.1.12 + `org.nuget.microsoft.net.stringtools` 1.0.0 (같은 레지스트리. UnityNuGet 패키지가 StringTools 의존성을 빠뜨려 함께 넣음) | realtime 의 선택 어셈블리 `Geuneda.Realtime.MessagePack` 과 그 테스트 |
 
-- 패키지 `package.json` 에는 테스트 전용 의존성을 넣을 수 없습니다. 그래서 소비 프로젝트에서 `testables` 로 이 패키지들의 테스트를 돌리려면 위 두 의존성과 scoped registry 를 그 프로젝트 manifest 에도 넣어야 합니다.
+- 패키지 `package.json` 에는 테스트 전용 의존성을 넣을 수 없습니다. 그래서 소비 프로젝트에서 `testables` 로 이 패키지들의 테스트를 돌리려면 위 의존성과 scoped registry 를 그 프로젝트 manifest 에도 넣어야 합니다.
 - 명령줄에서는 Unity CLI 로 돌릴 수 있습니다: `unity test . --mode EditMode` (PlayMode 는 `--mode PlayMode`).
 - `ProjectSettings/ProjectVersion.txt` 와 다른 패치 버전의 에디터로 열면 Unity 가 manifest 의 Unity 패키지 버전을 올리고 순서를 바꿀 수 있습니다. 커밋하기 전에 `Packages/manifest.json` 변경이 의도한 것인지 확인합니다.
 

@@ -19,6 +19,7 @@ SKILLS=(
     "geuneda-inputextensions"
     "geuneda-nativeui"
     "geuneda-notificationservice"
+    "geuneda-realtime"
     "geuneda-services"
     "geuneda-statechart"
     "geuneda-uiservice"

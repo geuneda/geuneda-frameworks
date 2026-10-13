@@ -31,3 +31,6 @@
 [submodule "Packages/com.geuneda.http"]
 	path = Packages/com.geuneda.http
 	url = https://github.com/geuneda/geuneda-http.git
+[submodule "Packages/com.geuneda.realtime"]
+	path = Packages/com.geuneda.realtime
+	url = https://github.com/geuneda/geuneda-realtime.git

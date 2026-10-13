@@ -2,6 +2,7 @@
   "dependencies": {
     "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
     "com.geuneda.http": "https://github.com/geuneda/geuneda-http.git",
+    "com.geuneda.realtime": "https://github.com/geuneda/geuneda-realtime.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
@@ -30,6 +31,8 @@
     "com.unity.modules.ui": "1.0.0",
     "com.unity.modules.uielements": "1.0.0",
     "com.unity.modules.unitywebrequest": "1.0.0",
+    "org.nuget.messagepack": "3.1.12",
+    "org.nuget.microsoft.net.stringtools": "1.0.0",
     "org.nuget.nsubstitute": "6.2.0"
   },
   "scopedRegistries": [
