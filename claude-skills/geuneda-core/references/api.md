@@ -156,3 +156,23 @@
 ### Geuneda.Core.Editor.UserConfigAssetBuildGuard (internal, IPreprocessBuildWithReport)
 
 `이름.user.확장자`(대소문자 무시) 에셋이 경로에 `Editor` 세그먼트가 없거나 `Assets/StreamingAssets/` 아래에 있으면 `BuildFailedException`. Resources 뿐 아니라 씬 참조·Addressables·StreamingAssets(원본 복사) 경로도 막기 위해서다. `internal static FindUserAssetsThatCanShip(IEnumerable<string>)`.
+
+---
+
+## 설치·기기 ID (`Runtime/Identity/`, `Runtime/Plugins/iOS/GeunedaKeychain.mm`)
+
+### interface IAppIdentity
+
+`string InstallId { get; }`, `string DeviceId { get; }`. `MainInstaller` 에는 이 인터페이스로 바인딩한다.
+
+### sealed class AppIdentity : IAppIdentity
+
+| 멤버 | 설명 |
+|------|------|
+| `AppIdentity()` | PlayerPrefs, (iOS 플레이어면) 키체인, `SystemInfo.deviceUniqueIdentifier` 로 만듦. 메인 스레드 |
+| `string InstallId { get; }` | PlayerPrefs `geuneda.core.installId` 의 GUID(`N` 형식). 없으면 만들어 저장. 앱 데이터가 지워지면 새로, 백업 복원으로 PlayerPrefs 가 되살아나면 이전 값 |
+| `string DeviceId { get; }` | iOS: 키체인(서비스 `<번들 ID>.geuneda`, 계정 `geuneda.core.deviceId`, `AfterFirstUnlockThisDeviceOnly`) GUID. 없으면 만들어 추가, 읽기 실패·추가 실패면 그 실행만 플랫폼 ID. 그 밖: `SystemInfo.deviceUniqueIdentifier`, 지원 안 하면(`n/a`, 빈 값) PlayerPrefs `geuneda.core.deviceId` GUID |
+
+internal: `IKeyValueStore`(`PlayerPrefsStore`), `ISecureStore`/`SecureReadResult`(`IosKeychainStore`, `UNITY_IOS && !UNITY_EDITOR`), 테스트용 생성자 `(IKeyValueStore, ISecureStore, Func<string>)`.
+
+네이티브: `char* GeunedaKeychain_Copy(const char* key, int* status)`(malloc 문자열, 없으면 NULL + OSStatus), `int GeunedaKeychain_Add(const char* key, const char* value)`(OSStatus).

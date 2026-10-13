@@ -1,11 +1,11 @@
 ---
 name: geuneda-core
-description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 그리고 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때 활성화한다.
+description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, 그리고 AppIdentity 로 설치 ID·기기 ID 를 얻을 때 활성화한다.
 ---
 
 # Geuneda Core
 
-다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`)이다.
+다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`)다.
 
 ## 패키지 정보
 
@@ -49,6 +49,10 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 - `[ConfigAssetPath("폴더/이름")]`: Resources 기준 경로. 없으면 타입 이름.
 - 읽는 순서: 에디터만 `경로.user`(`Editor/Resources` 에 둠) → `Resources/경로` → 대체 로더.
 - `EnvValue<T>`: `[Serializable] struct`, `new EnvValue<T>(dev, qa, prod)`, `Value`(AppEnv.Current), `Get(AppEnvironment)`.
+
+## 설치·기기 ID 핵심 API
+
+- `IAppIdentity`(`InstallId`, `DeviceId`), 구현 `new AppIdentity()`(메인 스레드). `InstallId` 는 PlayerPrefs GUID(앱 데이터가 지워지면 새로, Android 자동 백업·iOS 백업 복원이면 이전 값), `DeviceId` 는 iOS 키체인 GUID(재설치해도 유지), Android 는 `SystemInfo.deviceUniqueIdentifier`. 부트스트랩에서 `MainInstaller.Bind<IAppIdentity>(new AppIdentity())`(MainInstaller 는 인터페이스만 받음).
 
 ## 사용 패턴
 
@@ -130,4 +134,5 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - `ConfigAssetLoader` 는 캐시가 없다. 부트스트랩에서 한 번 읽어 `MainInstaller` 에 바인딩한다. 정적 캐시를 만들지 않는다(D2).
 - `.user` 에셋(대소문자 무시)이 Editor 폴더 밖이나 StreamingAssets 안에 있으면 플레이어 빌드가 `BuildFailedException` 으로 실패한다. 개인 덮어쓰기는 `Editor/Resources` 에 두고 gitignore(`*.user.asset`, `*.user.asset.meta`) 한다.
 - `EnvValue<T>` 의 dev/qa/prod 값은 모두 빌드에 들어간다. 비밀 값은 넣지 않는다.
+- `AppIdentity` 의 ID 는 만들 때 정해진다. iOS 에서 키체인을 못 읽으면 그 실행만 identifierForVendor 를 쓰고(덮어쓰지 않음) Warning 을 남긴다. 다른 회사 앱 데이터와 연결하는 추적에 쓰지 않는다.
 - `AppEnv.IsProd` 등은 의도적으로 `const` 가 아니다(소비 코드의 CS0162 경고 방지). 빌드에서 확실히 빼야 하면 `#if` 를 쓴다.

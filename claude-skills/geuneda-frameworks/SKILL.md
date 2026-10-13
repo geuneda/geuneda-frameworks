@@ -21,7 +21,7 @@ Geuneda UPM 패키지 10개와 그것을 개발, 테스트, 검증하는 Unity �
 
 | 패키지 | 버전 | 최소 Unity | 용도 | 스킬 |
 |--------|------|-----------|------|------|
-| `com.geuneda.core` | 0.1.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더 | `geuneda-core` |
+| `com.geuneda.core` | 0.1.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID | `geuneda-core` |
 | `com.geuneda.gamedata` | 1.0.4 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 2.1.4 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG, 시간, 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit | `geuneda-uiservice` |
@@ -171,6 +171,7 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 빌드 환경(DEV/QA/PROD) 분기, 운영 빌드에서 코드 빼기 | core |
 | SDK 콜백을 메인 스레드로 넘기기 | core |
 | 설정 ScriptableObject 읽기(.user 덮어쓰기, 환경별 값) | core |
+| 설치 ID, 재설치해도 유지되는 기기 ID(iOS 키체인) | core |
 
 ## 참조
 

@@ -35,6 +35,10 @@ geuneda-frameworks 패키지를 쓰는 모든 Unity 프로젝트에 적용하는
 - 환경마다 다른 값은 `EnvValue<T>` 필드로 둔다. 비밀 값은 넣지 않는다(모든 환경 값이 빌드에 들어감)
 - 개인 덮어쓰기는 `Editor/Resources` 폴더에 `이름.user.asset` 으로 두고 gitignore 한다. Editor 폴더 밖(또는 StreamingAssets 안)에 `.user` 에셋이 있으면 플레이어 빌드가 실패한다
 
+## 식별자
+
+- 설치 ID 와 기기 ID 는 `Geuneda.Core` 의 `AppIdentity` 를 부트스트랩에서 만들어 `MainInstaller.Bind<IAppIdentity>` 로 바인딩하고 `IAppIdentity` 로 받는다. `SystemInfo.deviceUniqueIdentifier` 나 PlayerPrefs GUID 를 직접 만들지 않는다
+
 ## 스레드
 
 - SDK 콜백처럼 다른 스레드에서 받은 작업은 `Geuneda.Core` 의 `MainThreadDispatcher.Post` 로 메인 스레드에 넘긴 뒤 Unity API 를 부른다(UniTask 코드는 `UniTask.SwitchToMainThread` 도 가능)
