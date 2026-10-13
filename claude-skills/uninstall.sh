@@ -9,6 +9,7 @@ set -e
 SKILLS_DIR="${HOME}/.claude/skills"
 
 SKILLS=(
+    "geuneda-core"
     "geuneda-gamedata"
     "geuneda-gamesystems"
     "geuneda-frameworks"

@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core 와 gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -130,6 +130,18 @@
 - **주요 기능**: 레드닷. '/' 경로 트리 알림 배지, 리프 값의 조상 합산, 뮤트, 경로 단위 구독(`IRedDotService`, `RedDotService`, `RedDotBinding`, `RedDotView`)
 - **테스트**: `Geuneda.GameSystems.Tests.EditMode`(`Tests/EditMode`), `Geuneda.GameSystems.Tests.PlayMode`(`Tests/PlayMode`)
 - **문서**: `README.md`, `AGENTS.md`, `CLAUDE.md`
+
+---
+
+## 10. com.geuneda.core
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **package.json 의존성**: 없음
+- **어셈블리**: `Geuneda.Core`
+- **네임스페이스**: `Geuneda.Core`
+- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`)
+- **테스트**: EditMode `Geuneda.Core.Tests.EditMode`
+- **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2)
 
 ---
 
