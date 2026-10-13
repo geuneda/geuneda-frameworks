@@ -113,3 +113,18 @@
 컴파일 규칙(`AppEnv.cs` 의 `#error`): 환경 define 은 많아야 하나. 운영 빌드에서 코드를 빼는 조건은 `#if !GEUNEDA_ENV_PROD && (UNITY_EDITOR || DEVELOPMENT_BUILD || GEUNEDA_ENV_DEV || GEUNEDA_ENV_QA)` 다(define 없는 릴리스 빌드도 Prod).
 
 `internal static AppEnvironment Resolve(bool prodDefined, bool qaDefined, bool devDefined, bool editorOrDevelopmentBuild)`: 결정 함수(테스트용, `InternalsVisibleTo("Geuneda.Core.Tests.EditMode")`).
+
+---
+
+## 메인 스레드 디스패처 (`Runtime/Threading/`)
+
+### static class MainThreadDispatcher
+
+| 멤버 | 설명 |
+|------|------|
+| `bool IsMainThread { get; }` | 지금 스레드가 Unity 메인 스레드면 true. 메인 스레드는 플레이 세션 시작 때 기록하며, 한 번도 플레이하지 않은 편집 모드에서는 false |
+| `void Post(Action action)` | 메인 스레드의 다음 처리 때 실행하도록 넣음. 어느 스레드에서든 호출 가능, null 이면 `ArgumentNullException`. 메인 스레드에서 불러도 바로 실행하지 않음 |
+
+- 처리: PlayerLoop `Update` 단계의 `ScriptRunBehaviourUpdate` 바로 앞에 넣은 `MainThreadDispatcherUpdate` 가 매 프레임 쌓인 작업을 넣은 순서대로 모두 실행. 처리 중에 넣은 작업은 다음 프레임. 작업 예외는 `ModuleLogger("Geuneda.Core.MainThreadDispatcher")` 로 Error 를 남기고 계속.
+- `SubsystemRegistration` 에서 남은 작업을 버리고 메인 스레드 ID 를 기록한 뒤 처리 단계를 다시 넣음(도메인 리로드 끈 Enter Play Mode 대응).
+- 내부(테스트용, InternalsVisibleTo): `ProcessQueue()`, `ResetState()`.

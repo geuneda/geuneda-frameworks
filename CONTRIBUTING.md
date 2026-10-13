@@ -65,7 +65,7 @@ git commit -m "chore: services 포인터 갱신"
 
 | 패키지 | 테스트 asmdef |
 |--------|---------------|
-| core | `Tests/EditMode` (`Geuneda.Core.Tests.EditMode`) |
+| core | `Tests/EditMode` (`Geuneda.Core.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.Core.Tests.PlayMode`) |
 | gamedata | `Tests/Editor` (`Geuneda.GameData.Editor.Tests`), `Tests/PlayMode` (`Geuneda.GameData.PlayMode.Tests`) |
 | services | `Tests/EditMode` (`Geuneda.Services.Editor.Tests`), `Tests/PlayMode` (`Geuneda.Services.Tests.Playmode`) |
 | uiservice | `Tests/EditMode` (`Geuneda.UiService.Tests`), `Tests/PlayMode` (`Geuneda.UiService.Tests.PlayMode`) |

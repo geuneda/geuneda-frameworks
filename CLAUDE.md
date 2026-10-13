@@ -8,7 +8,7 @@ geuneda-frameworks 패키지를 쓰는 모든 Unity 프로젝트에 적용하는
 ## 금지 패턴
 
 - 싱글톤 금지 (MainInstaller 서비스 로케이터 사용)
-- static mutable state 금지 (서비스를 통해 접근). 예외는 로거(`Geuneda.Core` 의 `Log`/`ModuleLogger`)와 메인 스레드 디스패처뿐이다(결정 D2, core `AGENTS.md`)
+- static mutable state 금지 (서비스를 통해 접근). 예외는 로거(`Geuneda.Core` 의 `Log`/`ModuleLogger`)와 메인 스레드 디스패처(`MainThreadDispatcher`)뿐이다(결정 D2, core `AGENTS.md`)
 - 2단계 이상 MonoBehaviour 상속 금지
 - MonoBehaviour에 비즈니스 로직 직접 구현 금지
 - God class 금지 (단일 책임 원칙)
@@ -28,6 +28,10 @@ geuneda-frameworks 패키지를 쓰는 모든 Unity 프로젝트에 적용하는
 - 서버 주소, 로그 레벨, 분석 환경처럼 환경마다 다른 값은 `Geuneda.Core` 의 `AppEnv.Current` 로 고른다. 환경을 직접 문자열이나 별도 플래그로 만들지 않는다
 - 환경은 `GEUNEDA_ENV_DEV` / `GEUNEDA_ENV_QA` / `GEUNEDA_ENV_PROD` define 하나로 정한다. 없으면 에디터·개발 빌드는 Dev, 릴리스 빌드는 Prod 이므로 QA 릴리스 빌드에는 `GEUNEDA_ENV_QA` 를 꼭 넣는다
 - 운영 빌드에서 빠져야 하는 코드(치트, 디버그 메뉴)는 `#if !GEUNEDA_ENV_PROD && (UNITY_EDITOR || DEVELOPMENT_BUILD || GEUNEDA_ENV_DEV || GEUNEDA_ENV_QA)` 로 감싼다(`AppEnv.Current` 가 Prod 가 아닌 경우와 같은 조건)
+
+## 스레드
+
+- SDK 콜백처럼 다른 스레드에서 받은 작업은 `Geuneda.Core` 의 `MainThreadDispatcher.Post` 로 메인 스레드에 넘긴 뒤 Unity API 를 부른다(UniTask 코드는 `UniTask.SwitchToMainThread` 도 가능)
 
 ## CBD 설계 원칙
 
