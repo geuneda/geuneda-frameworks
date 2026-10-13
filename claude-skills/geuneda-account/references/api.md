@@ -89,7 +89,16 @@
 | `IAccessTokenValidator.ValidateAsync(token, ct)` → `AccessTokenValidation` | `IsValid`, `AccountId`(sub), `SessionId`(sid), `ExpiresAt`, `FailureReason`. 공개 팩토리 `Valid(...)`, `Invalid(reason)` |
 | `IPlatformVerifier` | `Platform`, `VerifyAsync(credential, ct)` → `PlatformVerification.Valid(subject)`/`Invalid(reason)` |
 | `GuestPlatformVerifier` | Base64url 32~64바이트 → SHA-256 16진수 고유 ID |
+| `AccountServerBuilder.AddApple(o => o.Audiences...)`, `AddGoogle(o => o.ClientIds...)` | `AppleIdTokenVerifier`, `GoogleIdTokenVerifier`(공통 `OpenIdConnectPlatformVerifier`). id 토큰의 서명(발급자 JWKS)·발급자(애플 `https://appleid.apple.com`, 구글 `Issuer`·`LegacyIssuer`)·대상·만료(`ClockSkew` 기본 5분, 음수 거절)를 검사하고 `sub` 를 고유 ID 로. 대상이 비면 예외. account 0.2.0 |
+| `OpenIdConnectKeyCache(metadataAddress, IDocumentRetriever, TimeProvider)` | 공개 키 캐시. `GetAsync`(12시간마다 갱신, 실패하면 옛 키 유지·5분 뒤 재시도), `RefreshAsync(seen)`(모르는 키: 다시 받기를 기다림, 5분 안에 받았으면 그대로), 동시 요청 한 번, 한 번 받기 10초 제한, 서명 키 없는 응답은 실패, 키가 없는데 받기 실패하면 30초 동안 바로 실패. 키를 확인하지 못하면 `InvalidOperationException`(500) |
 | `IAccountStore` | `FindOrCreateAsync`, `ExistsAsync`, `GetLinksAsync`, `LinkAsync`/`TransferAsync`(`LinkOutcome`), `UnlinkAsync`(`UnlinkOutcome`), `DeleteAsync`. 고유성·플랫폼당 하나·마지막 수단을 원자적으로 |
 | `IRefreshTokenStore` | `CreateAsync(family, token)`, `FindTokenAsync(hash)`, `FindFamilyAsync(id)`, `TryRotateAsync(familyId, expectedCurrentHash, updated, newToken)`(원자적), `RevokeFamilyAsync`, `RevokeAccountAsync`. `RefreshTokenFamily`(FamilyId, AccountId, SessionId, CurrentTokenHash, PreviousTokenHash, RotatedAt, CreatedAt, RevokedAt), `RefreshTokenRecord`(TokenHash, FamilyId, IssuedAt, ExpiresAt) |
 
 경로와 본문은 패키지 README 의 "서버" 표를 본다. 요청 본문 16KB 제한, 오류 `{code, message, conflictAccountId?}`.
+
+## 제공자 패키지
+
+| 패키지 / 타입 | 설명 |
+|---------------|------|
+| `com.geuneda.account.apple` `AppleAuthProvider` | iOS 13+ ASAuthorizationController. 자격은 애플 identityToken. iOS 16+ 는 취소 토큰이 시트를 닫는다. 빌드 후처리 `AppleSignInCapability` 가 entitlements 에 Sign in with Apple 을 넣는다. `SignOutAsync` 는 할 일 없음 |
+| `com.geuneda.account.google` `GoogleAuthProvider(GoogleAuthOptions)` | `AndroidServerClientId`(웹 클라이언트 ID), `IosClientId`, `TokenClient`(iOS 토큰 교환용 http, 기본 15초 타임아웃), `IosEphemeralSession`. Android: Credential Manager `GetSignInWithGoogleOption`(Android 라이브러리 플러그인이 `androidx.credentials` 1.3.0, `googleid` 1.1.1, `androidx.core`, `androidx.loader` 와 R8 규칙을 가져옴), `SignOutAsync` 는 로그인 상태 지우기를 기다림. iOS: ASWebAuthenticationSession + PKCE(S256, state) → `https://oauth2.googleapis.com/token` 교환 |

@@ -2,7 +2,7 @@
 
 Geuneda 패키지 개선에 참여해 주셔서 감사합니다.
 
-이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 13개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
+이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 15개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
 
 ## 기여 위치
 
@@ -29,7 +29,7 @@ git submodule update --init --recursive
 
 ## 서브모듈 워크플로우
 
-`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, account, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
+`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
 
 ```bash
 cd Packages/com.geuneda.services
@@ -69,6 +69,8 @@ git commit -m "chore: services 포인터 갱신"
 | http | `Tests/EditMode` (`Geuneda.Http.Tests.EditMode`), `Tests/PlayMode` (`Geuneda.Http.Tests.PlayMode`, 로컬 HttpListener) |
 | realtime | `Tests/EditMode` (`Geuneda.Realtime.Tests.EditMode`, 가짜 전송과 로컬 TcpListener WebSocket 서버, 생성된 클라이언트, `[Explicit]` 샘플 서버 상호 운용), `Tests/MessagePack` (`Geuneda.Realtime.MessagePack.Tests.EditMode`, MessagePack 이 있을 때만). 서버·생성기는 `dotnet test "Packages/com.geuneda.realtime/Server~/Geuneda.Realtime.Server.slnx"`(.NET 10 SDK) |
 | account | `Tests/EditMode` (`Geuneda.Account.Tests.EditMode`, 가짜 인증 서버 전송, `[Explicit]` 샘플 서버 상호 운용). 서버는 `dotnet test "Packages/com.geuneda.account/Server~/Geuneda.Account.Server.slnx"`(.NET 10 SDK) |
+| account.apple | `Tests/EditMode` (`Geuneda.Account.Apple.Tests.EditMode`, 상태 변환·에디터 동작). 실기 확인은 iOS 빌드 |
+| account.google | `Tests/EditMode` (`Geuneda.Account.Google.Tests.EditMode`, PKCE·토큰 교환 가짜 전송·설정 검사). 실기 확인은 Android·iOS 빌드 |
 | gamedata | `Tests/Editor` (`Geuneda.GameData.Editor.Tests`), `Tests/PlayMode` (`Geuneda.GameData.PlayMode.Tests`) |
 | services | `Tests/EditMode` (`Geuneda.Services.Editor.Tests`), `Tests/PlayMode` (`Geuneda.Services.Tests.Playmode`) |
 | uiservice | `Tests/EditMode` (`Geuneda.UiService.Tests`), `Tests/PlayMode` (`Geuneda.UiService.Tests.PlayMode`) |
@@ -107,11 +109,11 @@ gamedata, services, statechart, uiservice 테스트와 realtime 의 MessagePack 
 
 ### 새 패키지 추가
 
-1. `geuneda-<패키지>` 레포를 만들고 표준 UPM 구조(`package.json`, `Runtime/`, `Editor/`, `Tests/`, `README.md`, `CHANGELOG.md`, `LICENSE.md`)로 작성합니다
+1. `geuneda-<패키지>` 레포(패키지 이름의 점은 `-`, 예: `com.geuneda.account.apple` -> `geuneda-account-apple`)를 만들고 표준 UPM 구조(`package.json`, `Runtime/`, `Editor/`, `Tests/`, `README.md`, `CHANGELOG.md`, `LICENSE.md`)로 작성합니다
 2. `git submodule add https://github.com/geuneda/geuneda-<패키지>.git Packages/com.geuneda.<패키지>`
 3. `Packages/manifest.json` 에 git URL 의존성을 추가합니다
 4. 루트 `README.md` 의 패키지 목록, 의존성, 스킬 표에 추가합니다
-5. `claude-skills/geuneda-<패키지>/` 에 `SKILL.md` 와 `references/api.md` 를 만들고 `install.sh`, `uninstall.sh` 의 `SKILLS` 목록에 등록합니다
+5. `claude-skills/geuneda-<패키지>/` 에 `SKILL.md` 와 `references/api.md` 를 만들고 `install.sh`, `uninstall.sh` 의 `SKILLS` 목록에 등록합니다. 기능 패키지의 플랫폼 연동만 따로 떼어 낸 패키지(D3, 예: account.apple·account.google)는 별도 스킬을 만들지 않고 기능 패키지 스킬에 넣습니다
 6. `CLAUDE.md` 의 네임스페이스 -> 스킬 표에 행을 추가합니다
 7. `claude-skills/geuneda-frameworks/` 스킬의 패키지 목록과 의존성을 갱신합니다
 

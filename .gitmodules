@@ -37,3 +37,9 @@
 [submodule "Packages/com.geuneda.account"]
 	path = Packages/com.geuneda.account
 	url = https://github.com/geuneda/geuneda-account.git
+[submodule "Packages/com.geuneda.account.apple"]
+	path = Packages/com.geuneda.account.apple
+	url = https://github.com/geuneda/geuneda-account-apple.git
+[submodule "Packages/com.geuneda.account.google"]
+	path = Packages/com.geuneda.account.google
+	url = https://github.com/geuneda/geuneda-account-google.git

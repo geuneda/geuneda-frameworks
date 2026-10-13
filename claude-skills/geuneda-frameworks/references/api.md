@@ -3,9 +3,9 @@
 모든 값은 2026-10-13 시점 각 패키지의 `package.json` 과 asmdef 기준이다. 작업 전에 해당 파일로 다시 확인한다. 의존성 그래프와 설치 규칙은 `SKILL.md` 를 본다.
 
 공통:
-- 레포: `https://github.com/geuneda/geuneda-<패키지>.git`
+- 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, account, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, account.apple, account.google, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -174,13 +174,35 @@
 
 ## 13. com.geuneda.account
 
-- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **버전 / 최소 Unity**: 0.2.0 / 2021.3
 - **package.json 의존성**: `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
 - **어셈블리 / 네임스페이스**: `Geuneda.Account`
 - **주요 기능**: `IAuthService`/`AuthService`(게스트·제공자 로그인, `SignInSilentlyAsync`, `GetAccessTokenAsync` 재발급 single-flight, 로그아웃, 연동·충돌·옮겨오기·해제·계정 삭제, 계정 작업 동시 하나 `InProgress`), `AuthTokenMiddleware`(Bearer, 401 재발급 후 한 번 재전송, `RetryMiddleware` 바깥), `IAuthProvider`/`GuestAuthProvider`, `IAppSession`/`AppSession`(다음 세션 ID 예약, 백그라운드 10분 시간 초과, 대칭 이벤트), `AccountResultCodes`(3000 블록)
-- **서버**: `Server~/` 의 ASP.NET Core 인증 서버 `Geuneda.Account.Server`(`AddGeunedaAccount`/`MapGeunedaAccount`, JWT, refresh 회전·재사용 감지, `IAccountStore`·`IRefreshTokenStore`·`IPlatformVerifier`, 게임 서버용 `AddGeunedaAccessTokenValidation`), 샘플 서버, xUnit 테스트(.NET 10)
+- **서버**: `Server~/` 의 ASP.NET Core 인증 서버 `Geuneda.Account.Server`(`AddGeunedaAccount`/`MapGeunedaAccount`, JWT, refresh 회전·재사용 감지, `IAccountStore`·`IRefreshTokenStore`·`IPlatformVerifier`(`AddGuest`, `AddApple`, `AddGoogle`, 공개 키 캐시 `OpenIdConnectKeyCache`), 게임 서버용 `AddGeunedaAccessTokenValidation`), 샘플 서버, xUnit 테스트(.NET 10)
 - **테스트**: EditMode `Geuneda.Account.Tests.EditMode`(가짜 인증 서버 전송, `[Explicit]` 샘플 서버 상호 운용), `dotnet test Server~/Geuneda.Account.Server.slnx`
 - **문서**: `README.md`(서버 경로 표 포함), `AGENTS.md`
+
+---
+
+## 14. com.geuneda.account.apple
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3(iOS 13+)
+- **package.json 의존성**: `com.geuneda.account` 0.1.0, `com.geuneda.core` 0.2.0, `com.cysharp.unitask` 2.5.10
+- **어셈블리 / 네임스페이스**: `Geuneda.Account.Apple`, 에디터 `Geuneda.Account.Apple.Editor`
+- **주요 기능**: `AppleAuthProvider`(ASAuthorizationController 네이티브 플러그인 `Runtime/Plugins/iOS/GeunedaAppleSignIn.mm`), 빌드 후처리 `AppleSignInCapability`(Sign in with Apple entitlement)
+- **테스트**: EditMode `Geuneda.Account.Apple.Tests.EditMode`. 실기 확인은 iOS 빌드
+- **문서**: `README.md`(설정), `AGENTS.md`
+
+---
+
+## 15. com.geuneda.account.google
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3(Android API 23+, compileSdk 34+, iOS 13+)
+- **package.json 의존성**: `com.geuneda.account` 0.1.0, `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
+- **어셈블리 / 네임스페이스**: `Geuneda.Account.Google`
+- **주요 기능**: `GoogleAuthProvider(GoogleAuthOptions)`. Android 는 Credential Manager Android 라이브러리 플러그인(`GeunedaGoogleSignIn.androidlib`: Gradle 의존성 `androidx.credentials` 1.3.0, `googleid` 1.1.1, `androidx.core` 1.8.0, `androidx.loader` 1.0.0, R8 consumer 규칙), iOS 는 SDK 없이 ASWebAuthenticationSession + OAuth PKCE 와 토큰 엔드포인트 교환
+- **테스트**: EditMode `Geuneda.Account.Google.Tests.EditMode`(PKCE RFC 7636 예시, 토큰 교환 가짜 전송, 설정 검사). 실기 확인은 Android·iOS 빌드
+- **문서**: `README.md`(Google Cloud 콘솔 설정), `AGENTS.md`
 
 ---
 
@@ -195,6 +217,8 @@
     "com.geuneda.http": "https://github.com/geuneda/geuneda-http.git",
     "com.geuneda.realtime": "https://github.com/geuneda/geuneda-realtime.git",
     "com.geuneda.account": "https://github.com/geuneda/geuneda-account.git",
+    "com.geuneda.account.apple": "https://github.com/geuneda/geuneda-account-apple.git",
+    "com.geuneda.account.google": "https://github.com/geuneda/geuneda-account-google.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
