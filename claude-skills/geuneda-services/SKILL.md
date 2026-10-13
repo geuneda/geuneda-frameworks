@@ -128,6 +128,7 @@ MainInstaller.Bind<IAssetResolverService>(resolver);
 - **인터페이스만 바인딩**: `MainInstaller.Bind<PoolService>(...)` 처럼 구체 타입을 넘기면 `ArgumentException`. 같은 인터페이스 재바인딩도 `ArgumentException`, 미바인딩 `Resolve` 도 `ArgumentException`(`KeyNotFoundException` 아님). 없을 수 있으면 `TryResolve`.
 - **`MainInstaller` 에는 다중 인터페이스 `Bind` 가 없다**. `Bind<T, T1, T2>` / `Bind<T, T1, T2, T3>` 는 `Installer` 인스턴스에만 있고, `T` 는 구현 타입이다.
 - **메시지 브로커**: 정적 메서드 구독 불가. 구독자 키가 `action.Target` 이라 같은 객체가 같은 메시지를 다시 구독하면 덮어쓰고, 지역 변수를 캡처한 람다는 `Unsubscribe<T>(this)` 로 안 지워진다. `Publish` 핸들러 안에서 구독/해제하면 `InvalidOperationException` 이므로 `PublishSafe` 를 쓴다. `Unsubscribe<T>()` 를 인자 없이 부르면 그 타입 구독자 전부가 지워진다.
+- `TickService` 콜백은 구독 역순으로 불린다. 콜백 안에서 해제해도 다른 구독자가 건너뛰거나 두 번 불리지 않는다. 지금 순회 중인 단계에 새로 구독하면 그 단계의 다음 순회부터 불리고, 다른 단계(예: Update 콜백에서 LateUpdate)에 구독하면 같은 프레임에도 불릴 수 있다. 콜백 예외는 로그로 남기고 나머지 구독자를 계속 부른다(Unreleased).
 - **`TickService` / `CoroutineService`** 는 생성자에서 `DontDestroyOnLoad` GameObject 를 만든다. 런타임에 만들고 `Dispose()`(또는 `CleanDispose<T>()`)로 정리한다. `MainInstaller.Clean()` 은 Dispose 하지 않는다.
 - **FixedUpdate 콜백 인자**는 경과 시간이 아니라 `Time.fixedTime` 이다.
 - **`IAsyncCoroutine.OnComplete`** 는 교체 방식이다. `StopCoroutine(triggerOnComplete)` 기본값은 `false`(콜백 없음). 서비스의 `StopAllCoroutines()` 는 핸들을 완료 처리하지 않는다.
