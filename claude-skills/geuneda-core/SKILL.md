@@ -1,11 +1,11 @@
 ---
 name: geuneda-core
-description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 그리고 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때 활성화한다.
+description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, 그리고 DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때 활성화한다.
 ---
 
 # Geuneda Core
 
-다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거와 결과 규약(`Result`)이다.
+다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`)이다.
 
 ## 패키지 정보
 
@@ -31,6 +31,12 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 - `ResultCodes`: `Success` 0, `Unknown` 1, `Cancelled` 2, `Timeout` 3, `NetworkError` 4, `InProgress` 5, `FromException(Exception)`.
 - 규칙: 실행 중 일어날 수 있는 실패(네트워크, 타임아웃, 취소, 서버 거절, 중복 실행)는 결과 코드, 오용(잘못된 인자·상태)은 즉시 예외.
 - 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록), 게임 100000 이상.
+
+## 빌드 환경 핵심 API
+
+- `AppEnv.Current`(`AppEnvironment.Dev` 1 / `QA` 2 / `Prod` 3), `AppEnv.IsDev`/`IsQA`/`IsProd`, `AppEnv.Name`(`dev`/`qa`/`prod`).
+- 값은 컴파일 define 으로 정한다: `GEUNEDA_ENV_PROD`, `GEUNEDA_ENV_QA`, `GEUNEDA_ENV_DEV` 중 하나(Scripting Define Symbols 또는 Build Profile). 없으면 에디터·개발 빌드는 Dev, 릴리스 빌드는 Prod. 둘 이상이면 컴파일 오류.
+- 운영 빌드에서 빠져야 하는 코드는 `#if !GEUNEDA_ENV_PROD && (UNITY_EDITOR || DEVELOPMENT_BUILD || GEUNEDA_ENV_DEV || GEUNEDA_ENV_QA)` 로 감싼다. `AppEnv.IsProd` 로 분기한 코드는 빌드에 남는다.
 
 ## 사용 패턴
 
@@ -103,3 +109,8 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - `ResultCodes.FromException` 은 네트워크 예외를 분류하지 않는다(`Unknown`). 통신 패키지가 자기 예외를 `NetworkError` 로 바꾼다.
 - 정상 실패는 Error 로 남기지 않는다. 취소는 로그 없음 또는 Debug, 네트워크·타임아웃은 Warning.
 - `Message` 는 로그용이다. 사용자 문구는 `Code` 로 찾는다.
+- define 없는 릴리스 빌드는 Prod 다. QA 서버용 릴리스 빌드에 `GEUNEDA_ENV_QA` 를 빠뜨리면 운영 서버에 붙는다.
+- `#if !GEUNEDA_ENV_PROD` 만 쓰면 define 없는 릴리스 빌드(Prod)에서 코드가 남고, `UNITY_EDITOR || DEVELOPMENT_BUILD` 만 쓰면 PROD 를 넣은 개발 빌드(Prod)에서 남는다. 두 조건을 합친 위 조건을 쓴다.
+- Addressables 콘텐츠 빌드는 개발 빌드 옵션·추가 define 없이 플레이어 스크립트를 컴파일한다. 직렬화 필드를 환경 define 으로 바꾸지 않는다. define 없는 릴리스 컴파일을 `#error` 로 막으면 콘텐츠 빌드가 깨진다.
+- 프로젝트 Scripting Define Symbols 의 환경 define 은 에디터에도 적용된다(에디터에서 운영 환경을 시험할 때만 `GEUNEDA_ENV_PROD` 를 넣는다). 빌드 스크립트의 `extraScriptingDefines` 는 그 플레이어 컴파일에만 적용된다.
+- `AppEnv.IsProd` 등은 의도적으로 `const` 가 아니다(소비 코드의 CS0162 경고 방지). 빌드에서 확실히 빼야 하면 `#if` 를 쓴다.

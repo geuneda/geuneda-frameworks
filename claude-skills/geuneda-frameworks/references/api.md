@@ -31,9 +31,9 @@
 ## 2. com.geuneda.services
 
 - **버전 / 최소 Unity**: 2.1.4 / 6000.3
-- **package.json 의존성**: `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10
+- **package.json 의존성**: `com.geuneda.core` 0.1.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10
 - **이 패키지에 의존하는 패키지**: gamesystems
-- **어셈블리**: `Geuneda.Services`(Runtime, `Geuneda.GameData` 와 Addressables/UniTask 계열 참조), `Geuneda.Services.Editor`(Editor)
+- **어셈블리**: `Geuneda.Services`(Runtime, `Geuneda.Core`, `Geuneda.GameData` 와 Addressables/UniTask 계열 참조), `Geuneda.Services.Editor`(Editor)
 - **네임스페이스**:
   - `Geuneda.Services`: `MainInstaller`, `Installer`, `MessageBrokerService`, `TickService`, `CoroutineService`, `PoolService`, `DataService`, `RngService`, `TimeService`, `CommandService<>`, `VersionServices`, `AssetResolverService`
   - `Geuneda.Services.Pooling`: `IPoolService`, `IObjectPool<T>`, `ObjectPool<T>`, `GameObjectPool`, `GameObjectPool<T>`, `IPoolEntitySpawn`, `IPoolEntityDespawn` 등
@@ -137,9 +137,10 @@
 
 - **버전 / 최소 Unity**: 0.1.0 / 2021.3
 - **package.json 의존성**: 없음
+- **이 패키지에 의존하는 패키지**: services
 - **어셈블리**: `Geuneda.Core`
 - **네임스페이스**: `Geuneda.Core`
-- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위)
+- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod)
 - **테스트**: EditMode `Geuneda.Core.Tests.EditMode`
 - **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2)
 
@@ -147,7 +148,7 @@
 
 ## 호스트 프로젝트 manifest.json
 
-호스트 레포 `Packages/manifest.json` 의 주요 항목(Unity 모듈과 IDE 패키지는 생략). 호스트에서는 같은 이름의 서브모듈 폴더가 우선 사용된다.
+호스트 레포 `Packages/manifest.json` 의 주요 항목(Unity 모듈과 IDE 패키지는 생략). 호스트에서는 같은 이름의 서브모듈 폴더가 우선 사용된다. core 는 서브모듈(임베디드 패키지)로만 들어 있고, core 원격에 내용을 푸시할 때 git URL 을 추가한다.
 
 ```json
 {
@@ -183,6 +184,7 @@ UniTask 와 git 전용 Geuneda 의존성은 자동으로 설치되지 않으므�
 ```json
 {
   "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+  "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
   "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
   "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git"
 }

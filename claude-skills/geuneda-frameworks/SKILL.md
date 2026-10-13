@@ -21,7 +21,7 @@ Geuneda UPM 패키지 10개와 그것을 개발, 테스트, 검증하는 Unity �
 
 | 패키지 | 버전 | 최소 Unity | 용도 | 스킬 |
 |--------|------|-----------|------|------|
-| `com.geuneda.core` | 0.1.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`) | `geuneda-core` |
+| `com.geuneda.core` | 0.1.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`) | `geuneda-core` |
 | `com.geuneda.gamedata` | 1.0.4 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 2.1.4 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG, 시간, 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit | `geuneda-uiservice` |
@@ -41,17 +41,19 @@ Geuneda UPM 패키지 10개와 그것을 개발, 테스트, 검증하는 Unity �
 ## 의존성
 
 ```
+core
+  └── services (gamedata 에도 의존)
 gamedata
   ├── services
   │     └── gamesystems
   └── googlesheetimporter
 
-독립(다른 Geuneda 패키지에 의존하지 않음): core, uiservice, statechart, inputextensions, nativeui, notificationservice
-
-core 는 다른 패키지가 함께 쓸 바닥 패키지다(결정 D1: gamedata 아래). 아직 다른 패키지가 참조하지 않으며, 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
+독립(다른 Geuneda 패키지에 의존하지 않음): uiservice, statechart, inputextensions, nativeui, notificationservice
 ```
 
-- gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems 를 확인한다.
+core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services 가 빌드 환경(`AppEnv`) 때문에 참조한다. 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
+
+- core API 를 바꾸면 services, gamesystems 를 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems 를 확인한다.
 - uiservice 는 gamedata/services 에 의존하지 않는다.
 - 패키지 간 순환 의존은 금지한다.
 - 외부 의존성과 버전은 `references/api.md` 의 패키지별 카드를 본다.
@@ -64,6 +66,7 @@ core 는 다른 패키지가 함께 쓸 바닥 패키지다(결정 D1: gamedata 
 {
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+    "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git"
   }
@@ -75,9 +78,9 @@ UPM 은 git 전용 의존성을 자동으로 받지 못하므로 직접 함께 �
 | 설치하는 패키지 | 같이 넣을 것 |
 |----------------|-------------|
 | gamedata, uiservice, statechart | UniTask |
-| services | UniTask, gamedata |
+| services | UniTask, gamedata, core |
 | googlesheetimporter | gamedata, UniTask |
-| gamesystems | services, gamedata, UniTask |
+| gamesystems | services, gamedata, core, UniTask |
 
 ## 호스트 레포 구조
 
@@ -165,6 +168,7 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 레드닷(경로 트리 알림 배지) 등 공용 게임 시스템 | gamesystems |
 | 모듈별 로깅(레벨 플래그, 출력 대상 교체) | core |
 | 실패를 코드로 돌려주는 결과 타입, 공용 결과 코드 | core |
+| 빌드 환경(DEV/QA/PROD) 분기, 운영 빌드에서 코드 빼기 | core |
 
 ## 참조
 

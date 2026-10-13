@@ -11,7 +11,7 @@ Unity 게임용 기반 서비스 모음이다. 전체 공개 API 는 [references
 
 - 패키지: `com.geuneda.services` (현재 2.1.4), 설치 URL `https://github.com/geuneda/geuneda-services.git`
 - Unity 6000.3 이상
-- 의존성: `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10. gamedata 와 UniTask 는 Unity 레지스트리에 없으므로 `manifest.json` 에 git URL 로 직접 추가해야 한다.
+- 의존성: `com.geuneda.core` 0.1.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10. core, gamedata, UniTask 는 Unity 레지스트리에 없으므로 `manifest.json` 에 git URL 로 직접 추가해야 한다.
 - 에셋 로딩/임포트는 v2.0.0 에서 예전 `com.geuneda.assetsimporter` 를 흡수한 것이다. `com.geuneda.assetsimporter` 를 따로 추가하지 않는다.
 
 ## 네임스페이스 (자주 틀림)
@@ -24,6 +24,7 @@ Unity 게임용 기반 서비스 모음이다. 전체 공개 API 는 [references
 | `Geuneda.Services.AssetsImporter` | `IAssetLoader`, `ISceneLoader`, `AddressablesAssetLoader`, `AssetConfigsScriptableObject<TId, TAsset>`, `AddressableConfig`, `AssetReferenceScene` |
 | `Geuneda.Services.AssetsImporter.Editor` (에디터) | `AssetsConfigsImporter<TId, TAsset, TScriptableObject>` 등 |
 | `Geuneda.DataExtensions` (gamedata) | `floatP`, `Pair<TKey, TValue>` |
+| `Geuneda.Core` (core) | `AppEnv`(내부 버전의 환경 이름) |
 
 `IPoolService` 를 쓰면 `using Geuneda.Services.Pooling;`, `IGameCommand<T>` 를 쓰면 `using Geuneda.Services.Commands;` 가 추가로 필요하다.
 
@@ -136,7 +137,7 @@ MainInstaller.Bind<IAssetResolverService>(resolver);
 - **풀**: 타입당 풀 1개(중복 `AddPool` 은 `ArgumentException`). `GameObjectPool` 계열은 훅을 `GetComponent` 로 찾으므로 훅 인터페이스는 컴포넌트에 구현한다. `Spawn(data)` 는 `OnSpawn()` 과 `OnSpawn(data)` 를 둘 다 호출한다. `GameObjectPool.Dispose(bool)` 는 인자가 `true` 일 때만 샘플을 `Object.Destroy` 한다(v2.1.4 부터. 이전 버전은 인자와 관계없이 파괴). 대기 중인 항목이 풀 밖에서 파괴되면 `Spawn` 이 그 항목을 건너뛰고, 인스턴시에이터가 null 이나 파괴된 객체를 돌려주면 재시도 없이 `InvalidOperationException` 을 던진다(Unreleased. v2.1.4 까지는 파괴된 항목에서 `MissingReferenceException`, null 을 돌려주는 인스턴시에이터에서 무한 루프).
 - **`DataService`**: 참조 타입만, `PlayerPrefs` 키는 `typeof(T).FullName`, 값은 `{"version":n,"data":{...}}` 봉투(`[DataVersion(n)]`, 마이그레이션은 `AddMigration<T>`). `LoadData<T>` 는 매개변수 없는 생성자 필요, 저장값을 읽지 못하면 예외 대신 `{키}.corrupt` 에 원문을 남기고 새 인스턴스로 시작한다. 더 새 버전 세이브를 읽은 타입은 `AddOrReplaceData` 로 교체하기 전까지 저장하지 않는다. `GetData<T>` 는 없으면 `KeyNotFoundException`. 이전 버전(2.x) 세이브는 읽지 않는다(Unreleased, 호환되지 않는 변경).
 - **`RngService`**: `Range(int, int)` 는 max 미포함, `Range(floatP, floatP)` 는 max 포함. float 계열은 `Geuneda.DataExtensions.floatP`. v2.1.1 에서 시퀀스가 바뀌어 이전 버전 리플레이와 호환되지 않는다.
-- **`VersionServices`** 는 `SubsystemRegistration` 에서 자동 로드되므로 `LoadVersionData()` 를 부를 필요가 없다. `version-data` 리소스가 없으면 예외 없이 `Application.version` / 빈 문자열로 폴백하고 `Debug.LogError` 를 남긴다(지연 로드는 한 번만 시도). git 저장소가 아닌 프로젝트에서는 `Branch` / `Commit` 이 빈 문자열이다. `IsOutdatedVersion` 은 `Major[.Minor[.Patch]]` 와 접미사(`-rc`, `+42`)를 받고, 읽을 수 없으면 경고 후 `false` 다. 빌드 타입은 플레이어 빌드 직전 훅이 개발 빌드가 아니면 `prod` 로 쓰고, 빌드가 끝나면(실패·취소 포함) `dev` 로 되돌린다. Android 빌드 번호는 `bundleVersionCode` 다(Unreleased).
+- **`VersionServices`** 는 `SubsystemRegistration` 에서 자동 로드되므로 `LoadVersionData()` 를 부를 필요가 없다. `version-data` 리소스가 없으면 예외 없이 `Application.version` / 빈 문자열로 폴백하고 `Debug.LogError` 를 남긴다(지연 로드는 한 번만 시도). git 저장소가 아닌 프로젝트에서는 `Branch` / `Commit` 이 빈 문자열이다. `IsOutdatedVersion` 은 `Major[.Minor[.Patch]]` 와 접미사(`-rc`, `+42`)를 받고, 읽을 수 없으면 경고 후 `false` 다. `VersionInternal` 끝의 환경 이름은 core 의 `AppEnv.Name`(`dev`/`qa`/`prod`, 컴파일 define 으로 정해짐)이고 `version-data` 에는 쓰지 않는다(`VersionData.BuildType` 없음, Unreleased). 플레이어 빌드 직전 훅이 빌드 대상의 빌드 번호(Android 는 `bundleVersionCode`)를 쓰고, 빌드가 끝나면(실패·취소 포함) 활성 타깃 값으로 되돌린다.
 - **`AssetResolverService`**: `AddConfigs` 는 `IAssetAdderService` 로만 호출된다(`AssetResolverService` 변수로 호출하면 CS1061). 등록 전 `RequestAsset` / `LoadSceneAsync<TId>` 는 `MissingMemberException`. `RequestAsset` 의 `instantiate` 기본값이 `true` 라 `GameObject` 는 인스턴스가 만들어진다. 씬은 에셋 타입 `UnityEngine.SceneManagement.Scene` 으로 등록한다.
 - **`AddressablesAssetLoader.UnloadAsset`** 은 동기 `void` 이며 참조 카운트만 줄인다. 메모리 회수는 호출자가 `Resources.UnloadUnusedAssets()` 로 한다.
 - **Services Explorer**(`Tools > Geuneda > Services Explorer`)는 `MainInstaller` 에 인터페이스로 바인딩된 서비스만 보여 준다.

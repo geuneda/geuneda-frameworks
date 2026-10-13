@@ -20,7 +20,7 @@ Geuneda Unity Package Manager(UPM) 패키지 10개를 개발, 테스트, 검증�
 
 | 패키지 | 버전 | 최소 Unity | 하는 일 | 문서 |
 |--------|------|-----------|---------|------|
-| `com.geuneda.core` | 0.1.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`) | [README](Packages/com.geuneda.core/README.md) |
+| `com.geuneda.core` | 0.1.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`) | [README](Packages/com.geuneda.core/README.md) |
 | `com.geuneda.gamedata` | 1.0.4 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
 | `com.geuneda.services` | 2.1.4 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG, 시간, 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
@@ -43,22 +43,24 @@ Geuneda Unity Package Manager(UPM) 패키지 10개를 개발, 테스트, 검증�
 Geuneda 패키지끼리의 의존 관계입니다(`package.json` 과 asmdef 기준).
 
 ```
+core
+  └── services (gamedata 에도 의존)
 gamedata
   ├── services
   │     └── gamesystems
   └── googlesheetimporter
 
-core, uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Geuneda 패키지에 의존하지 않음
+uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Geuneda 패키지에 의존하지 않음
 ```
 
-`core` 는 다른 패키지가 함께 쓸 바닥 패키지입니다. 아직 다른 패키지가 참조하지 않으며, 기존 패키지의 로그를 옮길 때 의존성을 추가합니다.
+`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services 가 빌드 환경(`AppEnv`)을 위해 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
 
 외부 의존성(`package.json` 에 선언된 최소 버전):
 
 | 패키지 | 외부 의존성 |
 |--------|-------------|
 | gamedata | `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
-| services | `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
+| services | `com.geuneda.core` 0.1.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
 | uiservice | `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
 | statechart | `com.cysharp.unitask` 2.5.10 |
 | inputextensions | `com.unity.inputsystem` 1.1.1, `com.unity.ugui` 1.0.0 |
@@ -80,6 +82,7 @@ core, uiservice, statechart, inputextensions, nativeui, notificationservice: 다
 {
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+    "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git"
   }
@@ -91,9 +94,9 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 | 설치하는 패키지 | 같이 추가할 패키지 |
 |----------------|-------------------|
 | gamedata, uiservice, statechart | UniTask |
-| services | UniTask, gamedata |
+| services | UniTask, gamedata, core |
 | googlesheetimporter | gamedata, UniTask(gamedata 의존성) |
-| gamesystems | services, gamedata, UniTask |
+| gamesystems | services, gamedata, core, UniTask |
 
 Unity 레지스트리에 있는 의존성(Addressables, Newtonsoft Json, Input System, Mobile Notifications 등)은 자동으로 설치됩니다.
 

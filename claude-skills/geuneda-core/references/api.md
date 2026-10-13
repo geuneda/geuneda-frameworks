@@ -93,3 +93,23 @@
 `static int FromException(Exception exception)`: `OperationCanceledException`(`TaskCanceledException` 포함) → `Cancelled`, `TimeoutException` → `Timeout`, 그 밖 → `Unknown`. null 이면 `ArgumentNullException`.
 
 코드 범위: 0 성공, 1~999 core 공용, 1000~99999 패키지별 1000 단위 블록(core `README.md` "결과 코드 범위" 표에 등록), 100000 이상 게임.
+
+---
+
+## 빌드 환경 (`Runtime/Environment/`)
+
+### enum AppEnvironment
+
+`Dev = 1`, `QA = 2`, `Prod = 3`.
+
+### static class AppEnv
+
+| 멤버 | 설명 |
+|------|------|
+| `AppEnvironment Current { get; }` | `GEUNEDA_ENV_PROD` 면 Prod, `GEUNEDA_ENV_QA` 면 QA, `GEUNEDA_ENV_DEV` 면 Dev. define 이 없으면 에디터·개발 빌드는 Dev, 릴리스 빌드는 Prod. 실행 중 바뀌지 않음 |
+| `bool IsDev` / `bool IsQA` / `bool IsProd` | `Current` 비교 |
+| `string Name` | `dev`, `qa`, `prod` |
+
+컴파일 규칙(`AppEnv.cs` 의 `#error`): 환경 define 은 많아야 하나. 운영 빌드에서 코드를 빼는 조건은 `#if !GEUNEDA_ENV_PROD && (UNITY_EDITOR || DEVELOPMENT_BUILD || GEUNEDA_ENV_DEV || GEUNEDA_ENV_QA)` 다(define 없는 릴리스 빌드도 Prod).
+
+`internal static AppEnvironment Resolve(bool prodDefined, bool qaDefined, bool devDefined, bool editorOrDevelopmentBuild)`: 결정 함수(테스트용, `InternalsVisibleTo("Geuneda.Core.Tests.EditMode")`).

@@ -23,6 +23,12 @@ geuneda-frameworks 패키지를 쓰는 모든 Unity 프로젝트에 적용하는
 - 예외를 결과로 바꿀 때는 정상 실패 예외(취소, 타임아웃, 연결 실패)만 타입별로 잡는다. `catch (Exception)` 으로 오용·버그를 `Unknown` 결과로 숨기지 않는다. 정상 실패는 Error 로그로 남기지 않는다
 - 결과 코드 범위: 0 성공, 1~999 core 공용(`ResultCodes`), 패키지별 1000 단위 블록, 게임 100000 이상(core `README.md`)
 
+## 빌드 환경
+
+- 서버 주소, 로그 레벨, 분석 환경처럼 환경마다 다른 값은 `Geuneda.Core` 의 `AppEnv.Current` 로 고른다. 환경을 직접 문자열이나 별도 플래그로 만들지 않는다
+- 환경은 `GEUNEDA_ENV_DEV` / `GEUNEDA_ENV_QA` / `GEUNEDA_ENV_PROD` define 하나로 정한다. 없으면 에디터·개발 빌드는 Dev, 릴리스 빌드는 Prod 이므로 QA 릴리스 빌드에는 `GEUNEDA_ENV_QA` 를 꼭 넣는다
+- 운영 빌드에서 빠져야 하는 코드(치트, 디버그 메뉴)는 `#if !GEUNEDA_ENV_PROD && (UNITY_EDITOR || DEVELOPMENT_BUILD || GEUNEDA_ENV_DEV || GEUNEDA_ENV_QA)` 로 감싼다(`AppEnv.Current` 가 Prod 가 아닌 경우와 같은 조건)
+
 ## CBD 설계 원칙
 
 - MonoBehaviour는 단일 책임 (Unity 연결 역할만)
