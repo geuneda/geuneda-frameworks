@@ -92,6 +92,7 @@ NativeUiService.ShowToastMessage("네트워크 오류가 발생했습니다.", t
 - **iOS 콜백은 버튼 텍스트로 매칭**: 텍스트가 같은 버튼이 있으면 첫 번째 것만 호출된다. `_currentButtons` 정적 필드 하나로 관리하므로 알림이 열린 상태에서 새 알림을 띄우면 이전 알림의 버튼 정보가 덮어써진다. `Text` 가 null 이면 네이티브와 같이 빈 문자열로 보고 매칭한다.
 - **버튼 인자**: `buttons` 가 `null` 이거나 비어 있으면 iOS, Android 모두 `ArgumentException`(v0.2.7). 에디터는 로그만 남긴다.
 - **`Callback` 은 null 허용**: iOS, Android 모두 null 이면 알림만 닫고 아무것도 호출하지 않는다.
+- **스레드**: 버튼 콜백은 Unity 메인 스레드에서 실행되므로 Unity API 를 써도 된다. Android 는 다이얼로그·토스트를 Android UI 스레드에서 만들고(`runOnUiThread`), 클릭은 `ShowAlertPopUp` 을 부른 스레드의 `SynchronizationContext` 로 넘겨 그 컨텍스트가 큐를 처리할 때 실행한다. 그래서 Android 에서는 메서드가 표시 완료를 기다리지 않고 표시 오류는 로그로만 남는다. `ShowAlertPopUp` 은 Unity 메인 스레드에서 부른다(Unreleased).
 - **에디터에서 콜백 테스트 불가**: 에디터 분기는 `Debug.Log` 만 하고 반환한다.
 - **비대상 플랫폼 예외**: Standalone/WebGL 등에서는 `SystemException`. 공용 코드에서는 `#if UNITY_IOS || UNITY_ANDROID` 로 감싼다.
 - **버튼 배치 순서**: 배열 순서대로 추가하지만 실제 배치는 OS 규칙을 따른다.

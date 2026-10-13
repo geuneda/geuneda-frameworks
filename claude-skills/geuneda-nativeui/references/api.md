@@ -115,6 +115,7 @@ public static void ShowToastMessage(string message, bool isLongDuration)
 | 클릭 리스너 | `private class AndroidButtonCallback : AndroidJavaProxy` (`android.content.DialogInterface$OnClickListener`) |
 | 스타일 변환 | `private static int ConvertToAndroidStyle(AlertButtonStyle style)` |
 
-- `AndroidButtonCallback.onClick(AndroidJavaObject dialog, int which)` 는 `dialog.Call("dismiss")` 후 `_callback?.Invoke()` 를 호출한다.
+- 다이얼로그와 토스트는 `RunOnAndroidUiThread(Action<AndroidJavaObject>)` 로 `activity.runOnUiThread` 안에서 만들고 표시한다(Unreleased). 액티비티 참조는 UI 스레드에서 다시 얻고, 그 안의 예외는 `Debug.LogException` 으로 남긴다. 두 메서드는 표시 완료를 기다리지 않는다.
+- `AndroidButtonCallback(Action callback, SynchronizationContext callbackContext)` 는 `ShowAlertPopUp` 을 부른 스레드의 `SynchronizationContext.Current` 를 받는다. `onClick(AndroidJavaObject dialog, int which)` 는 Android UI 스레드에서 불려 `dialog.Call("dismiss")` 후 콜백을 그 컨텍스트로 `Post` 한다(Unity 메인 스레드가 큐를 처리할 때 실행). 컨텍스트가 없으면 UI 스레드에서 바로 부른다. `buttons` 는 복사해서 쓴다.
 - `ConvertToAndroidStyle` 은 정의되지 않은 값에 `ArgumentOutOfRangeException` 을 던진다.
 - `AlertDialog.setButton` 은 버튼 종류(`which`)당 하나만 유지하므로 버튼은 스타일당 하나, 최대 3개다.
