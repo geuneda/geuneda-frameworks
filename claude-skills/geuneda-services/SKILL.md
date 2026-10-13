@@ -130,6 +130,7 @@ MainInstaller.Bind<IAssetResolverService>(resolver);
 - **메시지 브로커**: 정적 메서드 구독 불가. 구독자 키가 `action.Target` 이라 같은 객체가 같은 메시지를 다시 구독하면 덮어쓰고, 지역 변수를 캡처한 람다는 `Unsubscribe<T>(this)` 로 안 지워진다. `Publish` 핸들러 안에서 구독/해제하면 `InvalidOperationException` 이므로 `PublishSafe` 를 쓴다. `Unsubscribe<T>()` 를 인자 없이 부르면 그 타입 구독자 전부가 지워진다.
 - `TickService` 콜백은 구독 역순으로 불린다. 콜백 안에서 해제해도 다른 구독자가 건너뛰거나 두 번 불리지 않는다. 지금 순회 중인 단계에 새로 구독하면 그 단계의 다음 순회부터 불리고, 다른 단계(예: Update 콜백에서 LateUpdate)에 구독하면 같은 프레임에도 불릴 수 있다. 콜백 예외는 로그로 남기고 나머지 구독자를 계속 부른다(Unreleased).
 - **`TickService` / `CoroutineService`** 는 생성자에서 `DontDestroyOnLoad` GameObject 를 만든다. 런타임에 만들고 `Dispose()`(또는 `CleanDispose<T>()`)로 정리한다. `MainInstaller.Clean()` 은 Dispose 하지 않는다.
+- `MainInstaller` 는 플레이 세션 시작(`SubsystemRegistration`)에 바인딩을 비운다. 도메인 리로드를 꺼도 이전 세션 바인딩이 남지 않지만, 그 시점에 바인딩하면 지워질 수 있으니 `AfterAssembliesLoaded` 이후에 바인딩한다(Unreleased).
 - **FixedUpdate 콜백 인자**는 경과 시간이 아니라 `Time.fixedTime` 이다.
 - **`IAsyncCoroutine.OnComplete`** 는 교체 방식이다. `StopCoroutine(triggerOnComplete)` 기본값은 `false`(콜백 없음). 서비스의 `StopAllCoroutines()` 는 핸들을 완료 처리하지 않는다.
 - **풀**: 타입당 풀 1개(중복 `AddPool` 은 `ArgumentException`). `GameObjectPool` 계열은 훅을 `GetComponent` 로 찾으므로 훅 인터페이스는 컴포넌트에 구현한다. `Spawn(data)` 는 `OnSpawn()` 과 `OnSpawn(data)` 를 둘 다 호출한다. `GameObjectPool.Dispose(bool)` 는 인자가 `true` 일 때만 샘플을 `Object.Destroy` 한다(v2.1.4 부터. 이전 버전은 인자와 관계없이 파괴). 대기 중인 항목이 풀 밖에서 파괴되면 `Spawn` 이 그 항목을 건너뛰고, 인스턴시에이터가 null 이나 파괴된 객체를 돌려주면 재시도 없이 `InvalidOperationException` 을 던진다(Unreleased. v2.1.4 까지는 파괴된 항목에서 `MissingReferenceException`, null 을 돌려주는 인스턴시에이터에서 무한 루프).
