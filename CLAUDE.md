@@ -29,6 +29,12 @@ geuneda-frameworks 패키지를 쓰는 모든 Unity 프로젝트에 적용하는
 - 환경은 `GEUNEDA_ENV_DEV` / `GEUNEDA_ENV_QA` / `GEUNEDA_ENV_PROD` define 하나로 정한다. 없으면 에디터·개발 빌드는 Dev, 릴리스 빌드는 Prod 이므로 QA 릴리스 빌드에는 `GEUNEDA_ENV_QA` 를 꼭 넣는다
 - 운영 빌드에서 빠져야 하는 코드(치트, 디버그 메뉴)는 `#if !GEUNEDA_ENV_PROD && (UNITY_EDITOR || DEVELOPMENT_BUILD || GEUNEDA_ENV_DEV || GEUNEDA_ENV_QA)` 로 감싼다(`AppEnv.Current` 가 Prod 가 아닌 경우와 같은 조건)
 
+## 설정 에셋
+
+- 설정 ScriptableObject 는 부트스트랩에서 `Geuneda.Core` 의 `ConfigAssetLoader` 로 읽어 `MainInstaller` 에 바인딩한다. 사용하는 쪽에서 `Resources.Load` 를 직접 부르지 않는다
+- 환경마다 다른 값은 `EnvValue<T>` 필드로 둔다. 비밀 값은 넣지 않는다(모든 환경 값이 빌드에 들어감)
+- 개인 덮어쓰기는 `Editor/Resources` 폴더에 `이름.user.asset` 으로 두고 gitignore 한다. Editor 폴더 밖(또는 StreamingAssets 안)에 `.user` 에셋이 있으면 플레이어 빌드가 실패한다
+
 ## 스레드
 
 - SDK 콜백처럼 다른 스레드에서 받은 작업은 `Geuneda.Core` 의 `MainThreadDispatcher.Post` 로 메인 스레드에 넘긴 뒤 Unity API 를 부른다(UniTask 코드는 `UniTask.SwitchToMainThread` 도 가능)

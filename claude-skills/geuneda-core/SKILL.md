@@ -1,11 +1,11 @@
 ---
 name: geuneda-core
-description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, 그리고 SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때 활성화한다.
+description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 그리고 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때 활성화한다.
 ---
 
 # Geuneda Core
 
-다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`)다.
+다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`)이다.
 
 ## 패키지 정보
 
@@ -42,6 +42,13 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 
 - `MainThreadDispatcher.Post(Action)`: 어느 스레드에서든 넣고, 메인 스레드의 다음 처리(PlayerLoop Update 의 `ScriptRunBehaviourUpdate` 바로 앞)에서 넣은 순서대로 실행. 프레임당 개수 제한 없음.
 - `MainThreadDispatcher.IsMainThread`: 플레이 세션 시작 때 기록한 메인 스레드와 비교. 한 번도 플레이하지 않은 편집 모드에서는 false.
+
+## 설정 에셋 핵심 API
+
+- `new ConfigAssetLoader(Func<string, Object> fallbackLoad = null)`, `Load<T>()`(없거나 타입이 다르면 `InvalidOperationException`), `TryLoad<T>(out T)`, `static GetPath(Type)`, `const UserSuffix = ".user"`.
+- `[ConfigAssetPath("폴더/이름")]`: Resources 기준 경로. 없으면 타입 이름.
+- 읽는 순서: 에디터만 `경로.user`(`Editor/Resources` 에 둠) → `Resources/경로` → 대체 로더.
+- `EnvValue<T>`: `[Serializable] struct`, `new EnvValue<T>(dev, qa, prod)`, `Value`(AppEnv.Current), `Get(AppEnvironment)`.
 
 ## 사용 패턴
 
@@ -120,4 +127,7 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - 프로젝트 Scripting Define Symbols 의 환경 define 은 에디터에도 적용된다(에디터에서 운영 환경을 시험할 때만 `GEUNEDA_ENV_PROD` 를 넣는다). 빌드 스크립트의 `extraScriptingDefines` 는 그 플레이어 컴파일에만 적용된다.
 - `MainThreadDispatcher.Post` 는 메인 스레드에서 불러도 바로 실행하지 않는다. 처리 중에 넣은 작업은 다음 프레임에 실행된다. 작업 예외는 Error 로그로 남고 나머지는 계속 실행된다.
 - `MainThreadDispatcher` 는 플레이 중에 쓰도록 만든 것이다(편집 모드 실행은 보장하지 않음). 플레이 세션 시작(`SubsystemRegistration`)에 남은 작업을 버리므로 `AfterAssembliesLoaded` 이후에 `Post` 한다.
+- `ConfigAssetLoader` 는 캐시가 없다. 부트스트랩에서 한 번 읽어 `MainInstaller` 에 바인딩한다. 정적 캐시를 만들지 않는다(D2).
+- `.user` 에셋(대소문자 무시)이 Editor 폴더 밖이나 StreamingAssets 안에 있으면 플레이어 빌드가 `BuildFailedException` 으로 실패한다. 개인 덮어쓰기는 `Editor/Resources` 에 두고 gitignore(`*.user.asset`, `*.user.asset.meta`) 한다.
+- `EnvValue<T>` 의 dev/qa/prod 값은 모두 빌드에 들어간다. 비밀 값은 넣지 않는다.
 - `AppEnv.IsProd` 등은 의도적으로 `const` 가 아니다(소비 코드의 CS0162 경고 방지). 빌드에서 확실히 빼야 하면 `#if` 를 쓴다.

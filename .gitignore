@@ -56,3 +56,7 @@ Logs
 UserSettings/Layouts/default-2023.dwlt
 .bmad-*
 .windsurf/
+
+# Geuneda.Core 개인 덮어쓰기 설정 에셋(ConfigAssetLoader, Editor/Resources 에 둠)
+*.user.asset
+*.user.asset.meta

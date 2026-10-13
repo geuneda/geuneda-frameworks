@@ -128,3 +128,31 @@
 - 처리: PlayerLoop `Update` 단계의 `ScriptRunBehaviourUpdate` 바로 앞에 넣은 `MainThreadDispatcherUpdate` 가 매 프레임 쌓인 작업을 넣은 순서대로 모두 실행. 처리 중에 넣은 작업은 다음 프레임. 작업 예외는 `ModuleLogger("Geuneda.Core.MainThreadDispatcher")` 로 Error 를 남기고 계속.
 - `SubsystemRegistration` 에서 남은 작업을 버리고 메인 스레드 ID 를 기록한 뒤 처리 단계를 다시 넣음(도메인 리로드 끈 Enter Play Mode 대응).
 - 내부(테스트용, InternalsVisibleTo): `ProcessQueue()`, `ResetState()`.
+
+---
+
+## 설정 에셋 (`Runtime/Config/`, `Editor/`)
+
+### sealed class ConfigAssetLoader
+
+| 멤버 | 설명 |
+|------|------|
+| `const string UserSuffix = ".user"` | 개인 덮어쓰기 에셋 이름 접미사 |
+| `ConfigAssetLoader(Func<string, Object> fallbackLoad = null)` | 대체 로더는 Resources 에 없을 때 경로로 부름 |
+| `static string GetPath(Type type)` | `[ConfigAssetPath]` 값, 없으면 `type.Name`. null 이면 `ArgumentNullException` |
+| `T Load<T>() where T : ScriptableObject` | 에디터만 `경로.user`(`Editor/Resources` 에 둠) → `Resources.Load(경로)` → 대체 로더. 없거나 타입이 다르면 `InvalidOperationException` |
+| `bool TryLoad<T>(out T asset) where T : ScriptableObject` | 없으면 false. 타입이 다르면 `InvalidOperationException` |
+
+캐시 없음. `.user` 를 쓰면 `Geuneda.Core.ConfigAssets` 로거로 Info 를 남긴다. 테스트용 internal 생성자 `(Func<string, Object> resourcesLoad, Func<string, Object> fallbackLoad, bool loadUserOverride)`.
+
+### sealed class ConfigAssetPathAttribute
+
+`ConfigAssetPathAttribute(string path)`: `\` → `/`, 공백·앞뒤 `/` 제거. 비면 `ArgumentException`. `string Path`.
+
+### struct EnvValue<T> ([Serializable])
+
+`EnvValue(T dev, T qa, T prod)`, `T Value`(= `Get(AppEnv.Current)`), `T Get(AppEnvironment environment)`(정의되지 않은 값이면 `ArgumentOutOfRangeException`). 직렬화 필드 `_dev`, `_qa`, `_prod`.
+
+### Geuneda.Core.Editor.UserConfigAssetBuildGuard (internal, IPreprocessBuildWithReport)
+
+`이름.user.확장자`(대소문자 무시) 에셋이 경로에 `Editor` 세그먼트가 없거나 `Assets/StreamingAssets/` 아래에 있으면 `BuildFailedException`. Resources 뿐 아니라 씬 참조·Addressables·StreamingAssets(원본 복사) 경로도 막기 위해서다. `internal static FindUserAssetsThatCanShip(IEnumerable<string>)`.
