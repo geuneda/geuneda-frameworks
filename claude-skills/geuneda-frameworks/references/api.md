@@ -139,7 +139,7 @@
 - **package.json 의존성**: 없음
 - **어셈블리**: `Geuneda.Core`
 - **네임스페이스**: `Geuneda.Core`
-- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`)
+- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위)
 - **테스트**: EditMode `Geuneda.Core.Tests.EditMode`
 - **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2)
 

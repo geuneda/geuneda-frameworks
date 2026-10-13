@@ -49,3 +49,47 @@
 
 - `Write`: `Debug.LogFormat(LogType, LogOption.None, context, "{0}", Format(entry))`. Verbose/Debug/Info 는 `Log`, Warning 은 `Warning`, Error/Fatal 은 `Error`. 예외가 있으면 이어서 `Debug.LogException(exception, context)`.
 - `static string Format(in LogEntry entry)`: `[모듈] 메시지`.
+
+---
+
+## 결과 규약 (`Runtime/Results/`)
+
+### readonly struct Result
+
+| 멤버 | 설명 |
+|------|------|
+| `bool IsSuccess { get; }` | 성공 여부. `default` 는 false |
+| `int Code { get; }` | 성공이면 `ResultCodes.Success`(0), 실패면 1 이상. `default` 는 `ResultCodes.Unknown` |
+| `string Message { get; }` | 로그·디버깅용 설명. 없으면 null |
+| `static Result Ok()` | 성공 |
+| `static Result Fail(int code, string message = null)` | 실패. `code` 가 0 이하면 `ArgumentOutOfRangeException` |
+| `static Result FromException(Exception exception)` | `ResultCodes.FromException` 의 코드 + 예외 메시지. null 이면 `ArgumentNullException`. 변환만 하므로 정상 실패 예외만 타입별로 잡아 넘긴다. 로그는 호출자가 남김 |
+| `string ToString()` | `Success`, `Failure(코드)`, `Failure(코드): 메시지` |
+
+### readonly struct Result&lt;T&gt;
+
+| 멤버 | 설명 |
+|------|------|
+| `IsSuccess`, `Code`, `Message` | `Result` 와 같음 |
+| `T Value { get; }` | 성공한 값. 실패면 `InvalidOperationException` |
+| `bool TryGetValue(out T value)` | 성공이면 true 와 값, 실패면 false 와 `default` |
+| `static Result<T> Ok(T value)` | 성공. 값이 null 이어도 됨 |
+| `static Result<T> Fail(int code, string message = null)` | `Result.Fail` 과 같음 |
+| `static Result<T> FromException(Exception exception)` | `Result.FromException` 과 같음 |
+| `static implicit operator Result(Result<T> result)` | 값을 버리고 성공 여부·코드·메시지만 남김 |
+| `string ToString()` | 성공이면 `Success(값)`, 실패면 `Result` 와 같음 |
+
+### static class ResultCodes
+
+| 상수 | 값 | 뜻 |
+|------|----|----|
+| `Success` | 0 | 성공 |
+| `Unknown` | 1 | 분류하지 않은 실패. 예외 변환 기본값, `default` 결과 |
+| `Cancelled` | 2 | 호출자나 사용자가 취소 |
+| `Timeout` | 3 | 시간 초과 |
+| `NetworkError` | 4 | 네트워크 연결 불가·끊김 |
+| `InProgress` | 5 | 같은 작업이 이미 진행 중이라 거절 |
+
+`static int FromException(Exception exception)`: `OperationCanceledException`(`TaskCanceledException` 포함) → `Cancelled`, `TimeoutException` → `Timeout`, 그 밖 → `Unknown`. null 이면 `ArgumentNullException`.
+
+코드 범위: 0 성공, 1~999 core 공용, 1000~99999 패키지별 1000 단위 블록(core `README.md` "결과 코드 범위" 표에 등록), 100000 이상 게임.

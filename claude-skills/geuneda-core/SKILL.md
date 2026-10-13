@@ -1,11 +1,11 @@
 ---
 name: geuneda-core
-description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때 활성화한다.
+description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 그리고 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때 활성화한다.
 ---
 
 # Geuneda Core
 
-다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거다.
+다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거와 결과 규약(`Result`)이다.
 
 ## 패키지 정보
 
@@ -23,6 +23,14 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 - `LogLevel`(`[Flags] byte`): `Verbose`, `Debug`, `Info`, `Warning`, `Error`, `Fatal`, `All`, `None`. 기본 켜짐은 `ModuleLogger.DefaultLevels`(Info 이상).
 - `Log.Sink`(`ILogSink`, 기본 `UnityConsoleSink`), `Log.ResetSink()`.
 - `ILogSink.Write(in LogEntry)`, `LogEntry`(Level, Module, Message, Exception, Context, CallerMember, CallerFile, CallerLine).
+
+## 결과 규약 핵심 API
+
+- `Result`: `Ok()`, `Fail(int code, string message = null)`, `FromException(Exception)`, `IsSuccess`, `Code`, `Message`.
+- `Result<T>`: 위와 같고 `Ok(T value)`, `Value`(실패면 `InvalidOperationException`), `TryGetValue(out T)`. `Result` 로 암시적 변환.
+- `ResultCodes`: `Success` 0, `Unknown` 1, `Cancelled` 2, `Timeout` 3, `NetworkError` 4, `InProgress` 5, `FromException(Exception)`.
+- 규칙: 실행 중 일어날 수 있는 실패(네트워크, 타임아웃, 취소, 서버 거절, 중복 실행)는 결과 코드, 오용(잘못된 인자·상태)은 즉시 예외.
+- 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록), 게임 100000 이상.
 
 ## 사용 패턴
 
@@ -49,6 +57,36 @@ public sealed class PoolService
 Log.Sink = new MyRemoteSink();
 ```
 
+```csharp
+public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken token)
+{
+    if (string.IsNullOrEmpty(userId))
+    {
+        throw new ArgumentException("User id is empty", nameof(userId));   // 오용: 즉시 예외
+    }
+
+    // 정상 실패에 해당하는 예외만 타입별로 잡는다. 오용·버그 예외(ObjectDisposedException 등)는 전파한다
+    try
+    {
+        return Result<Profile>.Ok(await FetchAsync(userId, token));
+    }
+    catch (OperationCanceledException)
+    {
+        return Result<Profile>.Fail(ResultCodes.Cancelled);                // 정상 취소: 오류 로그 없음
+    }
+    catch (TimeoutException exception)
+    {
+        Logger.Warning($"Profile request timed out: {exception.Message}");
+        return Result<Profile>.FromException(exception);                   // Timeout
+    }
+    catch (HttpRequestException exception)
+    {
+        Logger.Warning($"Profile request failed: {exception.Message}");
+        return Result<Profile>.Fail(ResultCodes.NetworkError, exception.Message);
+    }
+}
+```
+
 ## 함정
 
 - `Verbose`/`Debug` 는 `[Conditional]` 이라 에디터, `DEVELOPMENT_BUILD`, `GEUNEDA_LOG_DEBUG` 심볼이 없으면 호출과 인자 계산이 통째로 제거된다. 부수 효과가 있는 식을 인자로 넣지 않는다.
@@ -58,3 +96,10 @@ Log.Sink = new MyRemoteSink();
 - `Log` 는 플레이 세션 시작(`SubsystemRegistration`)에 출력 대상과 살아 있는 모든 로거의 레벨을 기본값으로 되돌린다. `SubsystemRegistration` 에서 출력 대상이나 레벨을 바꾸면 지워질 수 있다.
 - 레벨 읽기·변경(`EnabledLevels`, `Enable`, `Disable`)은 스레드 안전하다.
 - static 가변 상태는 로거와 메인 스레드 디스패처만 허용한다(D2). 다른 서비스는 인터페이스 + `MainInstaller` 바인딩으로 만든다.
+- `default(Result)` 와 `default(Result<T>)` 는 성공이 아니라 `Unknown` 실패다.
+- `Fail` 에 0 이하 코드를 넣으면 `ArgumentOutOfRangeException` 이다. 실패를 다른 `T` 의 결과로 넘길 때는 `Result<U>.Fail(result.Code, result.Message)`.
+- `Result` 를 돌려주는 API 는 취소도 예외 대신 `Cancelled` 코드로 돌려준다.
+- `FromException` 은 코드로 바꾸기만 한다. `catch (Exception)` 으로 모든 예외를 넘기면 오용·버그가 `Unknown` 결과로 숨겨진다. 정상 실패 예외만 타입별로 잡는다.
+- `ResultCodes.FromException` 은 네트워크 예외를 분류하지 않는다(`Unknown`). 통신 패키지가 자기 예외를 `NetworkError` 로 바꾼다.
+- 정상 실패는 Error 로 남기지 않는다. 취소는 로그 없음 또는 Debug, 네트워크·타임아웃은 Warning.
+- `Message` 는 로그용이다. 사용자 문구는 `Code` 로 찾는다.

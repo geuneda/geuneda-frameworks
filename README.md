@@ -20,7 +20,7 @@ Geuneda Unity Package Manager(UPM) 패키지 10개를 개발, 테스트, 검증�
 
 | 패키지 | 버전 | 최소 Unity | 하는 일 | 문서 |
 |--------|------|-----------|---------|------|
-| `com.geuneda.core` | 0.1.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거 | [README](Packages/com.geuneda.core/README.md) |
+| `com.geuneda.core` | 0.1.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`) | [README](Packages/com.geuneda.core/README.md) |
 | `com.geuneda.gamedata` | 1.0.4 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
 | `com.geuneda.services` | 2.1.4 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG, 시간, 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
