@@ -5,7 +5,7 @@ description: Geuneda.NotificationService 네임스페이스(com.geuneda.notifica
 
 # Geuneda Notification Service
 
-Unity Mobile Notifications(`com.unity.mobile.notifications`)를 감싸 Android/iOS 로컬 알림을 하나의 API 로 다루는 패키지. 앱 안 알림 설정과 OS 알림 권한의 2단 게이트를 제공한다(Unreleased). 원격(푸시) 알림 수신은 포함하지 않는다.
+Unity Mobile Notifications(`com.unity.mobile.notifications`)를 감싸 Android/iOS 로컬 알림을 하나의 API 로 다루는 패키지. 앱 안 알림 설정과 OS 알림 권한의 2단 게이트를 제공한다(v0.2.0). 원격(푸시) 알림 수신은 포함하지 않는다.
 
 - 네임스페이스/어셈블리: `Geuneda.NotificationService`
 - 설치: `https://github.com/geuneda/geuneda-notificationservice.git` (고정하려면 `#<태그>`)
@@ -171,7 +171,7 @@ notification.Channel = "urgent"; // Android: 채널 ID, iOS: CategoryIdentifier
 - 앱 안 알림 설정(`IsEnabled`)이 꺼져 있으면 `ScheduleNotification` 이 예약하지 않고 `null` 을 반환한다(에디터 포함). 반환값을 바로 쓰는 코드는 null 을 확인한다. 다시 켜도 지운 알림은 돌아오지 않으므로 `OnEnabledChanged` 와 시작 시점에 필요한 알림을 예약한다.
 - OS 권한은 예약을 막지 않는다. 다만 iOS 는 권한이 없는 동안 OS 가 예약을 버리고(서비스 대기 목록에는 예약됨으로 남음) 권한이 나중에 생겨도 되살아나지 않으므로, 권한 허용 콜백에서 다시 예약한다. 예약 함수는 "전체 취소 후 다시 예약"으로 만들어 여러 번 불러도 겹치지 않게 한다. 설정 화면에는 `IsEnabled && Permission == Granted` 를 보여 주고, 사용자가 기기 설정에서 바꿀 수 있으므로 화면을 열 때마다 `Permission` 을 다시 읽는다. 에디터에서는 항상 `Granted`.
 - `Id` 를 지정하지 않으면 1,000,000 부터 늘어나는 ID 가 부여된다(실행 간 이어짐, 대기 목록의 ID 는 건너뜀). 직접 지정하는 ID 는 1,000,000 미만으로 둔다.
-- 백그라운드 판단은 `OnApplicationPause` 기준이다. 결제창·광고로 포커스만 잃으면 큐 예약과 저장을 하지 않는다(Unreleased).
+- 백그라운드 판단은 `OnApplicationPause` 기준이다. 결제창·광고로 포커스만 잃으면 큐 예약과 저장을 하지 않는다(v0.2.0).
 - Android 는 채널이 최소 하나 필요하다. 첫 번째 채널이 `Channel` 미지정 알림의 기본 채널이 된다. iOS 에서 채널 등록은 아무 동작도 하지 않는다.
 - Android: `DeliveryTime = null` 은 `ArgumentNullException`, `Subtitle` 은 무시된다.
 - iOS: `Id = null` 은 `ArgumentNullException`, 내부 식별자가 숫자가 아니면 `Id` 는 경고 로그와 함께 `null`. `SmallIcon`/`LargeIcon` 은 무시, `ShouldAutoCancel` 은 효과 없음, 포그라운드 전환 시 앱 배지를 0 으로 초기화한다.

@@ -11,7 +11,7 @@ description: com.geuneda.gamesystems 패키지(네임스페이스 Geuneda.GameSy
 
 - **네임스페이스 / 어셈블리**: `Geuneda.GameSystems.RedDot` (기능마다 `Geuneda.GameSystems.<기능>`)
 - **설치**: `https://github.com/geuneda/geuneda-gamesystems.git` (버전 고정이 필요하면 `#<태그>`, 실제 있는 태그만)
-- **의존성**: `com.geuneda.services` 2.1.0. git 의존성은 자동 해결되지 않으므로 manifest 에 UniTask, core, gamedata, services 를 함께 넣는다(services 다음 메이저부터 core 필요)
+- **의존성**: `com.geuneda.services` 2.1.0. git 의존성은 자동 해결되지 않으므로 manifest 에 UniTask, core, gamedata, services 를 함께 넣는다(services 3.0.0 부터 core 필요)
 - **최소 Unity 버전**: 6000.3
 - **기여 가이드**: 패키지 루트의 `AGENTS.md`(구조 규칙, 설계 불변식, 테스트 실행)
 

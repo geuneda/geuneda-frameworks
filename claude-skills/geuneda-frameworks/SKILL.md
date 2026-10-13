@@ -17,21 +17,21 @@ Geuneda UPM 패키지 11개와 그것을 개발, 테스트, 검증하는 Unity �
 
 ## 패키지 (11개)
 
-버전과 최소 Unity 는 2026-10-12 시점 `package.json` 값이다. 작업 전에 `package.json` 으로 다시 확인한다.
+버전과 최소 Unity 는 2026-10-13 시점 `package.json` 값이다. 작업 전에 `package.json` 으로 다시 확인한다.
 
 | 패키지 | 버전 | 최소 Unity | 용도 | 스킬 |
 |--------|------|-----------|------|------|
 | `com.geuneda.core` | 0.1.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID | `geuneda-core` |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트(미들웨어 체인, `Result<HttpResponse>`, JSON, 선택형 타임아웃·재시도) | `geuneda-http` |
-| `com.geuneda.gamedata` | 1.0.4 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 직렬화 헬퍼 | `geuneda-gamedata` |
-| `com.geuneda.services` | 2.1.4 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG, 시간, 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
+| `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 직렬화 헬퍼 | `geuneda-gamedata` |
+| `com.geuneda.services` | 3.0.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG, 시간, 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit | `geuneda-uiservice` |
-| `com.geuneda.statechart` | 0.9.6 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |
+| `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 포인터 드래그, 스와이프/탭, 게임패드 | `geuneda-inputextensions` |
-| `com.geuneda.nativeui` | 0.2.7 | 2020.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
-| `com.geuneda.notificationservice` | 0.1.9 | 2021.3 | 모바일 로컬 알림 예약/취소/해제, 앱 안 설정과 OS 권한 게이트 | `geuneda-notificationservice` |
+| `com.geuneda.nativeui` | 0.2.8 | 2020.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
+| `com.geuneda.notificationservice` | 0.2.0 | 2021.3 | 모바일 로컬 알림 예약/취소/해제, 앱 안 설정과 OS 권한 게이트 | `geuneda-notificationservice` |
 | `com.geuneda.googlesheetimporter` | 0.9.1 | 6000.0 | Google 스프레드시트 -> ScriptableObject 설정 데이터 임포트(에디터 도구) | `geuneda-googlesheetimporter` |
-| `com.geuneda.gamesystems` | 0.2.1 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷) | `geuneda-gamesystems` |
+| `com.geuneda.gamesystems` | 0.2.2 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷) | `geuneda-gamesystems` |
 
 레포 URL 규칙: `com.geuneda.<x>` -> `https://github.com/geuneda/geuneda-<x>.git`.
 

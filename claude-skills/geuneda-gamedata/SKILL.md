@@ -167,8 +167,8 @@ public class EnemyConfigMigration_v1_v2 : IConfigMigration
 ## 함정
 
 - `ObservableField.Value` setter 는 같은 값이어도 항상 통지한다. 중복 통지를 막으려면 호출 쪽에서 비교한다.
-- 모든 Observable 과 `ComputedField` 는 변경 연산이 시작될 때 구독자 목록을 고정하고 구독 순서대로 부른다(Remove/Clear 도 같음). 콜백 안에서 구독을 해제해도 다른 구독자를 건너뛰거나 두 번 부르지 않고, 아직 안 불린 구독자를 해제하면 그 등록은 이번 통지에서 빠진다(중복 구독은 해제한 건만, `StopObserving(key)`/`StopObservingAll()` 포함). 통지 도중 새로 구독한 콜백은 다음 연산부터 받는다. 의존 갱신(`ComputedField` 무효화)만은 알리는 시점의 의존 관계 전체에 보낸다. 배치가 끝나면 컬렉션은 항목 통지 뒤 의존 갱신을 한 번 보내고(남은 항목이 없어도), 재개 콜백이나 `Clear` 의 `Removed` 콜백이 새 배치를 열면 남은 재개 통지와 의존 갱신은 그 배치가 끝날 때 보낸다(Unreleased).
-- 구독자가 예외를 던져도 나머지 구독자와 의존 갱신(`ComputedField`)은 끝까지 진행한 뒤 예외를 다시 던진다. 하나면 원래 예외 그대로, 여럿이면 `AggregateException` 이고 데이터 변경은 되돌리지 않는다. `ObservableBatch.Dispose` 도 모든 Observable 을 재개한 뒤 던진다(Unreleased. 1.0.4 까지는 첫 예외에서 통지가 멈췄고 배치 뒤쪽 Observable 은 배치 상태에 남았다).
+- 모든 Observable 과 `ComputedField` 는 변경 연산이 시작될 때 구독자 목록을 고정하고 구독 순서대로 부른다(Remove/Clear 도 같음). 콜백 안에서 구독을 해제해도 다른 구독자를 건너뛰거나 두 번 부르지 않고, 아직 안 불린 구독자를 해제하면 그 등록은 이번 통지에서 빠진다(중복 구독은 해제한 건만, `StopObserving(key)`/`StopObservingAll()` 포함). 통지 도중 새로 구독한 콜백은 다음 연산부터 받는다. 의존 갱신(`ComputedField` 무효화)만은 알리는 시점의 의존 관계 전체에 보낸다. 배치가 끝나면 컬렉션은 항목 통지 뒤 의존 갱신을 한 번 보내고(남은 항목이 없어도), 재개 콜백이나 `Clear` 의 `Removed` 콜백이 새 배치를 열면 남은 재개 통지와 의존 갱신은 그 배치가 끝날 때 보낸다(v1.1.0).
+- 구독자가 예외를 던져도 나머지 구독자와 의존 갱신(`ComputedField`)은 끝까지 진행한 뒤 예외를 다시 던진다. 하나면 원래 예외 그대로, 여럿이면 `AggregateException` 이고 데이터 변경은 되돌리지 않는다. `ObservableBatch.Dispose` 도 모든 Observable 을 재개한 뒤 던진다(v1.1.0. 1.0.4 까지는 첫 예외에서 통지가 멈췄고 배치 뒤쪽 Observable 은 배치 상태에 남았다).
 - `ObservableDictionary` 의 `ObservableUpdateFlag` 기본값은 `KeyUpdateOnly` 다. 키 없는 `Observe(action)` 구독은 `UpdateOnly` 나 `Both` 로 바꾸기 전에는 호출되지 않는다.
 - `ObservableDictionary` 인덱서 setter 는 이전 값을 먼저 읽으므로 없는 키에 쓰면 `KeyNotFoundException` 이다. 새 키는 `Add` 로 넣는다.
 - `ObservableList` 생성자에 `List<T>` 를 넘기면 복사하지 않고 그 인스턴스를 그대로 감싼다. 원본 리스트를 직접 고치면 통지가 나가지 않는다. `ReadOnlyList` 는 호출마다 새 `List<T>` 를 할당한다.

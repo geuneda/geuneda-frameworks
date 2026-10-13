@@ -99,7 +99,7 @@ public MobileNotificationService(OperatingMode mode, params GameNotificationChan
 - `Initialize` 외의 메서드는 초기화 전에 호출하면 `InvalidOperationException`.
 - 플랫폼 구현은 `UNITY_ANDROID` 면 Android, `UNITY_IOS` 면 iOS 이며, 둘 다 아니면 없다(에디터에서도 빌드 타깃 기준).
 - 포그라운드 전환(`OnApplicationPause(false)`, `Initialize` 시 포함): 목록을 비운다. 앱 안 알림 설정이 꺼져 있으면 OS 예약을 모두 취소하고 끝낸다. 켜져 있으면 `PlayerPrefs` 키 `notifications` 에서 저장된 알림을 읽는다. `ClearOnForegrounding` 이면 예약을 모두 취소하고, `RescheduleAfterClearing` 이면 미래 알림을 `Reschedule = true` 로 다시 예약한다. 그렇지 않으면 미래 알림을 다시 예약하지 않고 `Scheduled` 상태로 목록에 복원한다(OS 예약이 남아 있으므로).
-- 포커스가 아니라 일시 정지 기준이라 결제창·광고로 포커스만 잃은 경우는 전환으로 보지 않는다. 상태가 바뀌지 않은 호출(시작 직후 `OnApplicationPause(false)` 등)은 무시한다(Unreleased).
+- 포커스가 아니라 일시 정지 기준이라 결제창·광고로 포커스만 잃은 경우는 전환으로 보지 않는다. 상태가 바뀌지 않은 호출(시작 직후 `OnApplicationPause(false)` 등)은 무시한다(v0.2.0).
 - 백그라운드 전환(`OnApplicationPause(true)`): `Queue` 모드면 아직 예약되지 않은 알림 중 전달 시간이 2초 이내이거나 지난 것을 버리고(필요하면 배지 자동 부여) 나머지를 예약한다. 이어서 저장 대상(`ClearOnForegrounding` 이 없으면 예약된 모든 알림, `RescheduleAfterClearing` 까지 있으면 `Reschedule` 이고 예약되었으며 시간이 있는 알림)을 `PlayerPrefs` 키 `notifications` 에 쓴다.
 
 ## OperatingMode (`[Flags]` enum)
@@ -184,7 +184,7 @@ public GameNotificationChannel(string id, string name, string description,
 - `iOSGameNotification()` 생성자 - 내부 알림을 `ShowInForeground = true` 로 생성
 - `iOSNotification InternalNotification { get; }`
 - `string CategoryIdentifier { get; set; }` - `Channel` 과 같은 값
-- `Id` 는 내부 `Identifier` 문자열에 저장. 새 알림은 식별자 없이 만들어 `Id` 가 `null` 이고(서비스가 예약할 때 자동 ID 부여, Unreleased), 정수로 파싱할 수 없으면 경고 로그와 함께 `null`, `null` 을 넣으면 `ArgumentNullException`
+- `Id` 는 내부 `Identifier` 문자열에 저장. 새 알림은 식별자 없이 만들어 `Id` 가 `null` 이고(서비스가 예약할 때 자동 ID 부여, v0.2.0), 정수로 파싱할 수 없으면 경고 로그와 함께 `null`, `null` 을 넣으면 `ArgumentNullException`
 - `BadgeNumber` 는 `InternalNotification.Badge` 에 매핑(`-1` 이 `null`)
 - `DeliveryTime` 은 `iOSNotificationCalendarTrigger` 로 저장(밀리초 무시). 다른 트리거면 `null` 반환, `null` 설정은 무시
 - `SmallIcon`/`LargeIcon` 은 항상 `null`, 설정은 무시. `ShouldAutoCancel` 은 값만 보관

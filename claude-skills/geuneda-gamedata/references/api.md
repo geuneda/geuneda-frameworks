@@ -6,7 +6,7 @@
 
 ## Observable
 
-**통지 규칙** (모든 Observable 과 `ComputedField` 공통, Unreleased)
+**통지 규칙** (모든 Observable 과 `ComputedField` 공통, v1.1.0)
 
 - 변경 연산 하나가 시작될 때 구독자 목록을 고정하고 구독 순서대로 호출한다(`Remove`/`Clear` 포함).
 - 구독 한 건마다 등록 객체가 있어, 통지 중 해제한 등록은 아직 호출 전이면 건너뛴다. 같은 콜백의 중복 구독은 해제한 건만 빠진다. `StopObserving(key)`, `StopObservingAll()` 도 진행 중인 통지에 반영된다.
@@ -211,14 +211,14 @@ public enum ObservableUpdateFlag
 | `void SuppressNotifications()` | 통지 보류 시작 |
 | `void ResumeNotifications()` | 보류 종료 후 통지 |
 
-Observable 타입과 `ComputedField` 는 이 인터페이스를 명시적으로 구현한다. 재개 시 `ObservableField` 는 (배치 전 값, 현재 값)으로 한 번, List/Dictionary 는 모든 요소에 대해 이전 값 `default` 의 `Updated`, HashSet 은 모든 항목에 `Added` 를 통지한다. 컬렉션은 항목 통지 뒤 의존 갱신을 한 번 보내며, 남은 항목이 없어도 보낸다. Dictionary 는 모든 키 구독자에게 먼저, 그다음 전체 구독자에게 알리고, 알리는 시점의 값을 보낸다. 재개 콜백이 새 배치를 열면 남은 항목 통지와 의존 갱신을 멈추고, 그 배치가 끝날 때 전체 항목을 다시 통지한다. `Clear` 의 `Removed` 콜백이 새 배치를 열면 비운 뒤의 의존 갱신도 그 배치가 끝날 때 보낸다(Unreleased).
+Observable 타입과 `ComputedField` 는 이 인터페이스를 명시적으로 구현한다. 재개 시 `ObservableField` 는 (배치 전 값, 현재 값)으로 한 번, List/Dictionary 는 모든 요소에 대해 이전 값 `default` 의 `Updated`, HashSet 은 모든 항목에 `Added` 를 통지한다. 컬렉션은 항목 통지 뒤 의존 갱신을 한 번 보내며, 남은 항목이 없어도 보낸다. Dictionary 는 모든 키 구독자에게 먼저, 그다음 전체 구독자에게 알리고, 알리는 시점의 값을 보낸다. 재개 콜백이 새 배치를 열면 남은 항목 통지와 의존 갱신을 멈추고, 그 배치가 끝날 때 전체 항목을 다시 통지한다. `Clear` 의 `Removed` 콜백이 새 배치를 열면 비운 뒤의 의존 갱신도 그 배치가 끝날 때 보낸다(v1.1.0).
 
 ### ObservableBatch : IDisposable
 
 | 멤버 | 설명 |
 |------|------|
 | `void Add(IBatchable observable)` | 추가 즉시 통지 보류. Dispose 이후 호출하면 `ObjectDisposedException` |
-| `void Dispose()` | 추가된 순서대로 `ResumeNotifications` 호출. 구독자 예외가 나도 남은 Observable 을 모두 재개하고 배치를 닫은 뒤 예외를 다시 던진다(Unreleased) |
+| `void Dispose()` | 추가된 순서대로 `ResumeNotifications` 호출. 구독자 예외가 나도 남은 Observable 을 모두 재개하고 배치를 닫은 뒤 예외를 다시 던진다(v1.1.0) |
 
 ---
 

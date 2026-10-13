@@ -16,21 +16,21 @@ Geuneda Unity Package Manager(UPM) 패키지 11개를 개발, 테스트, 검증�
 
 ## 패키지 목록
 
-버전과 최소 Unity 버전은 각 패키지의 `package.json` 값입니다(2026-10-12 기준). 바뀌었을 수 있으니 정확한 값은 `package.json` 을 확인하세요.
+버전과 최소 Unity 버전은 각 패키지의 `package.json` 값입니다(2026-10-13 기준). 바뀌었을 수 있으니 정확한 값은 `package.json` 을 확인하세요.
 
 | 패키지 | 버전 | 최소 Unity | 하는 일 | 문서 |
 |--------|------|-----------|---------|------|
 | `com.geuneda.core` | 0.1.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID | [README](Packages/com.geuneda.core/README.md) |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트. 미들웨어 체인, `Result<HttpResponse>`(연결 실패·타임아웃·취소는 코드), JSON 편의 메서드, 선택형 타임아웃·재시도 | [README](Packages/com.geuneda.http/README.md) |
-| `com.geuneda.gamedata` | 1.0.4 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
-| `com.geuneda.services` | 2.1.4 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG, 시간, 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
+| `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
+| `com.geuneda.services` | 3.0.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG, 시간, 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
-| `com.geuneda.statechart` | 0.9.6 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
+| `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](Packages/com.geuneda.inputextensions/README.md) |
-| `com.geuneda.nativeui` | 0.2.7 | 2020.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](Packages/com.geuneda.nativeui/README.md) |
-| `com.geuneda.notificationservice` | 0.1.9 | 2021.3 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](Packages/com.geuneda.notificationservice/README.md) |
+| `com.geuneda.nativeui` | 0.2.8 | 2020.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](Packages/com.geuneda.nativeui/README.md) |
+| `com.geuneda.notificationservice` | 0.2.0 | 2021.3 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](Packages/com.geuneda.notificationservice/README.md) |
 | `com.geuneda.googlesheetimporter` | 0.9.1 | 6000.0 | Google 스프레드시트 데이터를 ScriptableObject 설정 데이터로 가져오는 에디터 도구 | [README](Packages/com.geuneda.googlesheetimporter/README.md) |
-| `com.geuneda.gamesystems` | 0.2.1 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷) | [README](Packages/com.geuneda.gamesystems/README.md) |
+| `com.geuneda.gamesystems` | 0.2.2 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷) | [README](Packages/com.geuneda.gamesystems/README.md) |
 
 레포지토리 URL 은 모두 `https://github.com/geuneda/<레포>.git` 형식이고, 레포 이름은 패키지 이름의 `com.geuneda.` 를 `geuneda-` 로 바꾼 것입니다(예: `com.geuneda.services` -> `geuneda-services`).
 

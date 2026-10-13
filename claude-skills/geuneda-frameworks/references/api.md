@@ -1,6 +1,6 @@
 # Geuneda Frameworks - 패키지별 상세 카드
 
-모든 값은 2026-10-12 시점 각 패키지의 `package.json` 과 asmdef 기준이다. 작업 전에 해당 파일로 다시 확인한다. 의존성 그래프와 설치 규칙은 `SKILL.md` 를 본다.
+모든 값은 2026-10-13 시점 각 패키지의 `package.json` 과 asmdef 기준이다. 작업 전에 해당 파일로 다시 확인한다. 의존성 그래프와 설치 규칙은 `SKILL.md` 를 본다.
 
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`
@@ -11,7 +11,7 @@
 
 ## 1. com.geuneda.gamedata
 
-- **버전 / 최소 Unity**: 1.0.4 / 6000.0
+- **버전 / 최소 Unity**: 1.1.0 / 6000.0
 - **package.json 의존성**: `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
 - **이 패키지에 의존하는 패키지**: services, googlesheetimporter
 - **어셈블리**: `Geuneda.GameData`(Runtime, `UniTask` + `Newtonsoft.Json.dll` 참조, `allowUnsafeCode`), `Geuneda.GameData.Editor`(Editor)
@@ -30,7 +30,7 @@
 
 ## 2. com.geuneda.services
 
-- **버전 / 최소 Unity**: 2.1.4 / 6000.3
+- **버전 / 최소 Unity**: 3.0.0 / 6000.3
 - **package.json 의존성**: `com.geuneda.core` 0.1.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10
 - **이 패키지에 의존하는 패키지**: gamesystems
 - **어셈블리**: `Geuneda.Services`(Runtime, `Geuneda.Core`, `Geuneda.GameData` 와 Addressables/UniTask 계열 참조), `Geuneda.Services.Editor`(Editor)
@@ -62,7 +62,7 @@
 
 ## 4. com.geuneda.statechart
 
-- **버전 / 최소 Unity**: 0.9.6 / 2022.3
+- **버전 / 최소 Unity**: 0.10.0 / 2022.3
 - **package.json 의존성**: `com.cysharp.unitask` 2.5.10
 - **어셈블리**: `Geuneda.Statechart`
 - **네임스페이스**: `Geuneda.StatechartMachine`(내부 구현은 `Geuneda.StatechartMachine.Internal`)
@@ -86,7 +86,7 @@
 
 ## 6. com.geuneda.nativeui
 
-- **버전 / 최소 Unity**: 0.2.7 / 2020.3
+- **버전 / 최소 Unity**: 0.2.8 / 2020.3
 - **package.json 의존성**: 없음
 - **어셈블리**: `Geuneda.NativeUi`(iOS 네이티브 코드 `Runtime/Plugins/iOS/NativeUi.m` 포함)
 - **네임스페이스**: `Geuneda.NativeUi`
@@ -98,7 +98,7 @@
 
 ## 7. com.geuneda.notificationservice
 
-- **버전 / 최소 Unity**: 0.1.9 / 2021.3
+- **버전 / 최소 Unity**: 0.2.0 / 2021.3
 - **package.json 의존성**: `com.unity.mobile.notifications` 2.4.2
 - **어셈블리**: `Geuneda.NotificationService`
 - **네임스페이스**: `Geuneda.NotificationService`
@@ -123,7 +123,7 @@
 
 ## 9. com.geuneda.gamesystems
 
-- **버전 / 최소 Unity**: 0.2.1 / 6000.3
+- **버전 / 최소 Unity**: 0.2.2 / 6000.3
 - **package.json 의존성**: `com.geuneda.services` 2.1.0
 - **어셈블리**: 기능마다 하나. 현재 `Geuneda.GameSystems.RedDot`(`Geuneda.Services` 참조)
 - **네임스페이스**: `Geuneda.GameSystems.<기능>`, 현재 `Geuneda.GameSystems.RedDot`
