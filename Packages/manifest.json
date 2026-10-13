@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
+    "com.geuneda.http": "https://github.com/geuneda/geuneda-http.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core 와 gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -137,12 +137,24 @@
 
 - **버전 / 최소 Unity**: 0.1.0 / 2021.3
 - **package.json 의존성**: 없음
-- **이 패키지에 의존하는 패키지**: services
+- **이 패키지에 의존하는 패키지**: services, http
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드)
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
 - **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인)
 - **테스트**: EditMode `Geuneda.Core.Tests.EditMode`, PlayMode `Geuneda.Core.Tests.PlayMode`
 - **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2: `Log`, `MainThreadDispatcher`)
+
+---
+
+## 11. com.geuneda.http
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **package.json 의존성**: `com.geuneda.core` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.unitywebrequest` 1.0.0
+- **어셈블리**: `Geuneda.Http`
+- **네임스페이스**: `Geuneda.Http`
+- **주요 기능**: `IHttpClient`/`HttpClient`/`HttpClientBuilder`, 바꾸지 않는 `HttpRequest`·`HttpResponse`, 미들웨어 `(order, 등록 순서)` 체인(`IHttpMiddleware`, `HttpHandler`), `UnityWebRequestTransport`, 선택형 `TimeoutMiddleware`·`RetryMiddleware`·`DefaultHeadersMiddleware`, `HttpResultCodes`(1000 블록)
+- **테스트**: EditMode `Geuneda.Http.Tests.EditMode`, PlayMode `Geuneda.Http.Tests.PlayMode`(로컬 HttpListener)
+- **문서**: `README.md`, `AGENTS.md`
 
 ---
 
@@ -154,6 +166,7 @@
 {
   "dependencies": {
     "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
+    "com.geuneda.http": "https://github.com/geuneda/geuneda-http.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

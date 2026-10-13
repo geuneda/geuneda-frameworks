@@ -28,3 +28,6 @@
 [submodule "Packages/com.geuneda.core"]
 	path = Packages/com.geuneda.core
 	url = https://github.com/geuneda/geuneda-core.git
+[submodule "Packages/com.geuneda.http"]
+	path = Packages/com.geuneda.http
+	url = https://github.com/geuneda/geuneda-http.git

@@ -14,6 +14,7 @@ SKILLS=(
     "geuneda-gamesystems"
     "geuneda-frameworks"
     "geuneda-googlesheetimporter"
+    "geuneda-http"
     "geuneda-inputextensions"
     "geuneda-nativeui"
     "geuneda-notificationservice"

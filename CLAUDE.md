@@ -122,6 +122,7 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 | `Geuneda.GoogleSheetImporter`, `GeunedaEditor.GoogleSheetImporter` | `/geuneda-googlesheetimporter` |
 | `Geuneda.GameSystems.*` (예: `Geuneda.GameSystems.RedDot`) | `/geuneda-gamesystems` |
 | `Geuneda.Core` | `/geuneda-core` |
+| `Geuneda.Http` | `/geuneda-http` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|
