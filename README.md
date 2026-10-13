@@ -20,7 +20,7 @@ Geuneda Unity Package Manager(UPM) 패키지 12개를 개발, 테스트, 검증�
 
 | 패키지 | 버전 | 최소 Unity | 하는 일 | 문서 |
 |--------|------|-----------|---------|------|
-| `com.geuneda.core` | 0.1.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID | [README](Packages/com.geuneda.core/README.md) |
+| `com.geuneda.core` | 0.2.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소 | [README](Packages/com.geuneda.core/README.md) |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트. 미들웨어 체인, `Result<HttpResponse>`(연결 실패·타임아웃·취소는 코드), JSON 편의 메서드, 선택형 타임아웃·재시도 | [README](Packages/com.geuneda.http/README.md) |
 | `com.geuneda.realtime` | 0.2.0 | 2021.3 | WebSocket 실시간 RPC 클라이언트. single-flight 연결, 연결마다 재로그인, 지수 백오프 재연결, 요청 ID 매칭, 서버 푸시, 핑퐁, 교체 가능한 직렬화(JSON 기본, MessagePack 선택). `[RpcService]` 계약에서 클라이언트 프록시·서버 라우트를 만드는 소스 생성기와 ASP.NET Core 서버(`Server~/`) | [README](Packages/com.geuneda.realtime/README.md) |
 | `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |

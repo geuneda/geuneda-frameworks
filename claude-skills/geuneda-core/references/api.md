@@ -92,7 +92,7 @@
 
 `static int FromException(Exception exception)`: `OperationCanceledException`(`TaskCanceledException` 포함) → `Cancelled`, `TimeoutException` → `Timeout`, 그 밖 → `Unknown`. null 이면 `ArgumentNullException`.
 
-코드 범위: 0 성공, 1~999 core 공용, 1000~99999 패키지별 1000 단위 블록(core `README.md` "결과 코드 범위" 표에 등록), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 101000 이상 게임.
+코드 범위: 0 성공, 1~999 core 공용, 1000~99999 패키지별 1000 단위 블록(core `README.md` "결과 코드 범위" 표에 등록: 1000 http, 2000 realtime, 3000 account), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 101000 이상 게임.
 
 ---
 
@@ -173,6 +173,35 @@
 | `string InstallId { get; }` | PlayerPrefs `geuneda.core.installId` 의 GUID(`N` 형식). 없으면 만들어 저장. 앱 데이터가 지워지면 새로, 백업 복원으로 PlayerPrefs 가 되살아나면 이전 값 |
 | `string DeviceId { get; }` | iOS: 키체인(서비스 `<번들 ID>.geuneda`, 계정 `geuneda.core.deviceId`, `AfterFirstUnlockThisDeviceOnly`) GUID. 없으면 만들어 추가, 읽기 실패·추가 실패면 그 실행만 플랫폼 ID. 그 밖: `SystemInfo.deviceUniqueIdentifier`, 지원 안 하면(`n/a`, 빈 값) PlayerPrefs `geuneda.core.deviceId` GUID |
 
-internal: `IKeyValueStore`(`PlayerPrefsStore`), `ISecureStore`/`SecureReadResult`(`IosKeychainStore`, `UNITY_IOS && !UNITY_EDITOR`), 테스트용 생성자 `(IKeyValueStore, ISecureStore, Func<string>)`.
+internal: `IKeyValueStore`(`PlayerPrefsStore`), 테스트용 생성자 `(IKeyValueStore, ISecureStore, Func<string>)`. 기기 ID 에는 iOS 플레이어에서만 `IosKeychainStore` 를 쓴다(Android 키스토어 값은 재설치로 사라지므로 쓰지 않음).
 
-네이티브: `char* GeunedaKeychain_Copy(const char* key, int* status)`(malloc 문자열, 없으면 NULL + OSStatus), `int GeunedaKeychain_Add(const char* key, const char* value)`(OSStatus).
+## 보안 저장소 (`Runtime/SecureStorage/`, `Runtime/Plugins/`, `Editor/AndroidProguardRules*.cs`)
+
+### interface ISecureStore
+
+| 멤버 | 설명 |
+|------|------|
+| `SecureReadResult TryRead(string key, out string value)` | Found(값, 빈 문자열 가능), NotFound(value null), Failed(있는지 모름, 덮어쓰지 말 것) |
+| `bool TryWrite(string key, string value)` | 추가 또는 덮어쓰기. 실패하면 false |
+| `bool TryDelete(string key)` | 없어도 true. 실패하면 false |
+
+### enum SecureReadResult
+
+`Found`, `NotFound`, `Failed`.
+
+### sealed class PlatformSecureStore : ISecureStore
+
+인자 검사(빈 키 `ArgumentException`, null 값 `ArgumentNullException`, 키·값의 NUL 문자 `ArgumentException`) 후 플랫폼 구현에 넘긴다. 메인 스레드.
+
+| 플랫폼 | 구현(internal) | 저장 |
+|--------|---------------|------|
+| 에디터 | `PlayerPrefsSecureStore` | PlayerPrefs `geuneda.secure.<key>` 평문 |
+| iOS 플레이어 | `IosKeychainStore` | 키체인 generic password, 서비스 `<번들 ID>.geuneda`, 계정 = key, `AfterFirstUnlockThisDeviceOnly` |
+| Android 플레이어 API 23 이상 | `AndroidKeystoreStore` | 키스토어 별칭 `geuneda.core.securestore` 의 AES-256-GCM 키, SharedPreferences `geuneda.core.securestore` 에 Base64(IV 12 + 암호문 + 태그 16), 저장 키를 AAD 로 |
+| Android API 22 이하, 그 밖 | `PlayerPrefsSecureStore` | 평문, 만들 때 Warning |
+
+네이티브(iOS): `char* GeunedaKeychain_Copy(const char* key, int* status)`(malloc 문자열, 없으면 NULL + OSStatus), `int GeunedaKeychain_Set(const char* key, const char* value)`(갱신, 없으면 추가), `int GeunedaKeychain_Delete(const char* key)`(OSStatus, 없으면 errSecItemNotFound).
+
+네이티브(Android): `com.geuneda.core.GeunedaSecureStore` 의 `static String read(Context, String)`(없거나 복호화 못 하면 null, 그 값은 지움), `static void write(Context, String, String)`, `static void delete(Context, String)`. 실패는 예외 → C# 에서 Failed/false.
+
+에디터: `AndroidProguardRulesHook`(`#if UNITY_ANDROID`, `IPostGenerateGradleAndroidProject`)가 `AndroidProguardRules.Rule`(`-keep class com.geuneda.core.GeunedaSecureStore { public static *; }`)을 `unityLibrary/proguard-unity.txt` 에 넣는다.

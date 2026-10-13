@@ -1,11 +1,11 @@
 ---
 name: geuneda-core
-description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, 그리고 AppIdentity 로 설치 ID·기기 ID 를 얻을 때 활성화한다.
+description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, AppIdentity 로 설치 ID·기기 ID 를 얻을 때, 그리고 토큰·비밀 값을 ISecureStore/PlatformSecureStore(iOS 키체인, Android 키스토어)에 보관할 때 활성화한다.
 ---
 
 # Geuneda Core
 
-다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`)다.
+다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`), 보안 저장소(`ISecureStore`, `PlatformSecureStore`)다.
 
 ## 패키지 정보
 
@@ -30,7 +30,7 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 - `Result<T>`: 위와 같고 `Ok(T value)`, `Value`(실패면 `InvalidOperationException`), `TryGetValue(out T)`. `Result` 로 암시적 변환.
 - `ResultCodes`: `Success` 0, `Unknown` 1, `Cancelled` 2, `Timeout` 3, `NetworkError` 4, `InProgress` 5, `FromException(Exception)`.
 - 규칙: 실행 중 일어날 수 있는 실패(네트워크, 타임아웃, 취소, 서버 거절, 중복 실행)는 결과 코드, 오용(잘못된 인자·상태)은 즉시 예외.
-- 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 게임 101000 이상.
+- 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록: 1000 http, 2000 realtime, 3000 account, 다음 빈 블록 4000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 게임 101000 이상.
 
 ## 빌드 환경 핵심 API
 
@@ -53,6 +53,11 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 ## 설치·기기 ID 핵심 API
 
 - `IAppIdentity`(`InstallId`, `DeviceId`), 구현 `new AppIdentity()`(메인 스레드). `InstallId` 는 PlayerPrefs GUID(앱 데이터가 지워지면 새로, Android 자동 백업·iOS 백업 복원이면 이전 값), `DeviceId` 는 iOS 키체인 GUID(재설치해도 유지), Android 는 `SystemInfo.deviceUniqueIdentifier`. 부트스트랩에서 `MainInstaller.Bind<IAppIdentity>(new AppIdentity())`(MainInstaller 는 인터페이스만 받음).
+
+## 보안 저장소 핵심 API
+
+- `ISecureStore`: `SecureReadResult TryRead(key, out value)`(Found/NotFound/Failed), `bool TryWrite(key, value)`(추가 또는 덮어쓰기), `bool TryDelete(key)`(없어도 true). 구현 `new PlatformSecureStore()`, 부트스트랩에서 `MainInstaller.Bind<ISecureStore>(...)`. 메인 스레드.
+- 플랫폼: iOS 키체인(재설치해도 남음), Android API 23 이상 키스토어 AES-256-GCM + SharedPreferences(재설치하면 사라짐, 복호화 못 하는 값은 지우고 NotFound), 에디터·그 밖·Android API 22 이하는 PlayerPrefs 평문(`geuneda.secure.` 접두사).
 
 ## 사용 패턴
 
@@ -135,4 +140,7 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - `.user` 에셋(대소문자 무시)이 Editor 폴더 밖이나 StreamingAssets 안에 있으면 플레이어 빌드가 `BuildFailedException` 으로 실패한다. 개인 덮어쓰기는 `Editor/Resources` 에 두고 gitignore(`*.user.asset`, `*.user.asset.meta`) 한다.
 - `EnvValue<T>` 의 dev/qa/prod 값은 모두 빌드에 들어간다. 비밀 값은 넣지 않는다.
 - `AppIdentity` 의 ID 는 만들 때 정해진다. iOS 에서 키체인을 못 읽으면 그 실행만 identifierForVendor 를 쓰고(덮어쓰지 않음) Warning 을 남긴다. 다른 회사 앱 데이터와 연결하는 추적에 쓰지 않는다.
+- `ISecureStore.TryRead` 가 `Failed` 면 값이 있는지 모른다. 그 실행에서는 그 키에 쓰거나 지우지 않는다(기존 값 손실). 빈 키, null 값, NUL 문자를 담은 키·값은 예외다.
+- iOS 키체인 값은 앱을 지워도 남는다. 재설치 때 지워야 하는 값은 사용하는 쪽이 처리한다. Android 값은 재설치·키 분실로 사라질 수 있으니 서버에서 다시 받을 수 있는 값만 둔다.
+- Android 보안 저장소는 Java 플러그인을 JNI 이름으로 부른다. R8 keep 규칙은 core 에디터 훅이 넣으므로 따로 추가하지 않는다. Java 클래스 이름을 바꾸면 `AndroidProguardRules.Rule` 도 바꾼다.
 - `AppEnv.IsProd` 등은 의도적으로 `const` 가 아니다(소비 코드의 CS0162 경고 방지). 빌드에서 확실히 빼야 하면 `#if` 를 쓴다.
