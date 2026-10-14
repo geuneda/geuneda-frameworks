@@ -2,7 +2,7 @@
 
 Geuneda 패키지 개선에 참여해 주셔서 감사합니다.
 
-이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 18개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
+이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 19개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
 
 ## 기여 위치
 
@@ -29,7 +29,7 @@ git submodule update --init --recursive
 
 ## 서브모듈 워크플로우
 
-`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
+`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
 
 ```bash
 cd Packages/com.geuneda.services
@@ -74,6 +74,7 @@ git commit -m "chore: services 포인터 갱신"
 | appsetting | `Tests/EditMode` (`Geuneda.AppSetting.Tests.EditMode`, 봉투·서명, 본문 규칙(리소스 매니페스트 이름·크기·해시·주소 포함), 접속 판정, 가짜 문서 서버로 갱신, .NET CLI 가 RSA-3072 로 서명한 픽스처, `[Explicit]` 샘플 서버 상호 운용). 서명 라이브러리·CLI·배포 헬퍼는 `dotnet test "Packages/com.geuneda.appsetting/Server~/Geuneda.AppSetting.Server.slnx"`(.NET 10 SDK) |
 | resource | `Tests/EditMode` (`Geuneda.Resource.Tests.EditMode`, 가짜 파일 서버와 같은 스레드 작업자로 캐시 판정·검증 후 저장·옛 버전 삭제·동시 다운로드 제한·취소, 항목 규칙, 로컬 HttpListener 와 실제 UnityWebRequest·스레드 풀로 받기) |
 | servertime | `Tests/EditMode` (`Geuneda.ServerTime.Tests.EditMode`, NTP 패킷 생성·검증·왕복 보정, 127.0.0.1 가짜 UDP 서버로 실제 소켓, 가짜 `IHttpClient` 와 로컬 HttpListener·실제 UnityWebRequest 로 `HEAD` 의 `Date`, 가짜 원천·시계·지연으로 원천 순서·백오프·재동기화·포그라운드 복귀). 실기 확인은 Android·iOS 빌드 |
+| analytics | `Tests/EditMode` (`Geuneda.Analytics.Tests.EditMode`, 가짜 단조 시계·수동 지연·기록 sink 로 맥락·팬아웃·준비 대기·재시도 저장·백오프·일시정지 저장·복귀·상한·손상 파일), `Tests/EditMode/Collector` (`Geuneda.Analytics.Collector.Tests.EditMode`, http 가 있을 때, 가짜 전송, `[Explicit]` 샘플 서버 상호 운용), `Tests/EditMode/Account` (`Geuneda.Analytics.Account.Tests.EditMode`, account 가 있을 때), `Tests/PlayMode` (`Geuneda.Analytics.Tests.PlayMode`, 숨은 수명 컴포넌트). 서버는 `dotnet test "Packages/com.geuneda.analytics/Server~/Geuneda.Analytics.Server.slnx"`(.NET 10 SDK) |
 | gamedata | `Tests/Editor` (`Geuneda.GameData.Editor.Tests`), `Tests/PlayMode` (`Geuneda.GameData.PlayMode.Tests`) |
 | services | `Tests/EditMode` (`Geuneda.Services.Editor.Tests`), `Tests/PlayMode` (`Geuneda.Services.Tests.Playmode`) |
 | uiservice | `Tests/EditMode` (`Geuneda.UiService.Tests`), `Tests/PlayMode` (`Geuneda.UiService.Tests.PlayMode`) |

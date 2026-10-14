@@ -9,6 +9,7 @@
     "com.geuneda.appsetting": "https://github.com/geuneda/geuneda-appsetting.git",
     "com.geuneda.resource": "https://github.com/geuneda/geuneda-resource.git",
     "com.geuneda.servertime": "https://github.com/geuneda/geuneda-servertime.git",
+    "com.geuneda.analytics": "https://github.com/geuneda/geuneda-analytics.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

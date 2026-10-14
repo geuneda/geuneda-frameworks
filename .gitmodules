@@ -52,3 +52,6 @@
 [submodule "Packages/com.geuneda.servertime"]
 	path = Packages/com.geuneda.servertime
 	url = https://github.com/geuneda/geuneda-servertime.git
+[submodule "Packages/com.geuneda.analytics"]
+	path = Packages/com.geuneda.analytics
+	url = https://github.com/geuneda/geuneda-analytics.git

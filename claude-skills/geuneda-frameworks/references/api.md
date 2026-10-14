@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -138,7 +138,7 @@
 
 - **버전 / 최소 Unity**: 0.4.0 / 2021.3
 - **package.json 의존성**: 없음
-- **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting, resource, servertime
+- **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting, resource, servertime, analytics
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드, Android R8 keep 규칙 훅)
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
 - **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능), 단조 시계(`IMonotonicClock`/`MonotonicClock`, Android `CLOCK_BOOTTIME`·macOS `CLOCK_MONOTONIC` libc, iOS 플러그인 `GeunedaMonotonicClock.mm`, 그 밖은 `Stopwatch`)
@@ -243,6 +243,20 @@
 
 ---
 
+## 19. com.geuneda.analytics
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
+- **선택 의존성**(asmdef `versionDefines`): `com.geuneda.http` 0.1.0 이상 → `Geuneda.Analytics.Collector`, `com.geuneda.account` 0.1.0 이상 → `Geuneda.Analytics.Account`
+- **어셈블리 / 네임스페이스**: `Geuneda.Analytics`, `Geuneda.Analytics.Collector`, `Geuneda.Analytics.Account`
+- **주요 기능**: `IAnalyticsService`/`AnalyticsService`/`AnalyticsOptions`(`LogEvent` 기록 시점 공통 맥락 스냅샷: ID, 시각·서버 시각 여부, 설치별 순번, 세션, 사용자 ID·속성, 앱 정보), `AnalyticsSinks` 비트, `IAnalyticsSink`(`MaxBatchSize`, `BatchDelay`, `IsReady`, `SendAsync` → `Delivered`/`Retry`/`Rejected`), sink 별 큐와 실패 sink 만 평문 JSON 저장·재전송(백오프 5초→5분, 포그라운드 복귀, 네트워크 복구, 다음 실행), `ConsoleSink`, `CollectorSink`(자사 수집 배치 POST), `AppSessionAnalytics`(세션 ID·세션 이벤트), `AnalyticsWire`(배치 형식)
+- **서버**: `Server~/Geuneda.Analytics.Server.slnx`(.NET 10): `AddGeunedaAnalytics`, `MapGeunedaAnalytics`(`POST {prefix}/events`, 이벤트별 검증), `IAnalyticsEventStore`(ID 중복 제거), `InMemoryAnalyticsEventStore`, 샘플 서버
+- **벤더 어댑터**: 별도 패키지(D3) `com.geuneda.analytics.firebase`·`airbridge`·`appsflyer`·`facebook`(예정)
+- **테스트**: EditMode `Geuneda.Analytics.Tests.EditMode`, `Geuneda.Analytics.Collector.Tests.EditMode`(http 있을 때, `[Explicit]` 샘플 서버 상호 운용), `Geuneda.Analytics.Account.Tests.EditMode`(account 있을 때), PlayMode `Geuneda.Analytics.Tests.PlayMode`. 서버 `dotnet test "Server~/Geuneda.Analytics.Server.slnx"`
+- **문서**: `README.md`, `AGENTS.md`
+
+---
+
 ## 호스트 프로젝트 manifest.json
 
 호스트 레포 `Packages/manifest.json` 의 주요 항목(Unity 모듈과 IDE 패키지는 생략). 호스트에서는 같은 이름의 서브모듈 폴더가 우선 사용된다.
@@ -259,6 +273,7 @@
     "com.geuneda.appsetting": "https://github.com/geuneda/geuneda-appsetting.git",
     "com.geuneda.resource": "https://github.com/geuneda/geuneda-resource.git",
     "com.geuneda.servertime": "https://github.com/geuneda/geuneda-servertime.git",
+    "com.geuneda.analytics": "https://github.com/geuneda/geuneda-analytics.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
