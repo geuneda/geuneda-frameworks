@@ -27,6 +27,7 @@ public static List<Dictionary<string, string>> ConvertCsv(string csv)
 - `#` 으로 시작하는 줄은 건너뛴다. 단, 첫 열이 `[]` 로 끝나는 행(서브 리스트 헤더) 바로 아래에 이어지는, 첫 열이 정확히 `#` 인 행은 남긴다. 건너뛴 설명 행은 이 연속을 끊지 않고, `#` 으로 시작하지 않는 행이 나오면 연속이 끝난다.
 - `$` 로 시작하는 헤더 열은 결과에 넣지 않는다.
 - 값은 `Trim()` 되고, 값이 모자란 열은 `""` 로 채운다.
+- 따옴표로 감싼 셀은 바깥 따옴표를 벗기고 `""` 를 `"` 로 되돌린다. 빈 따옴표 셀(`""`)은 빈 문자열. 셀 안의 쉼표와 `\n` 은 그 셀에 남는다(v0.10.0).
 - 헤더만 있거나 `\n` 만 쓰는 텍스트는 빈 리스트를 반환한다.
 
 #### `DeserializeTo`
@@ -80,7 +81,7 @@ public static object Parse(string text, Type type, params Func<string, Type, obj
 6. `TimeSpan` -> `TimeSpan.Parse(text)`
 7. `Nullable<T>` -> `TypeDescriptor.GetConverter(type).ConvertFrom(text)` (빈 텍스트는 `null`)
 8. 값 타입 -> `Convert.ChangeType(text, type)` (현재 컬처)
-9. 참조 타입 -> `JsonConvert.DeserializeObject($"\"{text}\"", type)`
+9. 참조 타입 -> 텍스트가 `{` 로 시작하고 `}` 로 끝나면 `JsonConvert.DeserializeObject(text, type)`(JSON 객체, `object` 면 `JObject`, v0.10.0), 아니면 `JsonConvert.DeserializeObject($"\"{text}\"", type)`
 
 변환할 수 없으면 `FormatException` 등 하위 API 의 예외가 그대로 전파된다.
 

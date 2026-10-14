@@ -9,7 +9,7 @@ Google 시트 URL 을 CSV 내보내기 URL 로 바꿔 다운로드하고, `CsvPa
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.googlesheetimporter` (버전은 `package.json` 기준, 현재 0.9.1)
+- 패키지: `com.geuneda.googlesheetimporter` (버전은 `package.json` 기준, 현재 0.10.0)
 - 런타임: 네임스페이스 `Geuneda.GoogleSheetImporter`, 어셈블리 `Geuneda.GoogleSheetImporter` (`CsvParser`, `ParseIgnoreAttribute`)
 - 에디터: 네임스페이스 `GeunedaEditor.GoogleSheetImporter`, 어셈블리 `Geuneda.GoogleSheetImporter.Editor` (임포터, 메뉴, 인스펙터)
 - 의존성: `com.geuneda.gamedata` 1.0.0(`Geuneda.DataExtensions` 의 `IConfigsContainer<T>`, `ISingleConfigContainer<T>`, `UnitySerializedDictionary<,>`), `com.unity.nuget.newtonsoft-json` 2.0.0
@@ -107,7 +107,9 @@ public class GameIdsImporter : IGoogleSheetConfigsImporter
 - 첫 행이 헤더. `$` 로 시작하는 헤더 열은 무시. `#` 으로 시작하는 줄은 건너뜀. 단, 첫 열이 `[]` 로 끝나는 서브 리스트 헤더 행 바로 아래에 이어지는, 첫 열이 정확히 `#` 인 행은 서브 리스트 데이터로 남긴다.
 - 배열/리스트 필드는 `T[]`, `List<T>` 모두 쓸 수 있다.
 - 배열/리스트: `, ( ) [ ] { }` 로 분리. 딕셔너리: `k:v,k:v`(쌍 구분자 `: < > = |`) 또는 `k,v,k,v`, 빈 셀은 `null`.
-- `Parse` 순서: string -> enum -> Key/Value(또는 Value1/Value2) 필드 2개짜리 제네릭 구조체 -> 커스텀 역직렬화기 -> `DateTime` -> `TimeSpan` -> `Nullable<T>` -> 값 타입(`Convert.ChangeType`) -> 참조 타입(`JsonConvert.DeserializeObject("\"text\"", type)`).
+- `Parse` 순서: string -> enum -> Key/Value(또는 Value1/Value2) 필드 2개짜리 제네릭 구조체 -> 커스텀 역직렬화기 -> `DateTime` -> `TimeSpan` -> `Nullable<T>` -> 값 타입(`Convert.ChangeType`) -> 참조 타입(셀이 `{...}` 면 JSON 객체로 `JsonConvert.DeserializeObject(text, type)`, `object` 면 `JObject`, 아니면 `JsonConvert.DeserializeObject("\"text\"", type)`).
+- 따옴표 셀: 시트가 `"..."` 로 감싸고 `"` 를 `""` 로 내보낸 셀은 바깥 따옴표를 벗기고 `""` 를 `"` 로 되돌린다(v0.10.0, 이전엔 `""` 가 남아 셀 JSON 이 깨졌음). 빈 따옴표 셀은 빈 문자열. 셀 안 줄바꿈(`\n`)은 그 셀에 남는다.
+- 셀에 JSON 넣기: 클래스 필드는 셀에 JSON 객체를 그대로 쓰면 된다(`object` 필드는 `JObject`). 구조체 필드는 값 타입 경로라 JSON 을 못 읽으니 역직렬화기를 넘기거나 클래스로 바꾼다. 리스트·배열 필드는 셀을 구분자로 쪼갠 뒤 원소마다 역직렬화기를 부르므로 JSON 배열은 역직렬화기로도 못 받는다. 배열을 감싼 클래스(`{"items":[...]}`)나 `string` 필드로 받아 직접 파싱한다.
 - 커스텀 역직렬화기 `Func<string, Type, object>` 는 처리하지 않을 타입에 `null` 을 반환한다.
 
 ## 함정

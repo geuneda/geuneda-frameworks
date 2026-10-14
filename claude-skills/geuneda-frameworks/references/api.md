@@ -111,7 +111,7 @@
 
 ## 8. com.geuneda.googlesheetimporter
 
-- **버전 / 최소 Unity**: 0.9.1 / 6000.0 (`type: tool`)
+- **버전 / 최소 Unity**: 0.10.0 / 6000.0 (`type: tool`)
 - **package.json 의존성**: `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0
 - **어셈블리**: `Geuneda.GoogleSheetImporter`(Runtime, `Geuneda.GameData` 참조), `Geuneda.GoogleSheetImporter.Editor`(Editor)
 - **네임스페이스**: `Geuneda.GoogleSheetImporter`(Runtime: `CsvParser`, `ParseIgnoreAttribute`), `GeunedaEditor.GoogleSheetImporter`(Editor: 임포터)
