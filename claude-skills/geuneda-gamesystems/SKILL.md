@@ -1,6 +1,6 @@
 ---
 name: geuneda-gamesystems
-description: com.geuneda.gamesystems 패키지(네임스페이스 Geuneda.GameSystems.*)로 코드를 작성하거나 수정할 때 사용하는 스킬. 버튼/탭/리스트 셀에 레드닷(알림 배지)을 붙이거나, IRedDotService/RedDotService 로 경로 노드를 등록하고 값을 설정하거나, RedDotView 컴포넌트나 RedDotBinding 으로 화면을 구독시키거나, 잠긴 콘텐츠의 배지를 뮤트하거나, 이 패키지에 새 게임 시스템 기능(asmdef)을 추가할 때 활성화한다.
+description: com.geuneda.gamesystems 패키지(네임스페이스 Geuneda.GameSystems.*)로 코드를 작성하거나 수정할 때 사용하는 스킬. 버튼/탭/리스트 셀에 레드닷(알림 배지)을 붙이거나, IRedDotService/RedDotService 로 경로 노드를 등록하고 값을 설정하거나, BeginBatch 로 여러 리프를 한 번에 바꾸거나, RedDotView 컴포넌트나 RedDotBinding 으로 화면을 구독시키거나, 잠긴 콘텐츠의 배지를 뮤트하거나, RedDot Debugger 창으로 배지가 안 뜨는 원인을 찾거나, 이 패키지에 새 게임 시스템 기능(asmdef)을 추가할 때 활성화한다.
 ---
 
 # Geuneda Game Systems
@@ -9,9 +9,10 @@ description: com.geuneda.gamesystems 패키지(네임스페이스 Geuneda.GameSy
 
 ## 패키지 정보
 
-- **네임스페이스 / 어셈블리**: `Geuneda.GameSystems.RedDot` (기능마다 `Geuneda.GameSystems.<기능>`)
+- **네임스페이스 / 어셈블리**: `Geuneda.GameSystems.RedDot` (기능마다 `Geuneda.GameSystems.<기능>`), 에디터 디버그 창은 `Geuneda.GameSystems.RedDot.Editor`
 - **설치**: `https://github.com/geuneda/geuneda-gamesystems.git` (버전 고정이 필요하면 `#<태그>`, 실제 있는 태그만)
-- **의존성**: `com.geuneda.services` 2.1.0. git 의존성은 자동 해결되지 않으므로 manifest 에 UniTask, core, gamedata, services 를 함께 넣는다(services 3.0.0 부터 core 필요)
+- **현재 버전**: 0.3.0
+- **의존성**: `com.geuneda.services` 5.1.0 이상(`MainInstaller.BindingChanged`). git 의존성은 자동 해결되지 않으므로 manifest 에 UniTask, core, gamedata, services 를 함께 넣는다(services 3.0.0 부터 core 필요)
 - **최소 Unity 버전**: 6000.3
 - **기여 가이드**: 패키지 루트의 `AGENTS.md`(구조 규칙, 설계 불변식, 테스트 실행)
 
@@ -19,9 +20,10 @@ description: com.geuneda.gamesystems 패키지(네임스페이스 Geuneda.GameSy
 
 전체 시그니처는 `references/api.md`.
 
-- `IRedDotService` / `RedDotService`: `RegisterNode`, `UnregisterNode`, `SetLeafValue`, `SetNodeMuted`, `GetValue`, `Subscribe`/`Unsubscribe`, `Paths`, `Clear`. `MainInstaller.Bind<IRedDotService>(...)` 로 바인딩해서 쓴다.
+- `IRedDotService` / `RedDotService`: `RegisterNode`, `UnregisterNode`, `SetLeafValue`, `SetNodeMuted`, `GetValue`, `Subscribe`/`Unsubscribe`, `Paths`(읽기 전용 스냅샷), `Clear`, `BeginBatch()`(일괄 변경 범위 `RedDotBatch`). `MainInstaller.Bind<IRedDotService>(...)` 로 바인딩해서 쓴다.
 - `RedDotView` (sealed MonoBehaviour): 인스펙터 `_nodePath`, `_indicator`. `event Action<int> ValueChanged`, `int Value`, `string NodePath`, `SetNodePath(string)`.
-- `RedDotBinding` (POCO): `new RedDotBinding(Action<int>)`, `Bind(string path)`(MainInstaller 에서 서비스 조회), `Bind(IRedDotService, string)`(직접 주입), `Unbind()`, `Path`, `IsBound`.
+- `RedDotBinding` (POCO): `new RedDotBinding(Action<int>)`, `Bind(string path)`(MainInstaller 에서 서비스 조회, `Unbind` 까지 늦은 바인딩·교체·정리를 따라감), `Bind(IRedDotService, string)`(직접 주입, MainInstaller 를 따라가지 않음), `Unbind()`, `Path`, `IsBound`(서비스를 기다리는 중이면 false).
+- 에디터: `Tools > Geuneda > RedDot Debugger`(플레이 중 트리, 값, 뮤트, 구독자 수, 노드 없는 구독 경로, 열린 일괄 범위 수).
 
 ## 사용 패턴
 
@@ -57,6 +59,20 @@ redDot.RegisterNode(RedDotPaths.Lobby_Season_Reward);
 ```csharp
 _redDot.SetLeafValue(RedDotPaths.Lobby_Shop_Free, hasFreeItem ? 1 : 0);
 _redDot.SetNodeMuted(RedDotPaths.Lobby_Season, !isSeasonOpen);   // 잠긴 콘텐츠는 0으로 덮지 말고 뮤트
+```
+
+### 여러 리프를 한 번에 바꿀 때는 BeginBatch
+```csharp
+// 범위 밖에서 리프 50개를 켜면 부모 구독자가 50번 불린다. 범위 안에서는 끝날 때 최종 값으로 한 번.
+using (_redDot.BeginBatch())
+{
+    foreach (var quest in quests)
+    {
+        string path = RedDotPaths.QuestLeaf(quest.Id);
+        _redDot.RegisterNode(path);
+        _redDot.SetLeafValue(path, quest.IsClaimable ? 1 : 0);
+    }
+}
 ```
 
 ### 표시: RedDotView 를 붙이고, 추가 표시는 이벤트로 조합
@@ -108,13 +124,16 @@ public sealed class ShopTabBadge : MonoBehaviour
 - 구독자에게는 그 구독자가 마지막으로 받은 값과 달라졌을 때만 알린다. 구독 시점 값은 전달하지 않으므로 직접 `GetValue`로 읽는다(`RedDotBinding`은 Bind 직후 현재 값을 전달한다).
 - 해제한 구독자는 진행 중인 알림에서도 다시 호출되지 않는다. 콜백 예외는 로그만 남기고 나머지 구독자 알림은 계속한다.
 - 등록 전 경로도 구독할 수 있다. `UnregisterNode`/`Clear`는 값이 있던 경로 구독자에게 0을 알리고 구독은 유지한다.
+- `BeginBatch()` 범위 안에서는 값만 바뀌고(`GetValue` 는 바뀐 값) 알림은 열린 범위가 모두 끝날 때 경로마다 최종 값으로 한 번 간다. 중첩·순서 무관 종료·두 번 Dispose 모두 안전하다. 콜백 안에서 연 범위도 남은 알림을 미룬다. 끝내지 않은 범위가 남으면 알림이 계속 멈추므로 반드시 `using` 으로 감싼다.
+- 콜백끼리 값을 계속 바꿔 한 번의 처리에서 같은 경로를 100번 넘게 알리면 오류 로그 후 그 처리에서 그 경로를 건너뛴다(멈춤 방지).
 
 ## 함정
 
 - 부모 노드 값은 자식 합이다. 부모에 `SetLeafValue` 하면 경고 로그만 남고 무시된다. 리프에 자식이 생기면 기존 리프 값은 버려진다.
 - 미등록 경로에 `SetLeafValue`/`SetNodeMuted` 하면 경고 후 무시된다. 먼저 `RegisterNode` 한다.
 - `RegisterNode`에 잘못된 경로(빈 문자열, "/A", "A/", "A//B")를 넘기면 `ArgumentException`. 구분자는 `RedDotService.Separator`('/')다.
-- `RedDotView`/`RedDotBinding.Bind(path)`는 `MainInstaller`에 서비스가 바인딩된 뒤에 활성화/호출돼야 한다. 서비스가 없으면 0으로 표시하고 구독하지 않으며, 나중에 바인딩해도 자동으로 다시 구독하지 않는다.
+- `RedDotView`/`RedDotBinding.Bind(path)`는 서비스보다 먼저 활성화돼도 된다(0을 표시하다가 바인딩되면 구독). 서비스를 교체·정리하면 따라가고, 값이 그대로면 같은 값을 다시 보내지 않는다. 부트스트랩이 `OnDestroy` 에서 `MainInstaller.Clean()` 을 부르면 켜진 뷰는 0을 받는다.
+- 배지가 안 뜨면 `RedDot Debugger` 창의 "노드 없이 구독만 있는 경로"(경로 오타)와 열린 일괄 범위 수를 먼저 본다.
 - `RedDotView`는 계속 활성인 오브젝트(버튼 등)에 두고 `_indicator`는 별도 자식으로 지정한다. 자신이나 조상을 지정하면 무시되고 오류가 남는다.
 - 같은 콜백을 `Subscribe`로 여러 번 등록하면 그만큼 호출되고, `Unsubscribe`는 마지막에 추가한 하나만 해제한다.
 - 상속용 기반 MonoBehaviour 는 없다(프레임워크 규칙: 2단계 이상 MonoBehaviour 상속 금지). 커스텀 표시는 `ValueChanged` 구독이나 `RedDotBinding` 조합으로 만든다.
@@ -123,6 +142,7 @@ public sealed class ShopTabBadge : MonoBehaviour
 ## 새 기능을 추가할 때
 
 - `Runtime/<기능>/` 폴더와 `Geuneda.GameSystems.<기능>.asmdef` 하나. 기능 asmdef끼리 서로 참조 금지, 의존은 `Geuneda.GameData`, `Geuneda.Services`까지.
+- 에디터 도구는 `Editor/<기능>/Geuneda.GameSystems.<기능>.Editor.asmdef`(Editor 플랫폼만). 런타임 내부는 `InternalsVisibleTo` 로 열고 디버그용 공개 API 를 늘리지 않는다.
 - 게임 규칙, 경로, 수치는 넣지 않고 델리게이트, 이벤트, 인터페이스로 연다.
 - 공개 MonoBehaviour 는 `sealed`, 로직은 POCO. 테스트는 `Tests/EditMode/<기능>/`, `Tests/PlayMode/<기능>/`.
 - 패키지 `README.md` 기능 표, `CHANGELOG.md`, `package.json` 버전과 이 스킬 문서를 함께 갱신한다.

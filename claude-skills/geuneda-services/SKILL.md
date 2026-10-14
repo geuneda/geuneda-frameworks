@@ -9,7 +9,7 @@ Unity 게임용 기반 서비스 모음이다. 전체 공개 API 는 [references
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.services` (현재 5.0.0), 설치 URL `https://github.com/geuneda/geuneda-services.git`
+- 패키지: `com.geuneda.services` (현재 5.1.0), 설치 URL `https://github.com/geuneda/geuneda-services.git`
 - Unity 6000.3 이상
 - 의존성: `com.geuneda.core` 0.4.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10. core, gamedata, UniTask 는 Unity 레지스트리에 없으므로 `manifest.json` 에 git URL 로 직접 추가해야 한다.
 - 에셋 로딩/임포트는 v2.0.0 에서 예전 `com.geuneda.assetsimporter` 를 흡수한 것이다. `com.geuneda.assetsimporter` 를 따로 추가하지 않는다.
@@ -131,7 +131,8 @@ MainInstaller.Bind<IAssetResolverService>(resolver);
 - **메시지 브로커**: 정적 메서드 구독 불가. 구독자 키가 `action.Target` 이라 같은 객체가 같은 메시지를 다시 구독하면 덮어쓰고, 지역 변수를 캡처한 람다는 `Unsubscribe<T>(this)` 로 안 지워진다. `Publish` 핸들러 안에서 구독/해제하면 `InvalidOperationException` 이므로 `PublishSafe` 를 쓴다. `Unsubscribe<T>()` 를 인자 없이 부르면 그 타입 구독자 전부가 지워진다.
 - `TickService` 콜백은 구독 역순으로 불린다. 콜백 안에서 해제해도 다른 구독자가 건너뛰거나 두 번 불리지 않는다. 지금 순회 중인 단계에 새로 구독하면 그 단계의 다음 순회부터 불리고, 다른 단계(예: Update 콜백에서 LateUpdate)에 구독하면 같은 프레임에도 불릴 수 있다. 콜백 예외는 로그로 남기고 나머지 구독자를 계속 부른다(v3.0.0).
 - **`TickService` / `CoroutineService`** 는 생성자에서 `DontDestroyOnLoad` GameObject 를 만든다. 런타임에 만들고 `Dispose()`(또는 `CleanDispose<T>()`)로 정리한다. `MainInstaller.Clean()` 은 Dispose 하지 않는다.
-- `MainInstaller` 는 플레이 세션 시작(`SubsystemRegistration`)에 바인딩을 비운다. 도메인 리로드를 꺼도 이전 세션 바인딩이 남지 않지만, 그 시점에 바인딩하면 지워질 수 있으니 `AfterAssembliesLoaded` 이후에 바인딩한다(v3.0.0).
+- `MainInstaller` 는 플레이 세션 시작(`SubsystemRegistration`)에 바인딩과 `BindingChanged` 처리기를 비운다. 도메인 리로드를 꺼도 이전 세션 바인딩이 남지 않지만, 그 시점에 바인딩하면 지워질 수 있으니 `AfterAssembliesLoaded` 이후에 바인딩한다(v3.0.0).
+- **늦게 바인딩되거나 교체되는 서비스 따라가기**: `MainInstaller.BindingChanged`(`event Action<Type>`, v5.1.0)를 구독하고 처리기에서 타입을 거른 뒤 `TryResolve` 한다. `Bind` 성공 뒤 인터페이스마다, `Clean<T>` 이 지웠을 때, `Clean()` 은 모두 지운 뒤 타입마다 발생한다. 다중 인터페이스 `Bind` 는 원자적이지 않아 뒤쪽이 실패해도 앞쪽 바인딩과 알림은 남는다. 처리기 예외는 로그만 남고 `Bind`/`Clean` 호출자에게 전파되지 않는다. 스냅샷 순회라 처리기 안에서 해제된 처리기도 이번 알림에서 불릴 수 있으니 자기 상태를 확인한다. += / -= 는 배열을 새로 만들지 않아 화면 컴포넌트마다 구독해도 된다. `IInstaller` 에는 없다(`Installer`, `MainInstaller` 에만).
 - **FixedUpdate 콜백 인자**는 경과 시간이 아니라 `Time.fixedTime` 이다.
 - **`IAsyncCoroutine.OnComplete`** 는 교체 방식이다. `StopCoroutine(triggerOnComplete)` 기본값은 `false`(콜백 없음). 서비스의 `StopAllCoroutines()` 는 핸들을 완료 처리하지 않는다.
 - **풀**: 타입당 풀 1개(중복 `AddPool` 은 `ArgumentException`). `GameObjectPool` 계열은 훅을 `GetComponent` 로 찾으므로 훅 인터페이스는 컴포넌트에 구현한다. `Spawn(data)` 는 `OnSpawn()` 과 `OnSpawn(data)` 를 둘 다 호출한다. `GameObjectPool.Dispose(bool)` 는 인자가 `true` 일 때만 샘플을 `Object.Destroy` 한다(v2.1.4 부터. 이전 버전은 인자와 관계없이 파괴). 대기 중인 항목이 풀 밖에서 파괴되면 `Spawn` 이 그 항목을 건너뛰고, 인스턴시에이터가 null 이나 파괴된 객체를 돌려주면 재시도 없이 `InvalidOperationException` 을 던진다(v3.0.0. v2.1.4 까지는 파괴된 항목에서 `MissingReferenceException`, null 을 돌려주는 인스턴시에이터에서 무한 루프).

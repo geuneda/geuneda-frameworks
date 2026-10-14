@@ -31,7 +31,7 @@
 
 ## 2. com.geuneda.services
 
-- **버전 / 최소 Unity**: 5.0.0 / 6000.3
+- **버전 / 최소 Unity**: 5.1.0 / 6000.3
 - **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10
 - **이 패키지에 의존하는 패키지**: gamesystems, servertime
 - **어셈블리**: `Geuneda.Services`(Runtime, `Geuneda.Core`, `Geuneda.GameData` 와 Addressables/UniTask 계열 참조), `Geuneda.Services.Editor`(Editor)
@@ -124,11 +124,11 @@
 
 ## 9. com.geuneda.gamesystems
 
-- **버전 / 최소 Unity**: 0.2.2 / 6000.3
-- **package.json 의존성**: `com.geuneda.services` 2.1.0
-- **어셈블리**: 기능마다 하나. 현재 `Geuneda.GameSystems.RedDot`(`Geuneda.Services` 참조)
+- **버전 / 최소 Unity**: 0.3.0 / 6000.3
+- **package.json 의존성**: `com.geuneda.services` 5.1.0(`MainInstaller.BindingChanged`)
+- **어셈블리**: 기능마다 하나. 현재 `Geuneda.GameSystems.RedDot`(`Geuneda.Services` 참조)와 에디터 `Geuneda.GameSystems.RedDot.Editor`(디버그 창)
 - **네임스페이스**: `Geuneda.GameSystems.<기능>`, 현재 `Geuneda.GameSystems.RedDot`
-- **주요 기능**: 레드닷. '/' 경로 트리 알림 배지, 리프 값의 조상 합산, 뮤트, 경로 단위 구독(`IRedDotService`, `RedDotService`, `RedDotBinding`, `RedDotView`)
+- **주요 기능**: 레드닷. '/' 경로 트리 알림 배지, 리프 값의 조상 합산, 뮤트, 경로 단위 구독(`IRedDotService`, `RedDotService`, `RedDotBinding`, `RedDotView`), 일괄 변경(`BeginBatch`/`RedDotBatch`), MainInstaller 늦은 바인딩·교체 추적, 알림 순환 상한, `Tools > Geuneda > RedDot Debugger`
 - **테스트**: `Geuneda.GameSystems.Tests.EditMode`(`Tests/EditMode`), `Geuneda.GameSystems.Tests.PlayMode`(`Tests/PlayMode`)
 - **문서**: `README.md`, `AGENTS.md`, `CLAUDE.md`
 
@@ -143,7 +143,7 @@
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
 - **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능), 단조 시계(`IMonotonicClock`/`MonotonicClock`, Android `CLOCK_BOOTTIME`·macOS `CLOCK_MONOTONIC` libc, iOS 플러그인 `GeunedaMonotonicClock.mm`, 그 밖은 `Stopwatch`)
 - **테스트**: EditMode `Geuneda.Core.Tests.EditMode`, PlayMode `Geuneda.Core.Tests.PlayMode`
-- **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2: `Log`, `MainThreadDispatcher`, gamedata `SecureValueMonitor`)
+- **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2: `Log`, `MainThreadDispatcher`, gamedata `SecureValueMonitor`, services `MainInstaller`)
 
 ---
 

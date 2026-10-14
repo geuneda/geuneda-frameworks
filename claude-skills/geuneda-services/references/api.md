@@ -1,6 +1,6 @@
 # Geuneda Services - 공개 API 레퍼런스
 
-`com.geuneda.services` 5.0.0 소스 기준. 런타임 어셈블리 `Geuneda.Services`, 에디터 어셈블리 `Geuneda.Services.Editor`.
+`com.geuneda.services` 5.1.0 소스 기준. 런타임 어셈블리 `Geuneda.Services`, 에디터 어셈블리 `Geuneda.Services.Editor`.
 
 ---
 
@@ -22,6 +22,10 @@
 
 `Dictionary<Type, object>` 기반 구현. 생성자 `Installer()`.
 
+| 멤버 | 설명 |
+|------|------|
+| `event Action<Type> BindingChanged` | 바인딩 추가·제거 뒤 인터페이스 타입과 함께 발생(v5.1.0). `Bind<T,T1,T2>` 는 인터페이스마다, `Clean()` 은 모두 지운 뒤 타입마다. 예외로 실패한 인터페이스 바인딩, 지운 것 없는 `Clean<T>` 은 발생 안 함(다중 `Bind` 의 앞서 성공한 인터페이스는 남고 알림도 감). 처리기 예외는 `ModuleLogger`(`Geuneda.Services.Installer`) Error 후 계속. 스냅샷 순회. += / -= 는 할당 없음(해제는 같은 델리게이트 중 마지막 하나, 합성 델리게이트는 한 처리기) |
+
 ### static class MainInstaller
 
 내부에 `Installer` 하나를 가진 전역 로케이터.
@@ -34,6 +38,7 @@
 | `Clean<T>() where T : class` | `bool` | |
 | `CleanDispose<T>() where T : class, IDisposable` | `bool` | 바인딩된 인스턴스의 `Dispose()` 호출 후 제거 |
 | `Clean()` | `void` | 전체 제거 (`Dispose` 호출 안 함) |
+| `event Action<Type> BindingChanged` | | `Installer.BindingChanged` 를 그대로 노출(정적). 플레이 세션 시작 때 처리기도 알림 없이 비움 |
 
 ---
 

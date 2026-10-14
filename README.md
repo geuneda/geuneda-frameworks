@@ -30,14 +30,14 @@ Geuneda Unity Package Manager(UPM) 패키지 18개를 개발, 테스트, 검증�
 | `com.geuneda.resource` | 0.1.0 | 2021.3 | 원격 리소스(테이블 등 데이터 파일) 캐시. 매니페스트 항목의 크기·SHA-256 으로 캐시 파일을 판정하고 맞지 않는 것만 받아 검증 후 원자적 저장(임시 파일 → 이름 바꾸기), 새 버전 저장 뒤 옛 버전 삭제, 동시 다운로드 수 제한, 받기 전 총 용량 확인, 진행률. 파일 입출력·해시는 스레드 풀 | [README](Packages/com.geuneda.resource/README.md) |
 | `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화. 시간 원천(NTP 기본 `time.google.com`, HTTPS `Date` 헤더, 직접 구현)을 순서대로 시도해 왕복 지연을 보정한 서버 시각을 services 시간 서비스의 기준점으로 넣음. 실패하면 지수 백오프로 재시도, 성공하면 30분마다, 앱이 포그라운드로 돌아오면 바로 다시 맞춤. 현재 시각은 core 단조 시계로 진행해 기기 시계를 바꿔도 영향받지 않음 | [README](Packages/com.geuneda.servertime/README.md) |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
-| `com.geuneda.services` | 5.0.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
+| `com.geuneda.services` | 5.1.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
 | `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](Packages/com.geuneda.inputextensions/README.md) |
 | `com.geuneda.nativeui` | 0.2.8 | 2020.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](Packages/com.geuneda.nativeui/README.md) |
 | `com.geuneda.notificationservice` | 0.2.0 | 2021.3 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](Packages/com.geuneda.notificationservice/README.md) |
 | `com.geuneda.googlesheetimporter` | 0.9.1 | 6000.0 | Google 스프레드시트 데이터를 ScriptableObject 설정 데이터로 가져오는 에디터 도구 | [README](Packages/com.geuneda.googlesheetimporter/README.md) |
-| `com.geuneda.gamesystems` | 0.2.2 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷) | [README](Packages/com.geuneda.gamesystems/README.md) |
+| `com.geuneda.gamesystems` | 0.3.0 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷: 일괄 변경, 늦은 바인딩 추적, 디버그 창) | [README](Packages/com.geuneda.gamesystems/README.md) |
 
 레포지토리 URL 은 모두 `https://github.com/geuneda/<레포>.git` 형식이고, 레포 이름은 패키지 이름의 `com.geuneda.` 를 `geuneda-` 로 바꾸고 나머지 점을 `-` 로 바꾼 것입니다(예: `com.geuneda.services` -> `geuneda-services`, `com.geuneda.account.apple` -> `geuneda-account-apple`).
 
@@ -92,7 +92,7 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
-| gamesystems | `com.geuneda.services` 2.1.0 |
+| gamesystems | `com.geuneda.services` 5.1.0 |
 
 호스트 프로젝트는 Unity 6000.3.2f1 에서 Addressables 2.7.6, Input System 1.17.0, Mobile Notifications 2.4.2, Test Framework 1.6.0, uGUI 2.0.0 으로 검증합니다(`Packages/manifest.json`, `ProjectSettings/ProjectVersion.txt`). 패키지별 최소 Unity 버전은 서로 다르지만 이 호스트에서 함께 검증하는 버전은 6000.3 입니다.
 
