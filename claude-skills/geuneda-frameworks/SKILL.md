@@ -34,7 +34,7 @@ Geuneda UPM 패키지 23개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화(NTP·HTTPS `Date`·직접 구현 원천을 순서대로, 왕복 지연 보정, 지수 백오프 재시도, 30분 재동기화, 포그라운드 복귀 재동기화). services 시간 서비스의 기준점을 맞춤 | `geuneda-servertime` |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 보안 값(`SecureInt` 등), 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 5.1.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
-| `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit | `geuneda-uiservice` |
+| `com.geuneda.uiservice` | 2.0.0 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit, 뒤로가기, 우선순위 팝업 큐, 모달 dim, 입력 차단 | `geuneda-uiservice` |
 | `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 포인터 드래그, 스와이프/탭, 게임패드 | `geuneda-inputextensions` |
 | `com.geuneda.nativeui` | 0.2.8 | 2020.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
@@ -165,11 +165,11 @@ git commit -m "chore: services 포인터 갱신"
 - 새 의존성은 `package.json` `dependencies` 와 asmdef `references` 양쪽에 반영한다
 - `Packages/` 안에 새 파일을 만들면 `.meta` 도 필요하다
 - 서드파티 API 는 `Library/PackageCache/` 의 로컬 소스를 우선 참조한다(Unity 가 프로젝트를 연 뒤 생김)
-- 패키지에 `AGENTS.md` 가 있으면 그 패키지 작업 규칙의 원천이다: services(테스트는 `Tests/AGENTS.md`), uiservice, gamesystems, core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics
+- 패키지에 `AGENTS.md` 가 있으면 그 패키지 작업 규칙의 원천이다: services(테스트는 `Tests/AGENTS.md`), uiservice, gamesystems, core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook
 
 ## 테스트
 
-Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
+Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode), 벤더 어댑터 4개(analytics.firebase·airbridge·appsflyer·facebook, 호스트에서는 컴파일되지 않아 SDK 를 넣은 별도 프로젝트에서 실행) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
 
 ## 새 패키지 추가 절차
 
@@ -188,7 +188,7 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | Observable 상태, 설정 데이터 저장소, 결정론적 수학 | gamedata |
 | 서비스 로케이터, 이벤트, 틱/코루틴, 오브젝트 풀, 저장, RNG, 시간, 커맨드 | services |
 | Addressables 에셋/씬 로딩, 에셋 설정 임포트, Addressable ID 생성 | services |
-| UI 생명주기(MVP), UI Set, UI Toolkit | uiservice |
+| UI 생명주기(MVP), UI Set, UI Toolkit, 뒤로가기, 팝업 순차 노출(우선순위 큐), 모달 dim, 입력 차단 | uiservice |
 | 계층적 상태 머신 | statechart |
 | 드래그, 스와이프, 탭, 게임패드 입력 | inputextensions |
 | 네이티브 알림 팝업, 토스트 | nativeui |

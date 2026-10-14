@@ -50,14 +50,15 @@
 
 ## 3. com.geuneda.uiservice
 
-- **버전 / 최소 Unity**: 1.3.2 / 6000.0
+- **버전 / 최소 Unity**: 2.0.0 / 6000.0. 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이며 기존 프로젝트는 `#v1.3.2` 로 고정한다
 - **package.json 의존성**: `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
+- **선택 의존성**(asmdef `versionDefines`): `com.unity.inputsystem` 1.0.0 이상 → `GEUNEDA_INPUT_SYSTEM`(`ReadsBackInput` 이 `<Keyboard>/escape` 액션 사용, 없으면 레거시 Input Manager)
 - **이 패키지에 의존하는 패키지**: 없음. gamedata/services 에도 의존하지 않는다.
 - **어셈블리**: `Geuneda.UiService`(Runtime), `Geuneda.UiService.Editor`(Editor)
 - **네임스페이스**: `Geuneda.UiService`, `Geuneda.UiService.Views`, `GeunedaEditor.UiService`(Editor)
-- **주요 기능**: `UiService`/`IUiService`, `UiPresenter`, UI Set(`UiSetConfig`), 프레젠터 피처(`TimeDelayFeature`, `AnimationDelayFeature`, `UiToolkitPresenterFeature` 등), 에셋 로더(Addressables, Resources, Prefab Registry), 다중 인스턴스(`UiInstanceId`)
+- **주요 기능**: `UiService`/`IUiService`, `UiPresenter`, UI Set(`UiSetConfig`), 프레젠터 피처(`TimeDelayFeature`, `AnimationDelayFeature`, `UiToolkitPresenterFeature` 등), 에셋 로더(Addressables, Resources, Prefab Registry), 다중 인스턴스(`UiInstanceId`), 뒤로가기(`HandlesBack`/`OnBackPressed`, `HandleBack`, `AddBackHandler`, `BackUnhandled`, `ReadsBackInput`), 팝업 큐(`IUiPopupQueue`/`UiPopupQueue`: 우선순위, 키 중복 방지, `Hold`, `Drained`), 모달 dim(`IsModal`, `DimColor`), 입력 차단(`BlockInput` → `UiInputBlock`), 표시 상태 이벤트(`PresenterOpened`/`PresenterClosed`, `TryGetUi`)
 - **테스트**: `Geuneda.UiService.Tests`(`Tests/EditMode`), `Geuneda.UiService.Tests.PlayMode`(`Tests/PlayMode`)
-- **문서**: `README.md`, `docs/`(getting-started, core-concepts, api-reference, advanced, troubleshooting), `AGENTS.md`
+- **문서**: `README.md`, `docs/`(getting-started, core-concepts, navigation, api-reference, advanced, troubleshooting), `AGENTS.md`
 
 ---
 
