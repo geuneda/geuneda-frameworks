@@ -30,7 +30,7 @@ Geuneda UPM 패키지 18개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.appsetting` | 0.2.0 | 2021.3 | 원격 앱 설정(서명된 설정 문서 검증, 앱 버전별 노드의 플랫폼 상태·점검 공지·서버 주소·기능 플래그로 접속 판정, 리소스 매니페스트, ETag 조건부 요청), 서명 CLI 와 ASP.NET Core 배포 헬퍼(`Server~/`) | `geuneda-appsetting` |
 | `com.geuneda.resource` | 0.1.0 | 2021.3 | 원격 리소스(테이블 등 데이터 파일) 캐시(매니페스트 항목의 크기·SHA-256 판정, 검증 후 원자적 저장, 옛 버전 정리, 동시 다운로드 제한, 받기 전 용량 확인, 진행률) | `geuneda-resource` |
 | `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화(NTP·HTTPS `Date`·직접 구현 원천을 순서대로, 왕복 지연 보정, 지수 백오프 재시도, 30분 재동기화, 포그라운드 복귀 재동기화). services 시간 서비스의 기준점을 맞춤 | `geuneda-servertime` |
-| `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 직렬화 헬퍼 | `geuneda-gamedata` |
+| `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 보안 값(`SecureInt` 등), 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 5.0.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit | `geuneda-uiservice` |
 | `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |

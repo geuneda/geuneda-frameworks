@@ -1,6 +1,6 @@
 ---
 name: geuneda-gamedata
-description: com.geuneda.gamedata(네임스페이스 Geuneda.DataExtensions) 코드를 작성, 수정, 리뷰할 때 사용한다. ObservableField/List/Dictionary/HashSet, ComputedField, ObservableBatch 같은 반응형 데이터, ConfigsProvider/ConfigsSerializer/ConfigsScriptableObject 설정 저장소, floatP/MathfloatP 결정론적 수학, UnitySerializedDictionary/EnumSelector 직렬화, 설정 유효성 검사와 MigrationRunner 를 다룰 때 이 스킬을 쓴다. 예전 DataExtensions/ConfigsProvider 패키지 코드도 이 패키지로 옮겨졌다.
+description: com.geuneda.gamedata(네임스페이스 Geuneda.DataExtensions) 코드를 작성, 수정, 리뷰할 때 사용한다. ObservableField/List/Dictionary/HashSet, ComputedField, ObservableBatch 같은 반응형 데이터, ConfigsProvider/ConfigsSerializer/ConfigsScriptableObject 설정 저장소, floatP/MathfloatP 결정론적 수학, SecureInt/SecureLong/SecureFloat/SecureDouble/SecureFloatP 보안 값과 SecureValueMonitor 변조 감지, UnitySerializedDictionary/EnumSelector 직렬화, 설정 유효성 검사와 MigrationRunner 를 다룰 때 이 스킬을 쓴다. 예전 DataExtensions/ConfigsProvider 패키지 코드도 이 패키지로 옮겨졌다.
 ---
 
 # Geuneda GameData
@@ -143,6 +143,27 @@ float f = c;                      // floatP -> float 암시적
 int i = c;                        // floatP -> int 암시적 (소수부 버림)
 ```
 
+### 보안 값 (v1.2.0)
+
+```csharp
+public class Wallet { public SecureInt Gold; }   // JSON 은 {"Gold":100} (int 필드와 같은 형식)
+
+wallet.Gold = 100;                // int 에서 암시적 변환, 쓸 때마다 새 nonce 로 재인코딩
+wallet.Gold += 50;                // 산술·비교·++ 는 int 처럼
+int gold = wallet.Gold;           // 읽을 때 변조 검사
+
+SecureFloatP hp = (floatP)10;
+hp -= (floatP)2.5f;               // floatP 와 섞은 연산은 그대로
+floatP half = hp.Value * 2;       // SecureFloatP 끼리·정수 리터럴과는 Value 로 꺼내서
+
+SecureValueMonitor.TamperDetected += OnTamper;  // static 이벤트(D2 예외)
+void OnTamper(Type valueType)
+{
+    SecureValueMonitor.TamperDetected -= OnTamper;  // 감지된 읽기마다 발생하므로 첫 감지만 처리
+    // 로그 전송, 감지 시점을 숨기려면 무작위 지연 뒤 대응
+}
+```
+
 ### 유효성 검사 / 마이그레이션 (에디터)
 
 ```csharp
@@ -185,5 +206,9 @@ public class EnemyConfigMigration_v1_v2 : IConfigMigration
 - `EnumSelector<T>` 의 저장 필드는 `HideInInspector` 다. 하위 클래스와 `EnumSelectorPropertyDrawer<T>` 하위 드로어가 없으면 인스펙터에 보이지 않는다. 생성자가 private/protected 이므로 `new EnumSelector<T>()` 도 불가능하다.
 - `UnitySerializedDictionary` 는 abstract 다. `[Serializable]` 구체 클래스를 선언한다.
 - `floatP` 는 `float`/`int` 로 암시적 변환되므로 `Mathf.Sqrt(x)` 같은 float API 에 그대로 넘겨도 컴파일된다. 그 순간 결정론이 깨진다. 결정론이 필요한 계산은 `MathfloatP` 만 쓴다. `MathfloatP.Pow2(x)` 는 x 의 제곱이다.
+- 보안 값(`SecureInt` 등)은 가벼운 난독화이고 검사값은 MAC 이 아니다. 알고리즘을 아는 공격자는 화면에 보이는 값 하나와 그 16바이트 메모리로 검사값을 맞춘 위조와 세션 키 복원이 가능하니 재화 지급 같은 판정은 서버가 검증한다. 모든 필드를 0 으로 지우는 변조는 `default`(0)와 같아 감지하지 못하고, 32비트 nonce 는 프로세스 전체 쓰기 2^32-1 회마다 순환한다.
+- 보안 값은 Unity 직렬화(`[SerializeField]`, 인스펙터, `JsonUtility`)를 지원하지 않는다. 세이브는 Newtonsoft JSON 으로 한다(평문 숫자). `SecureFloatP` 의 JSON 은 float 숫자라 NaN payload 는 남지 않고 Unity(Mono)에서 -0 은 0 이 된다.
+- 한 보안 값 필드를 여러 스레드가 동시에 쓰고 읽으면 16바이트 복사가 원자적이지 않아 정상 값이 변조로 감지될 수 있다. 공유하면 잠금으로 보호한다.
+- `SecureValueMonitor.TamperDetected` 는 값을 읽은 스레드에서 불린다. 다른 스레드에서 읽는 값이면 Unity API 호출 전에 `MainThreadDispatcher.Post`(core)로 넘긴다.
 - `Geuneda.DataExtensions.RangeAttribute` 는 `UnityEngine.RangeAttribute` 와 이름이 같다. 두 `using` 이 함께 있으면 전체 이름이나 별칭으로 구분한다.
 - `ObservableDebugRegistry`, `ConfigsProviderDebugRegistry` 의 멤버는 `#if UNITY_EDITOR` 안에만 있다. 런타임 코드에서 호출하지 않는다.

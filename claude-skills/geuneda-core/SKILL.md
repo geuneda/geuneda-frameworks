@@ -133,7 +133,7 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - 출력 대상이 예외를 던져도 호출자에게 전파되지 않고 `Debug.LogException` 으로 남는다. 출력 대상은 여러 스레드에서 불릴 수 있다.
 - `Log` 는 플레이 세션 시작(`SubsystemRegistration`)에 출력 대상과 살아 있는 모든 로거의 레벨을 기본값으로 되돌린다. `SubsystemRegistration` 에서 출력 대상이나 레벨을 바꾸면 지워질 수 있다.
 - 레벨 읽기·변경(`EnabledLevels`, `Enable`, `Disable`)은 스레드 안전하다.
-- static 가변 상태는 로거와 메인 스레드 디스패처만 허용한다(D2). 다른 서비스는 인터페이스 + `MainInstaller` 바인딩으로 만든다.
+- static 가변 상태는 로거, 메인 스레드 디스패처, gamedata 의 보안 값 변조 알림(`SecureValueMonitor`)만 허용한다(D2). 다른 서비스는 인터페이스 + `MainInstaller` 바인딩으로 만든다.
 - `default(Result)` 와 `default(Result<T>)` 는 성공이 아니라 `Unknown` 실패다.
 - `Fail` 에 0 이하 코드를 넣으면 `ArgumentOutOfRangeException` 이다. 실패를 다른 `T` 의 결과로 넘길 때는 `Result<U>.Fail(result.Code, result.Message)`.
 - `Result` 를 돌려주는 API 는 취소도 예외 대신 `Cancelled` 코드로 돌려준다.

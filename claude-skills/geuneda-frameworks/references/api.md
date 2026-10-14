@@ -11,7 +11,7 @@
 
 ## 1. com.geuneda.gamedata
 
-- **버전 / 최소 Unity**: 1.1.0 / 6000.0
+- **버전 / 최소 Unity**: 1.2.0 / 6000.0
 - **package.json 의존성**: `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
 - **이 패키지에 의존하는 패키지**: services, googlesheetimporter
 - **어셈블리**: `Geuneda.GameData`(Runtime, `UniTask` + `Newtonsoft.Json.dll` 참조, `allowUnsafeCode`), `Geuneda.GameData.Editor`(Editor)
@@ -20,6 +20,7 @@
   - Observable: `ObservableField`, `ObservableList`, `ObservableDictionary`, `ObservableHashSet`, Resolver 변형, `ObservableBatch`, `ComputedField`
   - 설정: `ConfigsProvider`, `ConfigsSerializer`, `ConfigsScriptableObject`, `IConfigBackendService`
   - 결정론적 수학: `floatP`, `MathfloatP`
+  - 보안 값: `SecureInt`, `SecureLong`, `SecureFloat`, `SecureDouble`, `SecureFloatP`, `SecureValueMonitor`(변조 감지 static 이벤트, D2 예외)
   - 직렬화/유틸: `UnitySerializedDictionary`, `SerializableType`, `EnumSelector`, JSON 컨버터, 검증 어트리뷰트
   - 에디터: Config Browser, Observable Debug 창, 스키마 마이그레이션(`MigrationRunner`)
 - **샘플**: Reactive UI Demo (uGUI), Reactive UI Demo (UI Toolkit), Designer Workflow, Migration
@@ -142,7 +143,7 @@
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
 - **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능), 단조 시계(`IMonotonicClock`/`MonotonicClock`, Android `CLOCK_BOOTTIME`·macOS `CLOCK_MONOTONIC` libc, iOS 플러그인 `GeunedaMonotonicClock.mm`, 그 밖은 `Stopwatch`)
 - **테스트**: EditMode `Geuneda.Core.Tests.EditMode`, PlayMode `Geuneda.Core.Tests.PlayMode`
-- **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2: `Log`, `MainThreadDispatcher`)
+- **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2: `Log`, `MainThreadDispatcher`, gamedata `SecureValueMonitor`)
 
 ---
 

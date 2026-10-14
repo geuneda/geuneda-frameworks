@@ -463,6 +463,35 @@ IEEE binary32 와 같은 비트 표현을 쓰고 연산을 소프트웨어로 �
 
 ---
 
+## Secure Values (v1.2.0)
+
+### SecureInt, SecureLong, SecureFloat, SecureDouble, SecureFloatP (readonly struct)
+
+메모리 변조를 감지하는 숫자. 각각 `int`, `long`, `float`, `double`, `floatP` 를 감싼다. 모두 `IEquatable<T>`, `IComparable<T>`, `IFormattable`, `[JsonConverter]`(평문 숫자). 크기 16바이트, 세션 키 생성 뒤 정상 읽기·쓰기에 할당 없음(변조 알림 때는 핸들러 목록 배열 할당).
+
+| 멤버 | 설명 |
+|------|------|
+| `SecureXxx(원래 타입 value)` | 새 nonce 로 인코딩 |
+| `원래 타입 Value { get; }` | 복원. 검사값이 틀리면 `SecureValueMonitor.TamperDetected` 발생 후 복원한 값을 그대로 반환(예외 없음) |
+| `implicit 원래 타입 -> SecureXxx`, `implicit SecureXxx -> 원래 타입` | 산술·비교·`+=` 는 이 변환으로 동작 |
+| `operator ++`, `operator --` | 1 더하고 빼서 다시 인코딩 (정수는 오버플로 시 순환) |
+| `Equals`, `GetHashCode`, `CompareTo` | 인코딩이 아니라 복원한 값 기준 (`float`/`double` 은 `NaN.Equals(NaN)` 이 true) |
+| `ToString()`, `ToString(string, IFormatProvider)` | 값의 문자열 |
+
+`default(SecureXxx)` 는 감지 없이 0 이다. `SecureFloatP` 는 연산자가 `floatP` 쪽에 있어 `SecureFloatP` 끼리의 `+`/`==` 와 정수 리터럴과의 연산(`a * 2`)은 컴파일되지 않는다(`a.Value * 2` 로 쓴다).
+
+### SecureValueMonitor (static)
+
+| 멤버 | 설명 |
+|------|------|
+| `static event Action<Type> TamperDetected` | 변조를 감지한 읽기마다 발생. 인자는 보안 값 타입(`typeof(SecureInt)` 등). 읽은 스레드에서 동기 호출, 핸들러 예외는 `Debug.LogException` 후 다음 핸들러, 핸들러 안의 감지는 알리지 않음. `SubsystemRegistration` 때 구독 초기화 |
+
+### JSON
+
+변환기는 internal 이고 각 타입의 `[JsonConverter]` 속성으로 적용되므로 설정에 넣을 필요가 없다. `int`/`long`/`float`/`double` 필드와 같은 JSON(`SecureFloatP` 는 float 숫자)이다. nullable(`SecureInt?` 등)은 `null` 도 왕복하고, nullable 이 아닌 타입에 `null` 이 오면 원래 타입처럼 `JsonSerializationException`.
+
+---
+
 ## Serialization
 
 ### UnitySerializedDictionary<TKey, TValue> (abstract)

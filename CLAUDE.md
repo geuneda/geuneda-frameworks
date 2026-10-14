@@ -8,7 +8,7 @@ geuneda-frameworks 패키지를 쓰는 모든 Unity 프로젝트에 적용하는
 ## 금지 패턴
 
 - 싱글톤 금지 (MainInstaller 서비스 로케이터 사용)
-- static mutable state 금지 (서비스를 통해 접근). 예외는 로거(`Geuneda.Core` 의 `Log`/`ModuleLogger`)와 메인 스레드 디스패처(`MainThreadDispatcher`)뿐이다(결정 D2, core `AGENTS.md`)
+- static mutable state 금지 (서비스를 통해 접근). 예외는 로거(`Geuneda.Core` 의 `Log`/`ModuleLogger`), 메인 스레드 디스패처(`MainThreadDispatcher`), 보안 값 변조 알림(`Geuneda.DataExtensions` 의 `SecureValueMonitor`)뿐이다(결정 D2, core `AGENTS.md`)
 - 2단계 이상 MonoBehaviour 상속 금지
 - MonoBehaviour에 비즈니스 로직 직접 구현 금지
 - God class 금지 (단일 책임 원칙)
