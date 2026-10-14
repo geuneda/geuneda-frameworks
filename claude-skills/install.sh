@@ -23,6 +23,7 @@ SKILLS=(
     "geuneda-notificationservice"
     "geuneda-realtime"
     "geuneda-resource"
+    "geuneda-servertime"
     "geuneda-services"
     "geuneda-statechart"
     "geuneda-uiservice"

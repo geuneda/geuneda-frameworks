@@ -49,3 +49,6 @@
 [submodule "Packages/com.geuneda.resource"]
 	path = Packages/com.geuneda.resource
 	url = https://github.com/geuneda/geuneda-resource.git
+[submodule "Packages/com.geuneda.servertime"]
+	path = Packages/com.geuneda.servertime
+	url = https://github.com/geuneda/geuneda-servertime.git

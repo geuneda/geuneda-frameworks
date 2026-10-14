@@ -1,6 +1,6 @@
 # Geuneda Services - 공개 API 레퍼런스
 
-`com.geuneda.services` 3.0.0 소스 기준. 런타임 어셈블리 `Geuneda.Services`, 에디터 어셈블리 `Geuneda.Services.Editor`.
+`com.geuneda.services` 5.0.0 소스 기준. 런타임 어셈블리 `Geuneda.Services`, 에디터 어셈블리 `Geuneda.Services.Editor`.
 
 ---
 
@@ -241,14 +241,18 @@ public 필드 `Action OnUpdate`, `Action OnFixedUpdate`, `Action OnLateUpdate`. 
 
 ## Geuneda.Services — 시간
 
+현재 UTC 는 기준점(UTC 시각과 그때의 core `IMonotonicClock` 값)에 단조 시계 경과와 `AddTime` 오프셋을 더한 값이다(v5.0.0). 서비스를 만든 뒤 기기 시계를 바꿔도 현재 시각은 바뀌지 않는다.
+
 ### interface ITimeService
 
 | 멤버 | 타입 | 설명 |
 |------|------|------|
-| `DateTimeUtcNow` | `DateTime` | 기준 시각 + 경과 시간 + 오프셋 (UTC) |
+| `DateTimeUtcNow` | `DateTime` | 기준점 UTC + 단조 시계 경과 + 오프셋 (`Kind` 는 `Utc`). 어느 스레드에서 읽어도 됨 |
+| `IsServerTime` | `bool` | `SetServerTime` 을 부른 뒤로 true. 그 전에는 생성할 때의 기기 시계 기준. 어느 스레드에서 읽어도 됨 |
 | `UnityTimeNow` | `float` | `Time.realtimeSinceStartup` + 오프셋 |
 | `UnityScaleTimeNow` | `float` | `Time.time` + 오프셋 |
-| `UnixTimeNow` | `long` | 밀리초 Unix 시간 (오프셋 포함) |
+| `UnixTimeNow` | `long` | 밀리초 Unix 시간 (오프셋 포함). 어느 스레드에서 읽어도 됨 |
+| `TimeAdjusted` | `event Action<TimeSpan>` | `SetServerTime`·`AddTime` 으로 현재 시각이 바뀐 양(새 값 - 이전 값, 음수 가능). 처리기 예외는 로그만 남기고 다음 처리기로 넘어감 |
 | `UnixTimeFromDateTimeUtc(DateTime time)` | `long` | |
 | `UnixTimeFromUnityTime(float time)` | `long` | |
 | `DateTimeUtcFromUnixTime(long time)` | `DateTime` | |
@@ -256,18 +260,22 @@ public 필드 `Action OnUpdate`, `Action OnFixedUpdate`, `Action OnLateUpdate`. 
 | `UnityTimeFromDateTimeUtc(DateTime time)` | `float` | |
 | `UnityTimeFromUnixTime(long time)` | `float` | |
 
-변환 메서드에는 `AddTime` 오프셋이 반영되지 않는다.
+`DateTime` 을 받는 메서드는 `Kind` 가 `Unspecified` 면 `ArgumentException`, `Local` 은 UTC 로 바꾼다. 변환 메서드에는 `AddTime` 오프셋이 반영되지 않는다. Unity 시간 변환은 기준점의 `Time.realtimeSinceStartup` 을 기준으로 한다.
 
 ### interface ITimeManipulator : ITimeService
 
+메인 스레드에서 부른다.
+
 | 멤버 | 설명 |
 |------|------|
-| `void AddTime(float timeInSeconds)` | 오프셋 누적 (음수면 되돌림) |
-| `void SetInitialTime(DateTime initialTime)` | 기준 시각을 바꾸고 기준 Unity 시간을 현재로 재설정 |
+| `void AddTime(float timeInSeconds)` | 오프셋 누적 (음수면 되돌림). `SetServerTime` 뒤에도 유지. `TimeAdjusted` 발생 |
+| `void SetServerTime(DateTime serverUtcNow)` | 지금 이 순간의 서버 시각을 기준점으로 삼음(`IsServerTime` true). `Kind` 가 `Unspecified` 면 `ArgumentException`. `TimeAdjusted` 발생. v4.x 의 `SetInitialTime` |
 
 ### class TimeService : ITimeManipulator
 
-생성자 `TimeService()`. 기준 시각은 생성 시점 `DateTime.Now`.
+- 생성자 `TimeService()`(core `MonotonicClock`), `TimeService(IMonotonicClock clock)`(null 이면 `ArgumentNullException`. 테스트용 가짜 시계, 또는 servertime 과 같은 시계)
+- 기준점은 처음에 생성 시점 `DateTime.UtcNow`. 기기 시계는 생성할 때 한 번만 읽는다.
+- 왕복 지연 보정, 주기 재동기화, 포그라운드 복귀 재동기화는 `com.geuneda.servertime` 의 `ServerTimeSync` 가 `SetServerTime` 을 불러 한다.
 
 ---
 

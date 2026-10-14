@@ -92,7 +92,7 @@
 
 `static int FromException(Exception exception)`: `OperationCanceledException`(`TaskCanceledException` 포함) → `Cancelled`, `TimeoutException` → `Timeout`, 그 밖 → `Unknown`. null 이면 `ArgumentNullException`.
 
-코드 범위: 0 성공, 1~999 core 공용, 1000~99999 패키지별 1000 단위 블록(core `README.md` "결과 코드 범위" 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 5000 resource, 다음 빈 블록 6000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 101000 이상 게임.
+코드 범위: 0 성공, 1~999 core 공용, 1000~99999 패키지별 1000 단위 블록(core `README.md` "결과 코드 범위" 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 5000 resource, 6000 servertime, 다음 빈 블록 7000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 101000 이상 게임.
 
 ---
 
@@ -223,3 +223,28 @@ PCG32(XSH-RR). 상태: 64비트 LCG 상태, 홀수 증가값(스트림 번호를
 | `void Advance(ulong delta)` | O(log n) 건너뛰기. 뒤로 n 은 `Advance(unchecked(0UL - n))` |
 
 internal(테스트용): `static Pcg32 FromSequence(ulong initState, ulong initSequence)`(SplitMix64 없이 `pcg32_srandom_r`), `static ulong SplitMix64(ulong)`.
+
+## 단조 시계 (`Runtime/Time/`, `Runtime/Plugins/iOS/GeunedaMonotonicClock.mm`)
+
+### interface IMonotonicClock
+
+`TimeSpan Elapsed { get; }`: 기준점 이후 흐른 시간. 기기 시계(`DateTime.UtcNow`) 변경에 영향받지 않고 줄어들지 않는다. 기준점은 정해져 있지 않아(보통 기기 부팅) 두 값의 차이로 쓴다. 어느 스레드에서 읽어도 된다.
+
+### sealed class MonotonicClock : IMonotonicClock
+
+| 멤버 | 설명 |
+|------|------|
+| `MonotonicClock()` | 네이티브 시계를 한 번 확인해(`DllNotFoundException`·`EntryPointNotFoundException`·실패 반환이면) `Stopwatch` 로 바꿈. 인스턴스 안에서는 바꾸지 않음 |
+| `TimeSpan Elapsed` | 아래 표의 시계 값 |
+| `bool IncludesSleep` | 네이티브 시계를 쓰는지. `Stopwatch` 면 false |
+
+| 플랫폼 | 시계 | 잠자기 포함 |
+|--------|------|------------|
+| Android 플레이어 | libc `clock_gettime(CLOCK_BOOTTIME)`(7) | 예 |
+| iOS 플레이어 | 플러그인 `int64_t GeunedaMonotonicClock_Nanoseconds()` → `clock_gettime_nsec_np(CLOCK_MONOTONIC)` | 예 |
+| macOS 에디터·플레이어 | libc `clock_gettime(CLOCK_MONOTONIC)`(6) | 예 |
+| 그 밖(Windows, Linux, WebGL), 네이티브 실패 | `Stopwatch` | 플랫폼에 따름 |
+
+플랫폼 분기는 에디터 define(`UNITY_EDITOR_OSX`)을 먼저 본다(에디터에서도 빌드 대상의 `UNITY_ANDROID`/`UNITY_IOS` 가 켜짐). `timespec` 필드는 `IntPtr`(32비트 Android 대응). iOS 만 플러그인을 쓰는 것은 IL2CPP 가 `__Internal` 로 선언한 시스템 함수가 시스템 헤더 선언과 충돌할 수 있어서다.
+
+쓰는 곳: services `TimeService`(현재 시각 진행), servertime `ServerTimeSync`·`IServerTimeSource`(왕복 보정). 테스트는 `Elapsed` 를 직접 정하는 가짜 구현을 넘긴다.

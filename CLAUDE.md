@@ -127,6 +127,7 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 | `Geuneda.Account`, `Geuneda.Account.Server`, `Geuneda.Account.Apple`, `Geuneda.Account.Google` | `/geuneda-account` |
 | `Geuneda.AppSetting`, `Geuneda.AppSetting.Server` | `/geuneda-appsetting` |
 | `Geuneda.Resource` | `/geuneda-resource` |
+| `Geuneda.ServerTime` | `/geuneda-servertime` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|
@@ -138,4 +139,4 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 
 ## 패키지 간 영향
 
-gamedata 를 services, googlesheetimporter 가 쓰고, services 를 gamesystems 가 쓴다. 하위 패키지 API 를 바꾸면 상위 패키지도 확인한다. 전체 의존성은 [README.md](README.md#의존성) 를 본다.
+gamedata 를 services, googlesheetimporter 가 쓰고, services 를 gamesystems, servertime 이 쓴다. 하위 패키지 API 를 바꾸면 상위 패키지도 확인한다. 전체 의존성은 [README.md](README.md#의존성) 를 본다.

@@ -1,11 +1,11 @@
 ---
 name: geuneda-core
-description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, AppIdentity 로 설치 ID·기기 ID 를 얻을 때, 토큰·비밀 값을 ISecureStore/PlatformSecureStore(iOS 키체인, Android 키스토어)에 보관할 때, 그리고 Pcg32(PCG32) 결정론적 난수 생성기를 직접 쓰거나 서버에서 같은 난수 수열을 재현할 때 활성화한다.
+description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, AppIdentity 로 설치 ID·기기 ID 를 얻을 때, 토큰·비밀 값을 ISecureStore/PlatformSecureStore(iOS 키체인, Android 키스토어)에 보관할 때, Pcg32(PCG32) 결정론적 난수 생성기를 직접 쓰거나 서버에서 같은 난수 수열을 재현할 때, 그리고 기기 시계 변경에 영향받지 않고 기기가 잠든 동안에도 흐르는 경과 시간을 IMonotonicClock/MonotonicClock 단조 시계로 재거나 테스트용 가짜 시계를 만들 때 활성화한다.
 ---
 
 # Geuneda Core
 
-다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`), 보안 저장소(`ISecureStore`, `PlatformSecureStore`), 결정론적 난수(`Pcg32`)다.
+다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`), 보안 저장소(`ISecureStore`, `PlatformSecureStore`), 결정론적 난수(`Pcg32`), 단조 시계(`MonotonicClock`)다.
 
 ## 패키지 정보
 
@@ -30,7 +30,7 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 - `Result<T>`: 위와 같고 `Ok(T value)`, `Value`(실패면 `InvalidOperationException`), `TryGetValue(out T)`. `Result` 로 암시적 변환.
 - `ResultCodes`: `Success` 0, `Unknown` 1, `Cancelled` 2, `Timeout` 3, `NetworkError` 4, `InProgress` 5, `FromException(Exception)`.
 - 규칙: 실행 중 일어날 수 있는 실패(네트워크, 타임아웃, 취소, 서버 거절, 중복 실행)는 결과 코드, 오용(잘못된 인자·상태)은 즉시 예외.
-- 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 5000 resource, 다음 빈 블록 6000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 게임 101000 이상.
+- 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 5000 resource, 6000 servertime, 다음 빈 블록 7000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 게임 101000 이상.
 
 ## 빌드 환경 핵심 API
 
@@ -63,6 +63,12 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 
 - `Pcg32`(가변 struct, PCG32 XSH-RR): `new Pcg32(ulong seed, ulong stream)`, `uint NextUInt()`, `uint NextUInt(uint bound)`([0, bound)), `int NextInt(min, max)`([min, max)), `int NextIntInclusive(min, max)`([min, max]), `void Advance(ulong delta)`(O(log n), 2^64 를 법으로 해 뒤로도 감), `ulong Position`(쓴 32비트 출력 수).
 - 게임 로직은 보통 services 의 `IRngService`(이 생성기를 씀)를 쓴다. `Pcg32` 는 상태를 직접 다루거나 서버(.NET)가 `Runtime/Random/Pcg32.cs` 를 링크해 같은 수열을 재현할 때 쓴다.
+
+## 단조 시계 핵심 API
+
+- `IMonotonicClock`: `TimeSpan Elapsed`(기준점 이후 흐른 시간, 어느 스레드에서 읽어도 됨). 기기 시계(`DateTime.UtcNow`)를 바꿔도 영향받지 않고 줄어들지 않는다.
+- `new MonotonicClock()`: 플랫폼 기본 구현. Android `clock_gettime(CLOCK_BOOTTIME)`, macOS 에디터·플레이어 `clock_gettime(CLOCK_MONOTONIC)`(libc), iOS 플러그인 `GeunedaMonotonicClock.mm` 의 `clock_gettime_nsec_np(CLOCK_MONOTONIC)` 로 기기가 잠든 동안에도 흐른다. 그 밖(Windows, Linux, WebGL)과 네이티브 호출 실패는 `Stopwatch`. `bool IncludesSleep` 은 네이티브 시계를 쓰는지(`Stopwatch` 면 false).
+- services 의 `TimeService` 가 이 시계로 현재 시각을 진행하고, servertime 의 `ServerTimeSync` 가 같은 시계로 왕복 지연을 보정한다.
 
 ## 사용 패턴
 
@@ -151,3 +157,6 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - `AppEnv.IsProd` 등은 의도적으로 `const` 가 아니다(소비 코드의 CS0162 경고 방지). 빌드에서 확실히 빼야 하면 `#if` 를 쓴다.
 - `Pcg32` 는 가변 struct 다. `readonly` 필드에 두거나 프로퍼티로 꺼내 부르면 복사본이 진행해 원래 생성기는 그대로다. 복사는 미리 보기로 쓴다. `default(Pcg32)` 는 `InvalidOperationException`.
 - `Pcg32` 의 범위 함수는 거절 샘플링으로 출력을 하나 더 쓸 수 있어 `Position` 은 호출 수가 아니다. 저장·재현은 시드·스트림·`Position` 세 값으로 한다.
+- `IMonotonicClock.Elapsed` 의 기준점은 정해져 있지 않다(보통 기기 부팅). 값 자체를 시각으로 쓰지 말고 두 값의 차이로 경과 시간을 잰다. 같은 기기에서는 인스턴스가 달라도 같은 시계라 값끼리 비교할 수 있다.
+- `Stopwatch` 대체(`IncludesSleep` false)에서 잠든 동안 흐르는지는 플랫폼에 따른다. 네이티브 호출 실패는 생성할 때 한 번만 확인한다.
+- 테스트에서는 `Elapsed` 를 직접 정하는 가짜 `IMonotonicClock` 을 만들어 넘긴다(`TimeService(IMonotonicClock)`, `ServerTimeSync(..., clock)`).

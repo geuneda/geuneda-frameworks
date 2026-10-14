@@ -1,6 +1,6 @@
 # Geuneda Frameworks (Unity)
 
-Geuneda Unity Package Manager(UPM) 패키지 17개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬이 함께 다룹니다).
+Geuneda Unity Package Manager(UPM) 패키지 18개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬이 함께 다룹니다).
 
 ## 어디부터 읽으면 되나
 
@@ -20,7 +20,7 @@ Geuneda Unity Package Manager(UPM) 패키지 17개를 개발, 테스트, 검증�
 
 | 패키지 | 버전 | 최소 Unity | 하는 일 | 문서 |
 |--------|------|-----------|---------|------|
-| `com.geuneda.core` | 0.3.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소, 결정론적 난수(`Pcg32`) | [README](Packages/com.geuneda.core/README.md) |
+| `com.geuneda.core` | 0.4.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소, 결정론적 난수(`Pcg32`), 기기 시계 변경에 영향받지 않고 잠든 동안에도 흐르는 단조 시계(`MonotonicClock`) | [README](Packages/com.geuneda.core/README.md) |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트. 미들웨어 체인, `Result<HttpResponse>`(연결 실패·타임아웃·취소는 코드), JSON 편의 메서드, 선택형 타임아웃·재시도 | [README](Packages/com.geuneda.http/README.md) |
 | `com.geuneda.realtime` | 0.2.0 | 2021.3 | WebSocket 실시간 RPC 클라이언트. single-flight 연결, 연결마다 재로그인, 지수 백오프 재연결, 요청 ID 매칭, 서버 푸시, 핑퐁, 교체 가능한 직렬화(JSON 기본, MessagePack 선택). `[RpcService]` 계약에서 클라이언트 프록시·서버 라우트를 만드는 소스 생성기와 ASP.NET Core 서버(`Server~/`) | [README](Packages/com.geuneda.realtime/README.md) |
 | `com.geuneda.account` | 0.2.0 | 2021.3 | 계정 인증과 앱 세션. 게스트 로그인과 제공자 등록, refresh 토큰은 보안 저장소·access 토큰은 메모리(재발급 single-flight), 게임 서버 요청용 토큰 미들웨어, 연동·충돌·옮겨오기·해제·계정 삭제, 다음 세션 ID 예약과 대칭 세션 이벤트. ASP.NET Core 인증 서버(`Server~/`: JWT, refresh 회전·재사용 감지, 애플·구글 id 토큰 검증) | [README](Packages/com.geuneda.account/README.md) |
@@ -28,8 +28,9 @@ Geuneda Unity Package Manager(UPM) 패키지 17개를 개발, 테스트, 검증�
 | `com.geuneda.account.google` | 0.1.0 | 2021.3 | account 의 Google 로그인 제공자. Android 는 Credential Manager(Gradle 의존성을 담은 Android 라이브러리 플러그인), iOS 는 SDK 없이 ASWebAuthenticationSession + OAuth PKCE | [README](Packages/com.geuneda.account.google/README.md) |
 | `com.geuneda.appsetting` | 0.2.0 | 2021.3 | 원격 앱 설정. 서명된 설정 문서(RSA-3072 PKCS#1 SHA-256)를 받아 검증하고, 앱 버전별 노드(`*` 기본 노드)의 플랫폼별 상태·점검 공지·서버 주소·기능 플래그로 접속 판정(열림·내부·점검·업데이트 필요), 리소스 매니페스트(카테고리별 버전·크기·SHA-256·URL). ETag 조건부 요청, 갱신 single-flight, 낮은 판 무시. 서명 CLI 와 ASP.NET Core 배포 헬퍼(`Server~/`) | [README](Packages/com.geuneda.appsetting/README.md) |
 | `com.geuneda.resource` | 0.1.0 | 2021.3 | 원격 리소스(테이블 등 데이터 파일) 캐시. 매니페스트 항목의 크기·SHA-256 으로 캐시 파일을 판정하고 맞지 않는 것만 받아 검증 후 원자적 저장(임시 파일 → 이름 바꾸기), 새 버전 저장 뒤 옛 버전 삭제, 동시 다운로드 수 제한, 받기 전 총 용량 확인, 진행률. 파일 입출력·해시는 스레드 풀 | [README](Packages/com.geuneda.resource/README.md) |
+| `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화. 시간 원천(NTP 기본 `time.google.com`, HTTPS `Date` 헤더, 직접 구현)을 순서대로 시도해 왕복 지연을 보정한 서버 시각을 services 시간 서비스의 기준점으로 넣음. 실패하면 지수 백오프로 재시도, 성공하면 30분마다, 앱이 포그라운드로 돌아오면 바로 다시 맞춤. 현재 시각은 core 단조 시계로 진행해 기기 시계를 바꿔도 영향받지 않음 | [README](Packages/com.geuneda.servertime/README.md) |
 | `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
-| `com.geuneda.services` | 4.0.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간, 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
+| `com.geuneda.services` | 5.0.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
 | `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](Packages/com.geuneda.inputextensions/README.md) |
@@ -57,7 +58,8 @@ core
   │     │     ├── account.apple
   │     │     └── account.google (http 에도 의존)
   │     ├── appsetting
-  │     └── resource
+  │     ├── resource
+  │     └── servertime (services 에도 의존)
   └── realtime
 gamedata
   ├── services
@@ -67,14 +69,14 @@ gamedata
 uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Geuneda 패키지에 의존하지 않음
 ```
 
-`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
+`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계)이 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
 
 외부 의존성(`package.json` 에 선언된 최소 버전):
 
 | 패키지 | 외부 의존성 |
 |--------|-------------|
 | gamedata | `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
-| services | `com.geuneda.core` 0.3.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
+| services | `com.geuneda.core` 0.4.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
 | uiservice | `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
 | statechart | `com.cysharp.unitask` 2.5.10 |
 | inputextensions | `com.unity.inputsystem` 1.1.1, `com.unity.ugui` 1.0.0 |
@@ -86,6 +88,7 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | account.google | `com.geuneda.account` 0.1.0, `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1. Android Gradle: `androidx.credentials` 1.3.0, `googleid` 1.1.1, `androidx.core` 1.8.0, `androidx.loader` 1.0.0 |
 | appsetting | `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1 |
 | resource | `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10 |
+| servertime | `com.geuneda.core` 0.4.0, `com.geuneda.services` 5.0.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10 |
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
@@ -124,6 +127,7 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 | account.apple, account.google | account, core, http, UniTask |
 | appsetting | core, http, UniTask |
 | resource | core, http, UniTask |
+| servertime | services, gamedata, core, http, UniTask |
 
 Unity 레지스트리에 있는 의존성(Addressables, Newtonsoft Json, Input System, Mobile Notifications 등)은 자동으로 설치됩니다.
 
@@ -144,14 +148,14 @@ geuneda-frameworks/
 ├── Assets/                 # 호스트 프로젝트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
 ├── Packages/
 │   ├── manifest.json       # 호스트 프로젝트 의존성
-│   └── com.geuneda.*/      # 패키지 17개, 각각 git 서브모듈 (.gitmodules)
+│   └── com.geuneda.*/      # 패키지 18개, 각각 git 서브모듈 (.gitmodules)
 ├── ProjectSettings/        # Unity 설정 (ProjectVersion.txt: 6000.3.2f1)
 ├── UserSettings/
 ├── claude-skills/
 │   ├── install.sh          # 스킬 설치
 │   ├── uninstall.sh        # 스킬 제거
 │   ├── geuneda-frameworks/ # 프레임워크 전체 스킬
-│   └── geuneda-<패키지>/    # 패키지별 스킬 15개
+│   └── geuneda-<패키지>/    # 패키지별 스킬 16개
 ├── .gitmodules
 ├── AGENTS.md               # AI 에이전트용 레포 가이드
 ├── CLAUDE.md               # 프레임워크를 쓰는 프로젝트의 공용 규칙
@@ -165,7 +169,7 @@ geuneda-frameworks/
 
 ## Claude Code 스킬
 
-`claude-skills/` 에는 패키지별 스킬 15개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
+`claude-skills/` 에는 패키지별 스킬 16개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
 
 | 스킬 | 대상 |
 |------|------|
@@ -185,6 +189,7 @@ geuneda-frameworks/
 | `geuneda-account` | com.geuneda.account, com.geuneda.account.apple, com.geuneda.account.google |
 | `geuneda-appsetting` | com.geuneda.appsetting |
 | `geuneda-resource` | com.geuneda.resource |
+| `geuneda-servertime` | com.geuneda.servertime |
 
 어떤 코드에서 어떤 스킬을 써야 하는지는 [CLAUDE.md](CLAUDE.md) 의 네임스페이스 매핑 표를 따릅니다.
 
@@ -193,9 +198,9 @@ geuneda-frameworks/
 스크립트는 자기 위치를 기준으로 동작하므로 어느 디렉터리에서 실행해도 됩니다.
 
 ```bash
-claude-skills/install.sh                     # 스킬 16개 모두 설치
+claude-skills/install.sh                     # 스킬 17개 모두 설치
 claude-skills/install.sh geuneda-services    # 하나만 설치
-claude-skills/uninstall.sh                   # 스킬 16개 모두 제거
+claude-skills/uninstall.sh                   # 스킬 17개 모두 제거
 claude-skills/uninstall.sh geuneda-services  # 하나만 제거
 ```
 

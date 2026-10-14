@@ -1,6 +1,6 @@
 ---
 name: geuneda-services
-description: Geuneda Services(com.geuneda.services) 패키지로 Unity 코드를 작성하거나 고칠 때 사용한다. MainInstaller/Installer 서비스 바인딩과 해석, IMessageBrokerService 메시지 발행/구독, ITickService 업데이트 구독, ICoroutineService 코루틴, IPoolService/ObjectPool/GameObjectPool 오브젝트 풀, IDataService PlayerPrefs 저장, IRngService 결정론적 난수, ITimeService 시간 조작, CommandService 커맨드, VersionServices 빌드 버전 정보, AssetResolverService/AddressablesAssetLoader Addressables 에셋 로딩, Addressable Ids 생성기와 AssetsConfigsImporter, Services Explorer 창을 다루는 작업이 대상이다. 코드에 using Geuneda.Services 가 있거나 위 타입 이름이 나오면 이 스킬을 쓴다.
+description: Geuneda Services(com.geuneda.services) 패키지로 Unity 코드를 작성하거나 고칠 때 사용한다. MainInstaller/Installer 서비스 바인딩과 해석, IMessageBrokerService 메시지 발행/구독, ITickService 업데이트 구독, ICoroutineService 코루틴, IPoolService/ObjectPool/GameObjectPool 오브젝트 풀, IDataService PlayerPrefs 저장, IRngService 결정론적 난수, ITimeService/ITimeManipulator 게임 시계(단조 시계 기준점, SetServerTime 서버 시각, IsServerTime, TimeAdjusted, AddTime 시간 조작), CommandService 커맨드, VersionServices 빌드 버전 정보, AssetResolverService/AddressablesAssetLoader Addressables 에셋 로딩, Addressable Ids 생성기와 AssetsConfigsImporter, Services Explorer 창을 다루는 작업이 대상이다. 코드에 using Geuneda.Services 가 있거나 위 타입 이름이 나오면 이 스킬을 쓴다.
 ---
 
 # Geuneda Services
@@ -9,9 +9,9 @@ Unity 게임용 기반 서비스 모음이다. 전체 공개 API 는 [references
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.services` (현재 4.0.0), 설치 URL `https://github.com/geuneda/geuneda-services.git`
+- 패키지: `com.geuneda.services` (현재 5.0.0), 설치 URL `https://github.com/geuneda/geuneda-services.git`
 - Unity 6000.3 이상
-- 의존성: `com.geuneda.core` 0.3.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10. core, gamedata, UniTask 는 Unity 레지스트리에 없으므로 `manifest.json` 에 git URL 로 직접 추가해야 한다.
+- 의존성: `com.geuneda.core` 0.4.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10. core, gamedata, UniTask 는 Unity 레지스트리에 없으므로 `manifest.json` 에 git URL 로 직접 추가해야 한다.
 - 에셋 로딩/임포트는 v2.0.0 에서 예전 `com.geuneda.assetsimporter` 를 흡수한 것이다. `com.geuneda.assetsimporter` 를 따로 추가하지 않는다.
 
 ## 네임스페이스 (자주 틀림)
@@ -24,7 +24,7 @@ Unity 게임용 기반 서비스 모음이다. 전체 공개 API 는 [references
 | `Geuneda.Services.AssetsImporter` | `IAssetLoader`, `ISceneLoader`, `AddressablesAssetLoader`, `AssetConfigsScriptableObject<TId, TAsset>`, `AddressableConfig`, `AssetReferenceScene` |
 | `Geuneda.Services.AssetsImporter.Editor` (에디터) | `AssetsConfigsImporter<TId, TAsset, TScriptableObject>` 등 |
 | `Geuneda.DataExtensions` (gamedata) | `floatP`, `Pair<TKey, TValue>` |
-| `Geuneda.Core` (core) | `AppEnv`(내부 버전의 환경 이름) |
+| `Geuneda.Core` (core) | `AppEnv`(내부 버전의 환경 이름), `IMonotonicClock`/`MonotonicClock`(`TimeService` 의 시계) |
 
 `IPoolService` 를 쓰면 `using Geuneda.Services.Pooling;`, `IGameCommand<T>` 를 쓰면 `using Geuneda.Services.Commands;` 가 추가로 필요하다.
 
@@ -137,6 +137,8 @@ MainInstaller.Bind<IAssetResolverService>(resolver);
 - **풀**: 타입당 풀 1개(중복 `AddPool` 은 `ArgumentException`). `GameObjectPool` 계열은 훅을 `GetComponent` 로 찾으므로 훅 인터페이스는 컴포넌트에 구현한다. `Spawn(data)` 는 `OnSpawn()` 과 `OnSpawn(data)` 를 둘 다 호출한다. `GameObjectPool.Dispose(bool)` 는 인자가 `true` 일 때만 샘플을 `Object.Destroy` 한다(v2.1.4 부터. 이전 버전은 인자와 관계없이 파괴). 대기 중인 항목이 풀 밖에서 파괴되면 `Spawn` 이 그 항목을 건너뛰고, 인스턴시에이터가 null 이나 파괴된 객체를 돌려주면 재시도 없이 `InvalidOperationException` 을 던진다(v3.0.0. v2.1.4 까지는 파괴된 항목에서 `MissingReferenceException`, null 을 돌려주는 인스턴시에이터에서 무한 루프).
 - **`DataService`**: 참조 타입만, `PlayerPrefs` 키는 `typeof(T).FullName`, 값은 `{"version":n,"data":{...}}` 봉투(`[DataVersion(n)]`, 마이그레이션은 `AddMigration<T>`). `LoadData<T>` 는 매개변수 없는 생성자 필요, 저장값을 읽지 못하면 예외 대신 `{키}.corrupt` 에 원문을 남기고 새 인스턴스로 시작한다. 더 새 버전 세이브를 읽은 타입은 `AddOrReplaceData` 로 교체하기 전까지 저장하지 않는다. `GetData<T>` 는 없으면 `KeyNotFoundException`. 이전 버전(2.x) 세이브는 읽지 않는다(v3.0.0, 호환되지 않는 변경).
 - **`RngService`**: v4.0.0 부터 core 의 `Pcg32`(PCG32)를 쓴다. 상태는 `RngData`(`Seed`, `Stream`, `Count` 모두 `ulong`)이고 서비스가 `Count` 를 직접 바꾼다(필드를 바깥에서 바꾸면 다음 호출부터 반영). `Count` 는 호출 수가 아니라 쓴 32비트 출력 수. `Range(int, int)` 는 max 미포함, `Range(floatP, floatP)` 는 max 포함이고 `maxInclusive` 로 바꾸면 max 도 나온다. 잘못된 범위는 `ArgumentOutOfRangeException`(상태 그대로). 스트림이 여러 개 필요하면 스트림마다 `RngData`/`RngService` 를 만든다. `Restore(count)` 는 O(log n). v3.x 이하와 수열·`RngData` 형식이 달라 이전 리플레이와 호환되지 않는다.
+- **`TimeService`**: v5.0.0 부터 현재 UTC 는 기준점(UTC 시각과 그때의 core `IMonotonicClock` 값) + 단조 시계 경과 + `AddTime` 오프셋이다. 서비스를 만든 뒤 기기 시계를 바꿔도 현재 시각은 바뀌지 않고, 기본 시계(`MonotonicClock`)는 Android·iOS·macOS 에서 기기가 잠든 동안에도 흐른다. 기준점은 처음에 생성할 때의 기기 시계이고 `IsServerTime` 은 false 다. `ITimeManipulator.SetServerTime(serverUtcNow)`(v4.x 의 `SetInitialTime`)으로 지금 이 순간의 서버 시각을 넣으면 true 가 된다. `DateTime` 인자(`SetServerTime`, `UnixTimeFromDateTimeUtc`, `UnityTimeFromDateTimeUtc`)는 `Kind` 가 `Unspecified` 면 `ArgumentException`, `Local` 은 UTC 로 바꾼다(서버 응답 값은 `DateTime.SpecifyKind(value, DateTimeKind.Utc)`). `TimeAdjusted(TimeSpan delta)` 는 `SetServerTime`·`AddTime` 으로 현재 시각이 바뀐 양(재동기화로 음수일 수 있음, 처리기 예외는 로그만)이고 일일 초기화 같은 타이머를 다시 계산하는 데 쓴다. `AddTime` 오프셋은 현재 시각 프로퍼티에만 반영되고 변환 메서드에는 반영되지 않으며 `SetServerTime` 뒤에도 유지된다. `DateTimeUtcNow`·`UnixTimeNow`·`IsServerTime` 은 다른 스레드에서 읽어도 되고 나머지는 메인 스레드에서 쓴다. `ITimeService` 를 직접 구현했다면 `IsServerTime`, `TimeAdjusted` 를 추가한다.
+- **서버 시각**: 왕복 지연 보정, 주기 재동기화, 포그라운드 복귀 재동기화는 `com.geuneda.servertime` 의 `ServerTimeSync` 가 `SetServerTime` 을 불러 한다(`geuneda-servertime` 스킬). 직접 `SetServerTime` 을 부르기보다 이것을 쓴다. 시간 서비스를 `TimeService(IMonotonicClock)` 로 만들었다면 `ServerTimeSync` 에도 같은 시계를 넘긴다. 테스트는 `new TimeService(fakeClock)` 에 `Elapsed` 를 정하는 가짜 시계를 넘긴다.
 - **`VersionServices`** 는 `SubsystemRegistration` 에서 자동 로드되므로 `LoadVersionData()` 를 부를 필요가 없다. `version-data` 리소스가 없으면 예외 없이 `Application.version` / 빈 문자열로 폴백하고 `Debug.LogError` 를 남긴다(지연 로드는 한 번만 시도). git 저장소가 아닌 프로젝트에서는 `Branch` / `Commit` 이 빈 문자열이다. `IsOutdatedVersion` 은 `Major[.Minor[.Patch]]` 와 접미사(`-rc`, `+42`)를 받고, 읽을 수 없으면 경고 후 `false` 다. `VersionInternal` 끝의 환경 이름은 core 의 `AppEnv.Name`(`dev`/`qa`/`prod`, 컴파일 define 으로 정해짐)이고 `version-data` 에는 쓰지 않는다(`VersionData.BuildType` 없음, v3.0.0). 플레이어 빌드 직전 훅이 빌드 대상의 빌드 번호(Android 는 `bundleVersionCode`)를 쓰고, 빌드가 끝나면(실패·취소 포함) 활성 타깃 값으로 되돌린다.
 - **`AssetResolverService`**: `AddConfigs` 는 `IAssetAdderService` 로만 호출된다(`AssetResolverService` 변수로 호출하면 CS1061). 등록 전 `RequestAsset` / `LoadSceneAsync<TId>` 는 `MissingMemberException`. `RequestAsset` 의 `instantiate` 기본값이 `true` 라 `GameObject` 는 인스턴스가 만들어진다. 씬은 에셋 타입 `UnityEngine.SceneManagement.Scene` 으로 등록한다.
 - **`AddressablesAssetLoader.UnloadAsset`** 은 동기 `void` 이며 참조 카운트만 줄인다. 메모리 회수는 호출자가 `Resources.UnloadUnusedAssets()` 로 한다.
