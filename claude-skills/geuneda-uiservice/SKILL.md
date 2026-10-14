@@ -1,17 +1,17 @@
 ---
 name: geuneda-uiservice
-description: com.geuneda.uiservice 패키지(네임스페이스 Geuneda.UiService, Geuneda.UiService.Views)로 Unity UI 를 다루는 코드를 작성하거나 수정할 때 사용한다. UiPresenter/UiPresenter<T> 프레젠터 작성, IUiService 로 UI 로드/열기/닫기/언로드, UiConfigs 설정 에셋과 UI 세트 구성, 다중 인스턴스(UiInstanceId), PresenterFeatureBase/ITransitionFeature 피처, UI Toolkit 연동(UiToolkitPresenterFeature, UiToolkitPanelRendererFeature), IUiAssetLoader 로더, SafeAreaHelperView 등 헬퍼 뷰를 다룰 때 활성화한다.
+description: com.geuneda.uiservice 패키지(네임스페이스 Geuneda.UiService, Geuneda.UiService.Views)로 Unity UI 를 다루는 코드를 작성하거나 수정할 때 사용한다. UiPresenter/UiPresenter<T> 프레젠터 작성, IUiService 로 UI 로드/열기/닫기/언로드, UiConfigs 설정 에셋과 UI 세트 구성, 다중 인스턴스(UiInstanceId), PresenterFeatureBase/ITransitionFeature 피처, UI Toolkit 연동(UiToolkitPresenterFeature, UiToolkitPanelRendererFeature), IUiAssetLoader 로더, SafeAreaHelperView 등 헬퍼 뷰를 다루거나, 뒤로가기(HandlesBack, HandleBack, AddBackHandler, BackUnhandled, ReadsBackInput), 팝업 큐(UiPopupQueue, Hold), 모달 dim(IsModal, DimColor), 입력 차단(BlockInput), 표시 상태 이벤트(PresenterOpened/PresenterClosed)를 쓸 때 활성화한다.
 ---
 
 # Geuneda UI Service
 
-UI 프레젠터의 로드, 열기, 닫기, 언로드를 `UiService` 한 곳에서 관리하는 패키지. 레이어 정렬, UI 세트, 다중 인스턴스, 피처 조합, 교체 가능한 에셋 로더를 제공한다.
+UI 프레젠터의 로드, 열기, 닫기, 언로드를 `UiService` 한 곳에서 관리하는 패키지. 레이어 정렬, UI 세트, 다중 인스턴스, 피처 조합, 교체 가능한 에셋 로더, 뒤로가기, 우선순위 팝업 큐, 모달 dim, 입력 차단을 제공한다.
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.uiservice` 1.3.1 (`package.json` 기준)
+- 패키지: `com.geuneda.uiservice` 2.0.0 (`package.json` 기준). 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이며 기존 프로젝트는 `#v1.3.2` 로 고정한다
 - 설치: `https://github.com/geuneda/geuneda-uiservice.git` (UniTask 는 manifest 에 직접 추가해야 함)
-- 의존성: `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0. 헬퍼 뷰는 uGUI/TextMeshPro 사용
+- 의존성: `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0. 헬퍼 뷰는 uGUI/TextMeshPro 사용. 선택: `com.unity.inputsystem`(있으면 `ReadsBackInput` 이 Input System 사용)
 - Unity 6000.0+ (`UiToolkitPanelRendererFeature` 는 6000.5+)
 - 소스: geuneda-frameworks 레포의 `Packages/com.geuneda.uiservice/` (`Runtime/`, `Editor/`, `docs/`)
 - 전체 공개 API: [references/api.md](references/api.md)
@@ -41,11 +41,22 @@ T GetUi<T>() where T : UiPresenter;           // 없으면 KeyNotFoundException
 bool IsVisible<T>() where T : UiPresenter;
 IReadOnlyList<UiInstanceId> VisiblePresenters { get; }
 List<UiInstance> GetLoadedPresenters();
+bool TryGetUi(UiInstanceId instanceId, out UiPresenter presenter);
+event Action<UiInstanceId> PresenterOpened;   // 표시 목록에 들어간 직후 (Dispose 중엔 없음)
+event Action<UiInstanceId> PresenterClosed;   // 표시 목록에서 빠진 직후 (Remove/Unload 포함)
+
+// 뒤로가기, 입력 차단
+bool HandleBack();                            // 차단 중 무시 → 핸들러 → 맨 위 HandlesBack 프레젠터 → BackUnhandled
+IDisposable AddBackHandler(Func<bool> handler, int priority = 0);
+event Action BackUnhandled;
+UiInputBlock BlockInput(string reason);       // using 으로 풀기. IsInputBlocked, InputBlockReasons
 
 // UiService 전용 (인스턴스 주소 지정)
 T GetUi<T>(string instanceAddress);  bool IsVisible<T>(string instanceAddress);
 UniTask<UiPresenter> OpenUiAsync(Type type, string instanceAddress, CancellationToken ct = default);
 UniTask<UiPresenter> LoadUiAsync(Type type, string instanceAddress, bool openAfter = false, CancellationToken ct = default);
+Color DimColor { get; set; }                  // 기본 (0,0,0,0.6)
+bool ReadsBackInput { get; set; }             // Escape/Android 뒤로가기를 직접 읽음. 기본 false
 ```
 
 ```csharp
@@ -61,6 +72,10 @@ public abstract class UiPresenter : MonoBehaviour
     protected virtual void OnClosed();
     protected virtual void OnOpenTransitionCompleted();
     protected virtual void OnCloseTransitionCompleted();
+    protected virtual bool HandlesBack { get; }     // 기본 false
+    protected virtual void OnBackPressed();         // 기본 Close(false)
+    protected virtual bool IsModal { get; }         // 기본 false
+    protected virtual void OnDimClicked();          // 기본 없음
 }
 
 public abstract class UiPresenter<T> : UiPresenter, IUiPresenterData where T : struct
@@ -199,11 +214,41 @@ public class SettingsPresenter : UiPresenter
 
 `OnInitialized()` 에서 `rootVisualElement` 를 직접 쿼리하지 않는다. 콜백은 열 때마다, 한 번 열 때 여러 번 호출될 수 있다. Unity 6000.5+ 에서 `PanelRenderer` 를 쓰면 `UiToolkitPanelRendererFeature` 로 바꾼다(API 동일, `Document` 대신 `Panel`).
 
+### 뒤로가기, 모달, 팝업 큐
+
+```csharp
+public class RewardPopup : UiPresenter
+{
+    protected override bool HandlesBack => true;    // 뒤로가기로 닫힘
+    protected override bool IsModal => true;        // 맨 위 모달일 때 공용 dim
+    protected override void OnDimClicked() => Close(false);
+}
+
+var uiService = new UiService { ReadsBackInput = true };
+uiService.Init(uiConfigs);
+uiService.BackUnhandled += () => uiService.OpenUiAsync<QuitConfirmPopup>().Forget();
+
+var queue = new UiPopupQueue(uiService);           // 장면마다 만들고 떠날 때 Dispose (서비스보다 먼저)
+queue.Enqueue("daily-reward", 100, ct => uiService.OpenUiAsync(typeof(DailyRewardPopup), ct));
+queue.Enqueue("notice:42", 50, async ct => HasUnread(42) ? await uiService.OpenUiAsync<NoticePopup>(ct) : null);
+using (queue.Hold("tutorial")) { await RunTutorialAsync(); }
+
+using (uiService.BlockInput("purchase")) { await BuyAsync(); }
+```
+
+- 화면 맨 위 = 레이어가 높을수록, 같으면 나중에 연 프레젠터. 뒤로가기 대상과 dim 위치가 이 규칙을 쓴다. UIDocument 는 서비스가 `sortingOrder` 를 `레이어 + 순번/1024` 로 매겨 화면도 이 순서다. uGUI 는 같은 sortingOrder 캔버스의 앞뒤를 보장할 수 없으니 겹치는 팝업은 레이어를 나눈다(모달이 레이어를 공유하면 경고).
+- 큐는 팝업이 닫히고 닫기 전환까지 끝나야 다음을 띄운다(닫기 중 재열기는 계속 추적). `Hold` 가 남았거나 큐 밖에서 연 `HandlesBack` 프레젠터가 떠 있으면 기다린다. 같은 key 는 넣지 않는다(false). 팩토리가 null 이면 건너뛴다. 순서가 중요한 팝업은 한 큐에(여러 큐의 로드 중 팩토리는 서로 안 기다림).
+- `PresenterOpened/Closed` 는 `OnOpened/OnClosed` 보다 먼저 온다. 구독자와 열기·닫기 훅(OnOpened/OnClosed, 피처 시작·종료 콜백) 안에서 연 UI 의 알림과 훅은 지금 것이 끝난 뒤 실행된다(IsVisible 은 즉시). 전환 완료 훅(OnOpenTransitionCompleted/OnCloseTransitionCompleted)은 이 순서 밖이라 그 안에서 연 UI 의 훅은 곧바로 실행된다. 훅 예외는 전환 태스크를 같은 예외로 실패시키고 한 번 기록된다. `BlockInput` 은 포인터와 함께 EventSystem 선택·내비게이션, UIDocument 패널 키 입력도 막는다(막힌 동안 새 EventSystem·패널 포함, 선택은 복구 안 함). `RemoveUi`/`UnloadUi` 는 진행 중인 전환 태스크를 완료한다.
+- dim 은 루트 `Canvas`(첫 자식 `UiDim`) 또는 `UIDocument`(같은 PanelSettings, 모달 문서보다 1/2048 낮은 `UiDimDocument`)에만 깔린다.
+- 자세한 규칙: 패키지 `docs/navigation.md`.
+
 ## 생명주기 순서
 
 - 추가: (인스턴스화 → `SetActive(false)`) → 레이어 반영 → 피처 `OnPresenterInitialized` → `OnInitialized`
 - 열기: 피처 `OnPresenterOpening` → `SetActive(true)` → `OnOpened` → 피처 `OnPresenterOpened` → 전환 대기 → `OnOpenTransitionCompleted`
 - 닫기: 피처 `OnPresenterClosing` → `OnClosed` → 피처 `OnPresenterClosed` → 전환 대기 → `SetActive(false)` → `OnCloseTransitionCompleted` → `destroy` 면 `UnloadUi`
+- 전환 중 반대 동작이 끼어들면 늦게 끝난 쪽은 결과를 내지 않는다(닫기 중 재열기: 숨김·언로드·`OnCloseTransitionCompleted` 생략, 열기 중 닫기: `OnOpenTransitionCompleted` 생략).
+- 2.0.0 부터 `OpenUi` 는 표시 목록에 먼저 넣고 연다. `OnOpened` 안에서 연 UI 는 그 뒤 순서가 된다.
 
 ## 함정
 
@@ -223,3 +268,6 @@ public class SettingsPresenter : UiPresenter
 - 레이어 정렬은 프리팹 루트의 `Canvas`, `UIDocument`, `PanelRenderer`(Unity 6.5+, `int sortingOrder`) 에 적용된다.
 - `UiPresenter` 인스펙터의 플레이 모드 버튼은 서비스를 거치지 않아 `VisiblePresenters` 와 어긋난다. 디버깅은 `Tools > UI Service > Presenter Manager` 사용.
 - 프레임워크 공통 규칙상 `async void` 대신 `async UniTaskVoid` 또는 `async UniTask` 를 쓴다.
+- `HandlesBack`/`IsModal` 등은 `protected virtual` 이다. 재정의는 `protected override`.
+- `BlockInput`/`Hold` 토큰은 `using` 으로 푼다. 같은 토큰을 두 번 풀면 경고만 남고, 남은 사유는 `InputBlockReasons`/`HoldReasons` 로 본다.
+- 런타임에 UIDocument 를 만들 때는 끈 GameObject 에 붙이고 `panelSettings` 를 넣은 뒤 켠다. 켠 채로 붙이고 설정하면 플레이어 빌드에서 `rootVisualElement` 가 null 이다.

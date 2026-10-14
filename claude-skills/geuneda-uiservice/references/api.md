@@ -46,9 +46,17 @@
 | `void CloseUi<T>(T uiPresenter, bool destroy = false) where T : UiPresenter` | |
 | `void CloseUi(Type type, bool destroy = false)` | |
 | `void CloseUi(Type type, string instanceAddress, bool destroy = false)` | |
-| `void CloseAllUi()` | |
-| `void CloseAllUi(int layer)` | |
+| `void CloseAllUi()` | 닫는 도중 콜백에서 연 UI 는 닫지 않음 |
+| `void CloseAllUi(int layer)` | 위와 같음 |
 | `void CloseAllUiSet(int setId)` | 세트 없으면 `KeyNotFoundException` |
+| `event Action<UiInstanceId> PresenterOpened` | 표시 목록에 들어간 직후, `OnOpened` 보다 먼저. 구독자 예외는 기록 후 계속. Dispose 중엔 없음 |
+| `event Action<UiInstanceId> PresenterClosed` | 표시 목록에서 빠진 직후, `OnClosed` 보다 먼저(`CloseTransitionTask` 는 이번 닫기). 표시 중 Remove/Unload 포함 |
+| `bool TryGetUi(UiInstanceId instanceId, out UiPresenter presenter)` | |
+| `bool HandleBack()` | 차단 중 false → 핸들러 → 맨 위 `HandlesBack` 의 `OnBackPressed` → `BackUnhandled` 후 false |
+| `IDisposable AddBackHandler(Func<bool> handler, int priority = 0)` | 큰 우선순위 먼저, 같으면 나중 추가 먼저. null 이면 `ArgumentNullException` |
+| `event Action BackUnhandled` | |
+| `bool IsInputBlocked { get; }`, `IReadOnlyList<string> InputBlockReasons { get; }` | |
+| `UiInputBlock BlockInput(string reason)` | null 이면 `ArgumentNullException` |
 
 주소 없는 Get/IsVisible/Close/Unload/Remove 는 로드된 인스턴스가 여러 개면 경고 후 첫 번째를 사용한다.
 
@@ -57,7 +65,7 @@
 | 멤버 | 비고 |
 |------|------|
 | `void Init(UiConfigs configs)` | `null` 이면 `ArgumentNullException`, 빈 주소/미해결 타입이면 `ArgumentException`, 레이어 0 미만·1000 초과는 경고. `"Ui"` 루트(`DontDestroyOnLoad`, `UiServiceMonoComponent`) 생성 |
-| `void Dispose()` | 전부 닫고 언로드, 컬렉션 정리, 루트 파괴. 정적 이벤트 리스너는 유지 |
+| `void Dispose()` | 전부 닫고 언로드, 이벤트·뒤로가기 핸들러·차단막·dim 정리, 컬렉션 정리, 루트 파괴. 정적 이벤트 리스너는 유지 |
 
 ### class UiService : IUiServiceInit
 
@@ -65,6 +73,8 @@
 |------|------|
 | `UiService()` | `AddressablesUiAssetLoader` |
 | `UiService(IUiAssetLoader assetLoader)` | |
+| `Color DimColor { get; set; }` | 기본 (0,0,0,0.6) |
+| `bool ReadsBackInput { get; set; }` | 기본 false. Input System 있으면 `<Keyboard>/escape` 액션, 없으면 레거시 |
 | `static readonly UnityEvent<DeviceOrientation, DeviceOrientation> OnOrientationChanged` | (이전, 현재) |
 | `static readonly UnityEvent<Vector2, Vector2> OnResolutionChanged` | (이전, 현재) |
 | `T GetUi<T>(string instanceAddress) where T : UiPresenter` | 전용 |
@@ -105,9 +115,29 @@
 | `protected virtual void OnOpened()` | |
 | `protected virtual void OnClosed()` | |
 | `protected virtual void OnOpenTransitionCompleted()` | 전환 피처 없어도 호출 |
-| `protected virtual void OnCloseTransitionCompleted()` | 전환 피처 없어도 호출 |
+| `protected virtual void OnCloseTransitionCompleted()` | 전환 피처 없어도 호출. 전환 중 다시 열리면 생략 |
+| `protected virtual bool HandlesBack { get; }` | 기본 false |
+| `protected virtual void OnBackPressed()` | 기본 `Close(false)` |
+| `protected virtual bool IsModal { get; }` | 기본 false |
+| `protected virtual void OnDimClicked()` | 기본 없음 |
 
-internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `InternalOpen()`, `InternalClose(bool)`.
+internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `InternalOpen()`, `InternalClose(bool)`, `InternalHandlesBack`, `InternalIsModal`, `InternalBackPressed()`, `InternalDimClicked()`.
+
+### readonly struct UiInputBlock : IDisposable, readonly struct UiPopupQueueHold : IDisposable
+
+할당 없는 토큰. `new X(Action<int> release, int id)` 는 인터페이스를 직접 구현할 때 쓴다. 두 번 Dispose 하면 경고만, `default` 는 아무것도 안 함.
+
+### interface IUiPopupQueue : IDisposable, sealed class UiPopupQueue : IUiPopupQueue
+
+| 멤버 | 비고 |
+|------|------|
+| `UiPopupQueue(IUiService uiService)` | null 이면 `ArgumentNullException` |
+| `bool Enqueue(string key, int priority, Func<CancellationToken, UniTask<UiPresenter>> factory)` | 같은 key 대기·표시 중이면 false. 빈 key `ArgumentException`, null 팩토리 `ArgumentNullException`, Dispose 후 `ObjectDisposedException` |
+| `bool Remove(string key)`, `void Clear()` | 대기 항목만 |
+| `UiPopupQueueHold Hold(string reason)` | |
+| `int Count`, `bool IsShowing`, `bool IsHeld`, `IReadOnlyList<string> HoldReasons` | |
+| `event Action Drained` | 큐 팝업이 끝나고 대기 항목 없음 |
+| `void Dispose()` | 구독 해제, 대기 버림, 팩토리 토큰 취소. 띄운 팝업은 닫지 않음 |
 
 ### abstract class UiPresenter\<T> : UiPresenter, IUiPresenterData where T : struct
 
@@ -186,7 +216,7 @@ internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `Intern
 
 ### interface ITransitionFeature
 
-`UniTask OpenTransitionTask { get; }`, `UniTask CloseTransitionTask { get; }`. 프레젠터는 `OnPresenterOpened` 직후, `OnPresenterClosed` 직후에 읽는다.
+`UniTask OpenTransitionTask { get; }`, `UniTask CloseTransitionTask { get; }`. 프레젠터는 `OnPresenterOpened` 직후(열기), `OnPresenterClosing` 직후(닫기, `OnClosed` 전)에 읽어 이번 단계의 것으로 고정한다(2.0.0 부터, 이전에는 `OnPresenterClosed` 직후).
 
 ### class TimeDelayFeature : PresenterFeatureBase, ITransitionFeature
 
