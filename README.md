@@ -16,11 +16,11 @@ Geuneda Unity Package Manager(UPM) 패키지 17개를 개발, 테스트, 검증�
 
 ## 패키지 목록
 
-버전과 최소 Unity 버전은 각 패키지의 `package.json` 값입니다(2026-10-13 기준). 바뀌었을 수 있으니 정확한 값은 `package.json` 을 확인하세요.
+버전과 최소 Unity 버전은 각 패키지의 `package.json` 값입니다(2026-10-14 기준). 바뀌었을 수 있으니 정확한 값은 `package.json` 을 확인하세요.
 
 | 패키지 | 버전 | 최소 Unity | 하는 일 | 문서 |
 |--------|------|-----------|---------|------|
-| `com.geuneda.core` | 0.2.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소 | [README](Packages/com.geuneda.core/README.md) |
+| `com.geuneda.core` | 0.3.0 | 2021.3 | 다른 패키지가 함께 쓰는 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소, 결정론적 난수(`Pcg32`) | [README](Packages/com.geuneda.core/README.md) |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트. 미들웨어 체인, `Result<HttpResponse>`(연결 실패·타임아웃·취소는 코드), JSON 편의 메서드, 선택형 타임아웃·재시도 | [README](Packages/com.geuneda.http/README.md) |
 | `com.geuneda.realtime` | 0.2.0 | 2021.3 | WebSocket 실시간 RPC 클라이언트. single-flight 연결, 연결마다 재로그인, 지수 백오프 재연결, 요청 ID 매칭, 서버 푸시, 핑퐁, 교체 가능한 직렬화(JSON 기본, MessagePack 선택). `[RpcService]` 계약에서 클라이언트 프록시·서버 라우트를 만드는 소스 생성기와 ASP.NET Core 서버(`Server~/`) | [README](Packages/com.geuneda.realtime/README.md) |
 | `com.geuneda.account` | 0.2.0 | 2021.3 | 계정 인증과 앱 세션. 게스트 로그인과 제공자 등록, refresh 토큰은 보안 저장소·access 토큰은 메모리(재발급 single-flight), 게임 서버 요청용 토큰 미들웨어, 연동·충돌·옮겨오기·해제·계정 삭제, 다음 세션 ID 예약과 대칭 세션 이벤트. ASP.NET Core 인증 서버(`Server~/`: JWT, refresh 회전·재사용 감지, 애플·구글 id 토큰 검증) | [README](Packages/com.geuneda.account/README.md) |
@@ -29,7 +29,7 @@ Geuneda Unity Package Manager(UPM) 패키지 17개를 개발, 테스트, 검증�
 | `com.geuneda.appsetting` | 0.2.0 | 2021.3 | 원격 앱 설정. 서명된 설정 문서(RSA-3072 PKCS#1 SHA-256)를 받아 검증하고, 앱 버전별 노드(`*` 기본 노드)의 플랫폼별 상태·점검 공지·서버 주소·기능 플래그로 접속 판정(열림·내부·점검·업데이트 필요), 리소스 매니페스트(카테고리별 버전·크기·SHA-256·URL). ETag 조건부 요청, 갱신 single-flight, 낮은 판 무시. 서명 CLI 와 ASP.NET Core 배포 헬퍼(`Server~/`) | [README](Packages/com.geuneda.appsetting/README.md) |
 | `com.geuneda.resource` | 0.1.0 | 2021.3 | 원격 리소스(테이블 등 데이터 파일) 캐시. 매니페스트 항목의 크기·SHA-256 으로 캐시 파일을 판정하고 맞지 않는 것만 받아 검증 후 원자적 저장(임시 파일 → 이름 바꾸기), 새 버전 저장 뒤 옛 버전 삭제, 동시 다운로드 수 제한, 받기 전 총 용량 확인, 진행률. 파일 입출력·해시는 스레드 풀 | [README](Packages/com.geuneda.resource/README.md) |
 | `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
-| `com.geuneda.services` | 3.0.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG, 시간, 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
+| `com.geuneda.services` | 4.0.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간, 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
 | `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](Packages/com.geuneda.inputextensions/README.md) |
@@ -67,14 +67,14 @@ gamedata
 uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Geuneda 패키지에 의존하지 않음
 ```
 
-`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
+`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
 
 외부 의존성(`package.json` 에 선언된 최소 버전):
 
 | 패키지 | 외부 의존성 |
 |--------|-------------|
 | gamedata | `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
-| services | `com.geuneda.core` 0.1.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
+| services | `com.geuneda.core` 0.3.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
 | uiservice | `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
 | statechart | `com.cysharp.unitask` 2.5.10 |
 | inputextensions | `com.unity.inputsystem` 1.1.1, `com.unity.ugui` 1.0.0 |

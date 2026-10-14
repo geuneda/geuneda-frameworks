@@ -275,40 +275,38 @@ public 필드 `Action OnUpdate`, `Action OnFixedUpdate`, `Action OnLateUpdate`. 
 
 ### interface IRngData
 
-| 멤버 | 타입 |
-|------|------|
-| `Seed` | `int` |
-| `Count` | `int` |
-| `State` | `IReadOnlyList<int>` (길이 56) |
+| 멤버 | 타입 | 설명 |
+|------|------|------|
+| `Seed` | `ulong` | |
+| `Stream` | `ulong` | 스트림 번호. 시드가 같아도 스트림이 다르면 다른 수열(SplitMix64 로 섞음, 스트림 공간 2^63) |
+| `Count` | `ulong` | 쓴 32비트 출력 수(범위 함수가 드물게 하나 더 씀) |
 
 ### class RngData : IRngData
 
-public 필드 `int Seed`, `int Count`, `int[] State`. `RngService` 가 직접 수정한다.
+public 필드 `ulong Seed`, `ulong Stream`, `ulong Count`. `RngService` 가 `Count` 를 직접 수정한다. 필드를 바깥에서 바꾸면 서비스는 다음 호출부터 그 상태를 쓴다.
 
 ### interface IRngService
 
 | 멤버 | 타입 | 설명 |
 |------|------|------|
 | `Data` | `IRngData` | |
-| `Counter` | `int` | `Data.Count` |
-| `Peek` | `int` | 상태 변경 없음 |
-| `Peekfloat` | `floatP` | 상태 변경 없음 |
-| `Next` | `int` | 상태 진행, `Counter` +1 |
-| `Nextfloat` | `floatP` | 상태 진행, `Counter` +1 |
-| `PeekRange(int min, int max, bool maxInclusive = false)` | `int` | |
-| `PeekRange(floatP min, floatP max, bool maxInclusive = true)` | `floatP` | |
-| `Range(int min, int max, bool maxInclusive = false)` | `int` | |
-| `Range(floatP min, floatP max, bool maxInclusive = true)` | `floatP` | |
-| `Restore(int count)` | `void` | 시드에서 `count` 번 진행한 상태로 복원 |
+| `NextUInt()` | `uint` | 다음 32비트 값 |
+| `NextFloat()` | `floatP` | [0, 1), 상위 24비트 × 2^-24 |
+| `Range(int min, int max, bool maxInclusive = false)` | `int` | Lemire, 편향 없음. 포함이면 max 도 나옴 |
+| `Range(floatP min, floatP max, bool maxInclusive = true)` | `floatP` | `min * (1 - t) + max * t` 를 [min, max] 로 자름. 미포함이면 max 가 나올 때 max 바로 아래 값. 출력 정확히 1개 |
+| `PeekRange(int min, int max, bool maxInclusive = false)` | `int` | 상태 변경 없음. 이어서 부른 `Range` 와 같은 값 |
+| `PeekRange(floatP min, floatP max, bool maxInclusive = true)` | `floatP` | 상태 변경 없음 |
+| `Restore(ulong count)` | `void` | `Data.Count = count`. 다음 호출에서 O(log n) 으로 옮김 |
 
-`min > max`, 또는 `maxInclusive == false` 이고 `min == max` 면 `IndexOutOfRangeException`.
+`min > max`, `maxInclusive == false` 이고 `min == max`, floatP 경계가 NaN·무한대면 `ArgumentOutOfRangeException`(상태 그대로). 범위 함수는 성공하면 출력을 하나 이상 쓴다. `Range(0, floatP.MaxValue)` 처럼 int 와 floatP 를 섞으면 오버로드가 모호하다(`floatP`↔`int` 양방향 암시적 변환). 두 경계의 타입을 맞춘다.
 
 ### class RngService : IRngService
 
-- 생성자 `RngService(RngData rngData)`
-- 정적: `RngData CreateRngData(int seed)`, `int[] GenerateRngState(int seed)`, `int[] CopyRngState(int[] state)`(길이 56 아니면 `IndexOutOfRangeException`), `int[] Restore(int count, int seed)`, `int Range(int min, int max, int[] rndState, bool maxInclusive)`, `floatP Range(floatP min, floatP max, int[] rndState, bool maxInclusive)`
+- 생성자 `RngService(RngData rngData)`(null 이면 `ArgumentNullException`)
+- 정적: `RngData CreateRngData(ulong seed, ulong stream = 0)`
+- 스레드 안전하지 않음. 상태를 직접 다루거나 서버에서 재현하려면 core 의 `Pcg32`(`new Pcg32(Seed, Stream)` + `Advance(Count)`, `Range(int)` ↔ `NextInt`/`NextIntInclusive`)
 
-`floatP` 는 `Geuneda.DataExtensions`(com.geuneda.gamedata).
+`floatP` 는 `Geuneda.DataExtensions`(com.geuneda.gamedata). floatP 곱셈은 IEEE 반올림이 아니라 잘라내기라 서버에서 float 결과를 재현하려면 floatP 를 함께 링크한다.
 
 ---
 

@@ -205,3 +205,21 @@ internal: `IKeyValueStore`(`PlayerPrefsStore`), 테스트용 생성자 `(IKeyVal
 네이티브(Android): `com.geuneda.core.GeunedaSecureStore` 의 `static String read(Context, String)`(없거나 복호화 못 하면 null, 그 값은 지움), `static void write(Context, String, String)`, `static void delete(Context, String)`. 실패는 예외 → C# 에서 Failed/false.
 
 에디터: `AndroidProguardRulesHook`(`#if UNITY_ANDROID`, `IPostGenerateGradleAndroidProject`)가 `AndroidProguardRules.Rule`(`-keep class com.geuneda.core.GeunedaSecureStore { public static *; }`)을 `unityLibrary/proguard-unity.txt` 에 넣는다.
+
+## 결정론적 난수 (`Runtime/Random/`)
+
+### struct Pcg32
+
+PCG32(XSH-RR). 상태: 64비트 LCG 상태, 홀수 증가값(스트림 번호를 SplitMix64 로 섞은 값 `<< 1 | 1`), `Position`. 연산은 모두 unchecked, UnityEngine 참조 없음. 스레드 안전하지 않음.
+
+| 멤버 | 설명 |
+|------|------|
+| `Pcg32(ulong seed, ulong stream)` | `pcg32_srandom_r(seed, SplitMix64(stream))` 와 같은 초기화. `Position` 0. 증가값이 섞은 값의 하위 63비트라 스트림 공간은 2^63(섞은 값이 최상위 비트만 다른 번호 한 쌍은 같은 수열) |
+| `ulong Position` | 만든 뒤 쓴 32비트 출력 수(2^64 를 법으로) |
+| `uint NextUInt()` | 다음 32비트 값. `default` 값이면 `InvalidOperationException` |
+| `uint NextUInt(uint bound)` | [0, bound) Lemire. bound 0 이면 `ArgumentOutOfRangeException`(진행 안 함) |
+| `int NextInt(int min, int max)` | [min, max). `min >= max` 면 `ArgumentOutOfRangeException` |
+| `int NextIntInclusive(int min, int max)` | [min, max]. `min > max` 면 `ArgumentOutOfRangeException`. int 전체 범위는 32비트 출력 그대로. `min == max` 도 한 단계 진행 |
+| `void Advance(ulong delta)` | O(log n) 건너뛰기. 뒤로 n 은 `Advance(unchecked(0UL - n))` |
+
+internal(테스트용): `static Pcg32 FromSequence(ulong initState, ulong initSequence)`(SplitMix64 없이 `pcg32_srandom_r`), `static ulong SplitMix64(ulong)`.

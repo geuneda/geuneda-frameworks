@@ -1,6 +1,6 @@
 # Geuneda Frameworks - 패키지별 상세 카드
 
-모든 값은 2026-10-13 시점 각 패키지의 `package.json` 과 asmdef 기준이다. 작업 전에 해당 파일로 다시 확인한다. 의존성 그래프와 설치 규칙은 `SKILL.md` 를 본다.
+모든 값은 2026-10-14 시점 각 패키지의 `package.json` 과 asmdef 기준이다. 작업 전에 해당 파일로 다시 확인한다. 의존성 그래프와 설치 규칙은 `SKILL.md` 를 본다.
 
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
@@ -30,8 +30,8 @@
 
 ## 2. com.geuneda.services
 
-- **버전 / 최소 Unity**: 3.0.0 / 6000.3
-- **package.json 의존성**: `com.geuneda.core` 0.1.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10
+- **버전 / 최소 Unity**: 4.0.0 / 6000.3
+- **package.json 의존성**: `com.geuneda.core` 0.3.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10
 - **이 패키지에 의존하는 패키지**: gamesystems
 - **어셈블리**: `Geuneda.Services`(Runtime, `Geuneda.Core`, `Geuneda.GameData` 와 Addressables/UniTask 계열 참조), `Geuneda.Services.Editor`(Editor)
 - **네임스페이스**:
@@ -135,12 +135,12 @@
 
 ## 10. com.geuneda.core
 
-- **버전 / 최소 Unity**: 0.2.0 / 2021.3
+- **버전 / 최소 Unity**: 0.3.0 / 2021.3
 - **package.json 의존성**: 없음
 - **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting, resource
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드, Android R8 keep 규칙 훅)
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
-- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인)
+- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능)
 - **테스트**: EditMode `Geuneda.Core.Tests.EditMode`, PlayMode `Geuneda.Core.Tests.PlayMode`
 - **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2: `Log`, `MainThreadDispatcher`)
 

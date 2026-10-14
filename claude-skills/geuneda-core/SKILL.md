@@ -1,11 +1,11 @@
 ---
 name: geuneda-core
-description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, AppIdentity 로 설치 ID·기기 ID 를 얻을 때, 그리고 토큰·비밀 값을 ISecureStore/PlatformSecureStore(iOS 키체인, Android 키스토어)에 보관할 때 활성화한다.
+description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, AppIdentity 로 설치 ID·기기 ID 를 얻을 때, 토큰·비밀 값을 ISecureStore/PlatformSecureStore(iOS 키체인, Android 키스토어)에 보관할 때, 그리고 Pcg32(PCG32) 결정론적 난수 생성기를 직접 쓰거나 서버에서 같은 난수 수열을 재현할 때 활성화한다.
 ---
 
 # Geuneda Core
 
-다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`), 보안 저장소(`ISecureStore`, `PlatformSecureStore`)다.
+다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`), 보안 저장소(`ISecureStore`, `PlatformSecureStore`), 결정론적 난수(`Pcg32`)다.
 
 ## 패키지 정보
 
@@ -58,6 +58,11 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 
 - `ISecureStore`: `SecureReadResult TryRead(key, out value)`(Found/NotFound/Failed), `bool TryWrite(key, value)`(추가 또는 덮어쓰기), `bool TryDelete(key)`(없어도 true). 구현 `new PlatformSecureStore()`, 부트스트랩에서 `MainInstaller.Bind<ISecureStore>(...)`. 메인 스레드.
 - 플랫폼: iOS 키체인(재설치해도 남음), Android API 23 이상 키스토어 AES-256-GCM + SharedPreferences(재설치하면 사라짐, 복호화 못 하는 값은 지우고 NotFound), 에디터·그 밖·Android API 22 이하는 PlayerPrefs 평문(`geuneda.secure.` 접두사).
+
+## 결정론적 난수 핵심 API
+
+- `Pcg32`(가변 struct, PCG32 XSH-RR): `new Pcg32(ulong seed, ulong stream)`, `uint NextUInt()`, `uint NextUInt(uint bound)`([0, bound)), `int NextInt(min, max)`([min, max)), `int NextIntInclusive(min, max)`([min, max]), `void Advance(ulong delta)`(O(log n), 2^64 를 법으로 해 뒤로도 감), `ulong Position`(쓴 32비트 출력 수).
+- 게임 로직은 보통 services 의 `IRngService`(이 생성기를 씀)를 쓴다. `Pcg32` 는 상태를 직접 다루거나 서버(.NET)가 `Runtime/Random/Pcg32.cs` 를 링크해 같은 수열을 재현할 때 쓴다.
 
 ## 사용 패턴
 
@@ -144,3 +149,5 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - iOS 키체인 값은 앱을 지워도 남는다. 재설치 때 지워야 하는 값은 사용하는 쪽이 처리한다. Android 값은 재설치·키 분실로 사라질 수 있으니 서버에서 다시 받을 수 있는 값만 둔다.
 - Android 보안 저장소는 Java 플러그인을 JNI 이름으로 부른다. R8 keep 규칙은 core 에디터 훅이 넣으므로 따로 추가하지 않는다. Java 클래스 이름을 바꾸면 `AndroidProguardRules.Rule` 도 바꾼다.
 - `AppEnv.IsProd` 등은 의도적으로 `const` 가 아니다(소비 코드의 CS0162 경고 방지). 빌드에서 확실히 빼야 하면 `#if` 를 쓴다.
+- `Pcg32` 는 가변 struct 다. `readonly` 필드에 두거나 프로퍼티로 꺼내 부르면 복사본이 진행해 원래 생성기는 그대로다. 복사는 미리 보기로 쓴다. `default(Pcg32)` 는 `InvalidOperationException`.
+- `Pcg32` 의 범위 함수는 거절 샘플링으로 출력을 하나 더 쓸 수 있어 `Position` 은 호출 수가 아니다. 저장·재현은 시드·스트림·`Position` 세 값으로 한다.
