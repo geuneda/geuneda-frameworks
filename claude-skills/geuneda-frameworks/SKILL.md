@@ -5,7 +5,7 @@ description: Geuneda Unity 패키지 프레임워크 전체의 구조, 의존성
 
 # Geuneda Frameworks
 
-Geuneda UPM 패키지 15개와 그것을 개발, 테스트, 검증하는 Unity 호스트 레포(`https://github.com/geuneda/geuneda-frameworks.git`). 각 패키지는 독립 git 레포이고 호스트 레포의 `Packages/com.geuneda.<패키지>/` 에 서브모듈로 들어 있다. 원본은 GameLovers Frameworks by Miguel Tomas, 라이선스는 MIT.
+Geuneda UPM 패키지 16개와 그것을 개발, 테스트, 검증하는 Unity 호스트 레포(`https://github.com/geuneda/geuneda-frameworks.git`). 각 패키지는 독립 git 레포이고 호스트 레포의 `Packages/com.geuneda.<패키지>/` 에 서브모듈로 들어 있다. 원본은 GameLovers Frameworks by Miguel Tomas, 라이선스는 MIT.
 
 ## 활성화 시점
 
@@ -15,7 +15,7 @@ Geuneda UPM 패키지 15개와 그것을 개발, 테스트, 검증하는 Unity �
 - 새 패키지를 프레임워크에 추가할 때
 - Unity 버전 변경처럼 여러 패키지에 영향을 주는 변경을 할 때
 
-## 패키지 (15개)
+## 패키지 (16개)
 
 버전과 최소 Unity 는 2026-10-13 시점 `package.json` 값이다. 작업 전에 `package.json` 으로 다시 확인한다.
 
@@ -27,6 +27,7 @@ Geuneda UPM 패키지 15개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.account` | 0.2.0 | 2021.3 | 계정 인증(게스트·제공자 로그인, 자동 로그인, 재발급 single-flight, 토큰 미들웨어, 연동·옮겨오기·해제·삭제)과 앱 세션(다음 세션 ID 예약, 대칭 이벤트), ASP.NET Core 인증 서버(`Server~/`, 애플·구글 id 토큰 검증) | `geuneda-account` |
 | `com.geuneda.account.apple` | 0.1.0 | 2021.3 | account 의 Sign in with Apple 제공자(iOS 네이티브 플러그인, capability 빌드 후처리) | `geuneda-account` |
 | `com.geuneda.account.google` | 0.1.0 | 2021.3 | account 의 Google 로그인 제공자(Android Credential Manager 라이브러리 플러그인, iOS PKCE) | `geuneda-account` |
+| `com.geuneda.appsetting` | 0.1.0 | 2021.3 | 원격 앱 설정(서명된 설정 문서 검증, 앱 버전별 노드의 플랫폼 상태·점검 공지·서버 주소·기능 플래그로 접속 판정, ETag 조건부 요청), 서명 CLI 와 ASP.NET Core 배포 헬퍼(`Server~/`) | `geuneda-appsetting` |
 | `com.geuneda.gamedata` | 1.1.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 3.0.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG, 시간, 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
 | `com.geuneda.uiservice` | 1.3.2 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit | `geuneda-uiservice` |
@@ -49,9 +50,10 @@ Geuneda UPM 패키지 15개와 그것을 개발, 테스트, 검증하는 Unity �
 core
   ├── services (gamedata 에도 의존)
   ├── http
-  │     └── account
-  │           ├── account.apple
-  │           └── account.google (http 에도 의존)
+  │     ├── account
+  │     │     ├── account.apple
+  │     │     └── account.google (http 에도 의존)
+  │     └── appsetting
   └── realtime
 gamedata
   ├── services
@@ -61,9 +63,9 @@ gamedata
 독립(다른 Geuneda 패키지에 의존하지 않음): uiservice, statechart, inputextensions, nativeui, notificationservice
 ```
 
-core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`), http 와 realtime(결과 규약 `Result`), account 와 제공자 패키지(보안 저장소)가 참조한다. 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
+core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`), http 와 realtime(결과 규약 `Result`), account 와 제공자 패키지(보안 저장소), appsetting(결과 규약, 로거)이 참조한다. 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
 
-- core API 를 바꾸면 services, http, realtime, account, gamesystems 를 확인한다. http API 를 바꾸면 account, account.google 을 확인한다. account API(`IAuthProvider`, `PlatformCredential`, `AccountResultCodes`)를 바꾸면 account.apple, account.google 을 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems 를 확인한다.
+- core API 를 바꾸면 services, http, realtime, account, appsetting, gamesystems 를 확인한다. http API 를 바꾸면 account, account.google, appsetting 을 확인한다. account API(`IAuthProvider`, `PlatformCredential`, `AccountResultCodes`)를 바꾸면 account.apple, account.google 을 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems 를 확인한다.
 - uiservice 는 gamedata/services 에 의존하지 않는다.
 - 패키지 간 순환 의존은 금지한다.
 - 외부 의존성과 버전은 `references/api.md` 의 패키지별 카드를 본다.
@@ -95,6 +97,7 @@ UPM 은 git 전용 의존성을 자동으로 받지 못하므로 직접 함께 �
 | realtime | core, UniTask(MessagePack 을 쓰면 UnityNuGet 의 `org.nuget.messagepack`, `org.nuget.microsoft.net.stringtools`) |
 | account | core, http, UniTask |
 | account.apple, account.google | account, core, http, UniTask |
+| appsetting | core, http, UniTask |
 
 ## 호스트 레포 구조
 
@@ -103,14 +106,14 @@ geuneda-frameworks/
   Assets/                 # 호스트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
   Packages/
     manifest.json         # 호스트 의존성 (Geuneda 패키지는 git URL 로 선언)
-    com.geuneda.*/        # 패키지 15개, 각각 서브모듈
+    com.geuneda.*/        # 패키지 16개, 각각 서브모듈
   ProjectSettings/        # ProjectVersion.txt: 6000.3.2f1
   UserSettings/
   claude-skills/
     install.sh            # ~/.claude/skills/ 로 스킬 복사
     uninstall.sh          # ~/.claude/skills/<스킬> 삭제
     geuneda-frameworks/   # 이 스킬
-    geuneda-<패키지>/     # 패키지별 스킬 13개(애플·구글 제공자는 geuneda-account 가 함께 다룸)
+    geuneda-<패키지>/     # 패키지별 스킬 14개(애플·구글 제공자는 geuneda-account 가 함께 다룸)
   .gitmodules
   AGENTS.md               # 에이전트용 레포 가이드
   CLAUDE.md               # 프레임워크를 쓰는 프로젝트의 공용 규칙, 네임스페이스 -> 스킬 표
@@ -129,7 +132,7 @@ git clone --recurse-submodules https://github.com/geuneda/geuneda-frameworks.git
 git submodule update --init --recursive
 ```
 
-서브모듈은 호스트가 기록한 커밋에 detached HEAD 로 체크아웃된다. 고치기 전에 기본 브랜치로 전환한다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, gamesystems 가 `main`, 나머지 8개는 `master` 다.
+서브모듈은 호스트가 기록한 커밋에 detached HEAD 로 체크아웃된다. 고치기 전에 기본 브랜치로 전환한다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, appsetting, gamesystems 가 `main`, 나머지 8개는 `master` 다.
 
 ```bash
 cd Packages/com.geuneda.services
@@ -150,11 +153,11 @@ git commit -m "chore: services 포인터 갱신"
 - 새 의존성은 `package.json` `dependencies` 와 asmdef `references` 양쪽에 반영한다
 - `Packages/` 안에 새 파일을 만들면 `.meta` 도 필요하다
 - 서드파티 API 는 `Library/PackageCache/` 의 로컬 소스를 우선 참조한다(Unity 가 프로젝트를 연 뒤 생김)
-- 패키지에 `AGENTS.md` 가 있으면 그 패키지 작업 규칙의 원천이다: services(테스트는 `Tests/AGENTS.md`), uiservice, gamesystems, core, http, realtime, account, account.apple, account.google
+- 패키지에 `AGENTS.md` 가 있으면 그 패키지 작업 규칙의 원천이다: services(테스트는 `Tests/AGENTS.md`), uiservice, gamesystems, core, http, realtime, account, account.apple, account.google, appsetting
 
 ## 테스트
 
-Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 core, http, realtime, account, account.apple, account.google, gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
+Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 core, http, realtime, account, account.apple, account.google, appsetting, gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
 
 ## 새 패키지 추가 절차
 
@@ -191,8 +194,9 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 실시간 서버 연결(WebSocket RPC, 서버 푸시, 자동 재연결), 서버·클라이언트 공유 RPC 계약과 ASP.NET Core 서버 | realtime |
 | 로그인(게스트·플랫폼), 토큰 재발급·보관, 계정 연동, 앱 세션 ID, 인증 서버 | account |
 | 애플·구글 로그인 | account.apple, account.google(+ account) |
+| 원격 앱 설정(점검·강제 업데이트·서버 주소·기능 플래그), 서명된 설정 문서와 배포 | appsetting |
 
 ## 참조
 
 - `references/api.md`: 패키지별 상세 카드(의존성, asmdef, 네임스페이스, 문서 위치, 테스트), 구성 예시
-- 패키지 API 는 해당 패키지 스킬: `geuneda-gamedata`, `geuneda-services`, `geuneda-uiservice`, `geuneda-statechart`, `geuneda-inputextensions`, `geuneda-nativeui`, `geuneda-notificationservice`, `geuneda-googlesheetimporter`, `geuneda-gamesystems`, `geuneda-core`, `geuneda-http`, `geuneda-realtime`, `geuneda-account`
+- 패키지 API 는 해당 패키지 스킬: `geuneda-gamedata`, `geuneda-services`, `geuneda-uiservice`, `geuneda-statechart`, `geuneda-inputextensions`, `geuneda-nativeui`, `geuneda-notificationservice`, `geuneda-googlesheetimporter`, `geuneda-gamesystems`, `geuneda-core`, `geuneda-http`, `geuneda-realtime`, `geuneda-account`, `geuneda-appsetting`

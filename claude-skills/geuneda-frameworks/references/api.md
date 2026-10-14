@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, account, account.apple, account.google, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -137,7 +137,7 @@
 
 - **버전 / 최소 Unity**: 0.2.0 / 2021.3
 - **package.json 의존성**: 없음
-- **이 패키지에 의존하는 패키지**: services, http, realtime, account
+- **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드, Android R8 keep 규칙 훅)
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
 - **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인)
@@ -206,6 +206,18 @@
 
 ---
 
+## 16. com.geuneda.appsetting
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **package.json 의존성**: `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
+- **어셈블리 / 네임스페이스**: `Geuneda.AppSetting`
+- **주요 기능**: `IAppSettingService`/`AppSettingService`/`AppSettingServiceOptions`(서명된 설정 문서를 받아 검증, 메모리에만 둠, `RefreshAsync` single-flight, ETag 조건부 요청, 낮은 판 무시, 실패 시 `Current` 유지, `Changed`), `AppSetting`(앱 버전 정확히 같은 노드 또는 `*`, `GetAccess(utcNow)` -> `AppAccess` 열림·내부·점검·업데이트 필요, `NewerVersions`, `TryGetEndpoint`, `GetFeatures<T>`), 문서 모델(`AppSettingDocument`, `AppVersionSetting`, `MaintenanceNotice`, `AppPlatformStatus`, `AppSettingPlatforms`), `AppSettingPublicKey`(RSA PKCS#1 v1.5 SHA-256, modulus·exponent, 2048 비트 이상), `AppSettingResultCodes`(4000 블록)
+- **서명·배포**: `Server~/` 의 `Geuneda.AppSetting.Server`(`AppSettingSigningKey`, `AppSettingSigner`, `AppSettingPublicKeys`, `AddGeunedaAppSetting`/`MapGeunedaAppSetting` ETag·304 배포 헬퍼), 서명 CLI `geuneda-appsetting`(`keygen`, `public-key`, `sign`, `verify`), 샘플 서버, xUnit 테스트(.NET 10). 문서 해석 코드(`Runtime/Document/`)를 클라이언트와 함께 컴파일
+- **테스트**: EditMode `Geuneda.AppSetting.Tests.EditMode`(봉투·서명, 본문 규칙, 판정, 가짜 문서 서버, CLI 서명 픽스처, `[Explicit]` 샘플 서버 상호 운용), `dotnet test Server~/Geuneda.AppSetting.Server.slnx`
+- **문서**: `README.md`(문서 형식, 서명 도구, 배포), `AGENTS.md`
+
+---
+
 ## 호스트 프로젝트 manifest.json
 
 호스트 레포 `Packages/manifest.json` 의 주요 항목(Unity 모듈과 IDE 패키지는 생략). 호스트에서는 같은 이름의 서브모듈 폴더가 우선 사용된다.
@@ -219,6 +231,7 @@
     "com.geuneda.account": "https://github.com/geuneda/geuneda-account.git",
     "com.geuneda.account.apple": "https://github.com/geuneda/geuneda-account-apple.git",
     "com.geuneda.account.google": "https://github.com/geuneda/geuneda-account-google.git",
+    "com.geuneda.appsetting": "https://github.com/geuneda/geuneda-appsetting.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

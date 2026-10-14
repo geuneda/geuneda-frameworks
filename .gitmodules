@@ -43,3 +43,6 @@
 [submodule "Packages/com.geuneda.account.google"]
 	path = Packages/com.geuneda.account.google
 	url = https://github.com/geuneda/geuneda-account-google.git
+[submodule "Packages/com.geuneda.appsetting"]
+	path = Packages/com.geuneda.appsetting
+	url = https://github.com/geuneda/geuneda-appsetting.git

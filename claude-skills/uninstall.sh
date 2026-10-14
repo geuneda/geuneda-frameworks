@@ -10,6 +10,7 @@ SKILLS_DIR="${HOME}/.claude/skills"
 
 SKILLS=(
     "geuneda-account"
+    "geuneda-appsetting"
     "geuneda-core"
     "geuneda-gamedata"
     "geuneda-gamesystems"
