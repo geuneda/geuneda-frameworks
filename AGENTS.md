@@ -2,7 +2,7 @@
 
 ## 1. 레포 개요
 
-Geuneda UPM 패키지 19개를 개발, 테스트, 검증하는 Unity 6000.3 호스트 프로젝트다. 패키지는 `Packages/com.geuneda.*` 아래에 git 서브모듈로 들어 있고(`.gitmodules`), 각각 독립 레포다. `claude-skills/` 에는 패키지별 Claude Code 스킬 17개와 프레임워크 전체 스킬이 있다(애플·구글 제공자 패키지는 `geuneda-account` 스킬이 함께 다룬다).
+Geuneda UPM 패키지 23개를 개발, 테스트, 검증하는 Unity 6000.3 호스트 프로젝트다. 패키지는 `Packages/com.geuneda.*` 아래에 git 서브모듈로 들어 있고(`.gitmodules`), 각각 독립 레포다. `claude-skills/` 에는 패키지별 Claude Code 스킬 17개와 프레임워크 전체 스킬이 있다(애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터 패키지는 `geuneda-analytics` 스킬이 함께 다룬다).
 
 - 패키지 목록, 버전, 의존성, 설치, 레포 구조: [README.md](README.md)
 - 설정, 서브모듈 워크플로우, 코딩 표준, 테스트, 문서화 요구 사항: [CONTRIBUTING.md](CONTRIBUTING.md)
@@ -28,6 +28,7 @@ Geuneda UPM 패키지 19개를 개발, 테스트, 검증하는 Unity 6000.3 호�
    - `Packages/com.geuneda.resource/AGENTS.md`
    - `Packages/com.geuneda.servertime/AGENTS.md`
    - `Packages/com.geuneda.analytics/AGENTS.md`
+   - `Packages/com.geuneda.analytics.firebase/AGENTS.md`, `.airbridge`, `.appsflyer`, `.facebook` 의 `AGENTS.md`
 4. 패키지 `README.md`, `docs/`, `CHANGELOG.md`
 
 서드파티 API(Unity 패키지, UniTask, Addressables)를 조사할 때는 Unity 가 프로젝트를 연 뒤 생기는 `Library/PackageCache/` 의 로컬 소스를 우선 참조한다(`Library/` 는 git 에 없다).
@@ -37,6 +38,7 @@ Geuneda UPM 패키지 19개를 개발, 테스트, 검증하는 Unity 6000.3 호�
 - 코딩 표준은 [CONTRIBUTING.md](CONTRIBUTING.md#코딩-표준) 를 따른다. 특히 Runtime 코드에서 `UnityEditor` 참조 금지, 명시적 네임스페이스, C# 9.0.
 - 패키지 코드를 고칠 때는 해당 서브모듈 레포에서 커밋하고, 호스트 레포에는 서브모듈 포인터 갱신만 커밋한다([서브모듈 워크플로우](CONTRIBUTING.md#서브모듈-워크플로우)).
 - `Packages/` 안에 파일을 새로 만들면 Unity `.meta` 파일도 필요하다.
+- 호스트 `ProjectSettings` 의 Scripting Define Symbols(Android, iPhone, Standalone, Server, WebGL)에 `GEUNEDA_SKIP_VENDOR_ADAPTERS` 가 있다. 다른 빌드 타깃으로 바꿀 때는 그 타깃에도 넣는다. 벤더 SDK 가 필요한 어댑터 패키지(analytics.firebase 등)를 호스트에서 컴파일하지 않기 위한 것이므로 지우지 않는다. 어댑터는 SDK 를 넣은 별도 프로젝트에서 테스트한다.
 - Geuneda API 를 쓰는 코드를 작성하기 전에 [CLAUDE.md](CLAUDE.md#프레임워크-스킬-필수-규칙) 의 표에 따라 해당 스킬을 invoke 한다.
 - 공개 API, 버전, 의존성을 바꾸면 [문서화 요구 사항](CONTRIBUTING.md#문서화-요구-사항) 에 적힌 문서와 스킬을 같은 변경에서 갱신한다.
 

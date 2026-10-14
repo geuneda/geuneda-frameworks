@@ -1,6 +1,6 @@
 # Geuneda Frameworks (Unity)
 
-Geuneda Unity Package Manager(UPM) 패키지 19개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬이 함께 다룹니다).
+Geuneda Unity Package Manager(UPM) 패키지 23개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬이 함께 다룹니다).
 
 ## 어디부터 읽으면 되나
 
@@ -29,7 +29,11 @@ Geuneda Unity Package Manager(UPM) 패키지 19개를 개발, 테스트, 검증�
 | `com.geuneda.appsetting` | 0.2.0 | 2021.3 | 원격 앱 설정. 서명된 설정 문서(RSA-3072 PKCS#1 SHA-256)를 받아 검증하고, 앱 버전별 노드(`*` 기본 노드)의 플랫폼별 상태·점검 공지·서버 주소·기능 플래그로 접속 판정(열림·내부·점검·업데이트 필요), 리소스 매니페스트(카테고리별 버전·크기·SHA-256·URL). ETag 조건부 요청, 갱신 single-flight, 낮은 판 무시. 서명 CLI 와 ASP.NET Core 배포 헬퍼(`Server~/`) | [README](Packages/com.geuneda.appsetting/README.md) |
 | `com.geuneda.resource` | 0.1.0 | 2021.3 | 원격 리소스(테이블 등 데이터 파일) 캐시. 매니페스트 항목의 크기·SHA-256 으로 캐시 파일을 판정하고 맞지 않는 것만 받아 검증 후 원자적 저장(임시 파일 → 이름 바꾸기), 새 버전 저장 뒤 옛 버전 삭제, 동시 다운로드 수 제한, 받기 전 총 용량 확인, 진행률. 파일 입출력·해시는 스레드 풀 | [README](Packages/com.geuneda.resource/README.md) |
 | `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화. 시간 원천(NTP 기본 `time.google.com`, HTTPS `Date` 헤더, 직접 구현)을 순서대로 시도해 왕복 지연을 보정한 서버 시각을 services 시간 서비스의 기준점으로 넣음. 실패하면 지수 백오프로 재시도, 성공하면 30분마다, 앱이 포그라운드로 돌아오면 바로 다시 맞춤. 현재 시각은 core 단조 시계로 진행해 기기 시계를 바꿔도 영향받지 않음 | [README](Packages/com.geuneda.servertime/README.md) |
-| `com.geuneda.analytics` | 0.1.0 | 2021.3 | 분석 이벤트 로깅. 기록 시점의 공통 맥락(시각, 순번, 세션, 사용자, 앱)을 담은 이벤트를 비트로 고른 sink(콘솔, 자사 수집, 벤더 어댑터 패키지)마다 따로 큐에 넣어 보내고, 실패한 sink 의 배치만 디스크에 저장해 그 sink 로만 다시 보냄(백오프, 포그라운드 복귀, 네트워크 복구, 다음 실행). http 가 있으면 자사 수집 배치 sink, account 가 있으면 세션 ID·세션 이벤트. ASP.NET Core 수집 서버(`Server~/`: 이벤트별 검증, ID 중복 제거) | [README](Packages/com.geuneda.analytics/README.md) |
+| `com.geuneda.analytics` | 0.2.0 | 2021.3 | 분석 이벤트 로깅. 기록 시점의 공통 맥락(시각, 순번, 세션, 사용자, 앱)을 담은 이벤트를 비트로 고른 sink(콘솔, 자사 수집, 벤더 어댑터 패키지)마다 따로 큐에 넣어 보내고, 실패한 sink 의 배치만 디스크에 저장해 그 sink 로만 다시 보냄(백오프, 포그라운드 복귀, 네트워크 복구, 다음 실행). http 가 있으면 자사 수집 배치 sink, account 가 있으면 세션 ID·세션 이벤트. ASP.NET Core 수집 서버(`Server~/`: 이벤트별 검증, ID 중복 제거). 구매·광고 노출 수익 표준 이벤트 | [README](Packages/com.geuneda.analytics/README.md) |
+| `com.geuneda.analytics.firebase` | 0.1.0 | 2021.3 | analytics 의 Firebase Analytics sink. 이름 규칙(40자, 예약 접두사·이름), 파라미터 25개·값 100자, 표준 이벤트 → `purchase`(상품 목록)·`ad_impression`, `MarkReady` 로 준비. Firebase Unity SDK 가 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.firebase/README.md) |
+| `com.geuneda.analytics.airbridge` | 0.1.0 | 2021.3 | analytics 의 Airbridge sink. 카테고리·시맨틱/커스텀 속성, 표준 이벤트 → 주문 완료·광고 노출(AppLovin 파트너 상세). Airbridge Unity SDK 가 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.airbridge/README.md) |
+| `com.geuneda.analytics.appsflyer` | 0.1.0 | 2023.1 | analytics 의 AppsFlyer sink(플러그인 7.x). 값은 문자열, 표준 이벤트 → `af_purchase`·`logAdRevenue`(미디에이션 선택), `MarkReady` 로 준비. AppsFlyer 플러그인이 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.appsflyer/README.md) |
+| `com.geuneda.analytics.facebook` | 0.1.0 | 2021.3 | analytics 의 Facebook(Meta) App Events sink. 이름 규칙, 표준 이벤트 → `FB.LogPurchase`·`AdImpression`, `FB.IsInitialized` 로 준비. Facebook SDK 가 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.facebook/README.md) |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
 | `com.geuneda.services` | 5.1.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 2.0.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
@@ -63,6 +67,7 @@ core
   │     └── servertime (services 에도 의존)
   ├── realtime
   └── analytics (http·account 는 선택: 있으면 해당 asmdef 가 켜짐)
+        └── analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook (벤더 SDK 필요)
 gamedata
   ├── services
   │     └── gamesystems
@@ -92,6 +97,7 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | resource | `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10 |
 | servertime | `com.geuneda.core` 0.4.0, `com.geuneda.services` 5.0.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10 |
 | analytics | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1. 선택: `com.geuneda.http` 0.1.0 이상(자사 수집), `com.geuneda.account` 0.1.0 이상(세션 연동) |
+| analytics.firebase·airbridge·appsflyer·facebook | `com.geuneda.analytics` 0.2.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 벤더 SDK 는 게임이 먼저 설치(Firebase Unity SDK, Airbridge Unity SDK 4.x, AppsFlyer Unity 플러그인 7.x, Facebook SDK for Unity) |
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
@@ -132,6 +138,7 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 | resource | core, http, UniTask |
 | servertime | services, gamedata, core, http, UniTask |
 | analytics | core, UniTask(자사 수집을 쓰면 http, 세션 연동을 쓰면 account 와 그 의존성) |
+| analytics.firebase·airbridge·appsflyer·facebook | analytics, core, UniTask, 그 벤더 SDK |
 
 Unity 레지스트리에 있는 의존성(Addressables, Newtonsoft Json, Input System, Mobile Notifications 등)은 자동으로 설치됩니다.
 
@@ -152,7 +159,7 @@ geuneda-frameworks/
 ├── Assets/                 # 호스트 프로젝트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
 ├── Packages/
 │   ├── manifest.json       # 호스트 프로젝트 의존성
-│   └── com.geuneda.*/      # 패키지 19개, 각각 git 서브모듈 (.gitmodules)
+│   └── com.geuneda.*/      # 패키지 23개, 각각 git 서브모듈 (.gitmodules)
 ├── ProjectSettings/        # Unity 설정 (ProjectVersion.txt: 6000.3.2f1)
 ├── UserSettings/
 ├── claude-skills/
@@ -168,6 +175,8 @@ geuneda-frameworks/
 ├── LICENSE
 └── README.md
 ```
+
+벤더 어댑터 패키지(analytics.firebase 등)는 호스트에 벤더 SDK 가 없어 컴파일되지 않도록 `ProjectSettings` 의 Scripting Define Symbols(Android, iPhone, Standalone, Server, WebGL)에 `GEUNEDA_SKIP_VENDOR_ADAPTERS` 를 둡니다. 다른 빌드 타깃으로 바꾸려면 그 타깃에도 같은 define 을 넣습니다. 어댑터 검증은 SDK 를 넣은 별도 프로젝트에서 합니다([CONTRIBUTING.md](CONTRIBUTING.md#테스트)).
 
 `Packages/manifest.json` 은 Geuneda 패키지를 git URL 로 선언하지만, `Packages/` 아래에 같은 이름의 폴더(서브모듈)가 있으면 Unity 는 그 폴더를 임베디드 패키지로 우선 사용합니다. 그래서 호스트에서는 서브모듈 작업본이 컴파일됩니다.
 
@@ -194,7 +203,7 @@ geuneda-frameworks/
 | `geuneda-appsetting` | com.geuneda.appsetting |
 | `geuneda-resource` | com.geuneda.resource |
 | `geuneda-servertime` | com.geuneda.servertime |
-| `geuneda-analytics` | com.geuneda.analytics |
+| `geuneda-analytics` | com.geuneda.analytics, com.geuneda.analytics.firebase·airbridge·appsflyer·facebook |
 
 어떤 코드에서 어떤 스킬을 써야 하는지는 [CLAUDE.md](CLAUDE.md) 의 네임스페이스 매핑 표를 따릅니다.
 

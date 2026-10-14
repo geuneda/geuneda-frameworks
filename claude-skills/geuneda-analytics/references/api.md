@@ -1,6 +1,6 @@
 # Geuneda Analytics API 레퍼런스
 
-네임스페이스 `Geuneda.Analytics`(선택 어셈블리는 `Geuneda.Analytics.Collector`, `Geuneda.Analytics.Account`, 서버는 `Geuneda.Analytics.Server`). 버전 0.1.0.
+네임스페이스 `Geuneda.Analytics`(선택 어셈블리는 `Geuneda.Analytics.Collector`, `Geuneda.Analytics.Account`, 서버는 `Geuneda.Analytics.Server`, 어댑터는 `Geuneda.Analytics.Firebase`·`Airbridge`·`AppsFlyer`·`Facebook`). analytics 0.2.0, 어댑터 각 0.1.0.
 
 ## 서비스 (`Runtime/`)
 
@@ -88,6 +88,30 @@
 ### interface IAnalyticsClock / IAnalyticsSessionSource
 
 `DateTime UtcNow`, `bool IsServerTime` / `string SessionId`(없으면 null). 이벤트마다 메인 스레드에서 읽는다.
+
+## 표준 이벤트 (`Runtime/Standard/`)
+
+| 멤버 | 설명 |
+|------|------|
+| `AnalyticsStandardEvents.Purchase` "purchase", `.AdImpression` "ad_impression" | 이벤트 이름 |
+| `AnalyticsStandardParameters` | `Value` "value", `Currency` "currency", `ProductId` "product_id", `ProductName` "product_name", `Price` "price", `Quantity` "quantity", `TransactionId` "transaction_id", `AdPlatform` "ad_platform", `AdSource` "ad_source", `AdFormat` "ad_format", `AdUnitName` "ad_unit_name", `AdPlacement` "ad_placement" |
+| `AnalyticsPurchase(string productId, double price, string currency, int quantity = 1, string transactionId = null, string productName = null)` | 빈 상품 ID `ArgumentException`, 음수·NaN·무한 단가와 1 미만 수량 `ArgumentOutOfRangeException`, 통화가 영문 3자가 아니면 `ArgumentException`(대문자로 저장). `Value` = 단가 × 수량. `static TryRead(AnalyticsEvent, out AnalyticsPurchase)`, `static IsStandardParameter(string)` |
+| `AnalyticsAdImpression(string platform, string source, string format, string unitName, double revenue, string currency, string placement = null)` | 빈 플랫폼, 음수·NaN·무한 수익, 잘못된 통화는 예외. 빈 선택 값은 null. `TryRead`, `IsStandardParameter` |
+| `LogPurchase(this IAnalyticsService, AnalyticsPurchase, IReadOnlyDictionary<string, object> extra = null)` 와 `sinks` 를 받는 오버로드 | 표준 파라미터 + 추가 파라미터(표준 이름과 겹치면 `ArgumentException`, `default` 구매도 예외) |
+| `LogAdImpression(this IAnalyticsService, AnalyticsAdImpression, extra = null[, sinks])` | 같은 규칙 |
+
+`TryRead` 는 이름이 다르거나 필수 파라미터(구매: 상품 ID·단가·정수 수량·통화, 광고: 플랫폼·금액·통화)가 없거나 형식이 맞지 않으면(소문자 통화 포함) false 다.
+
+## 벤더 어댑터 (각 패키지 `Runtime/`)
+
+공통: `IAnalyticsSink` 구현, `MaxBatchSize` 50, `BatchDelay` 0, 옵션 `Func<AnalyticsEvent, bool> HandleEvent`(true 면 보내지 않음), asmdef `defineConstraints: ["!GEUNEDA_SKIP_VENDOR_ADAPTERS"]`, `SendAsync` 는 SDK 를 부른 뒤 `Delivered`.
+
+| 타입 | 준비 | 비고 |
+|---|---|---|
+| `FirebaseAnalyticsSink(FirebaseAnalyticsSinkOptions options = null)` | `MarkReady()` | 이름 규칙·예약 이름은 Warning 한 번 후 버림, 파라미터 25개, 문자열 100자, 사용자 속성 24자 이름·36자 값, 준비 전 사용자 정보 보관 |
+| `AirbridgeAnalyticsSink(AirbridgeAnalyticsSinkOptions options = null)` | 항상 | `Categories`, `SemanticAttributes`(생성할 때 복사), SDK 상수(`AirbridgeCategory`, `AirbridgeAttribute`) 사용 |
+| `AppsFlyerAnalyticsSink(AppsFlyerAnalyticsSinkOptions options = null)` | `MarkReady()` | 값은 문자열, 미디에이션 고르기, `SetUserProperty` 없음, 준비 전 사용자 ID 보관, 기다리지 않는 SDK 호출의 예외는 Error |
+| `FacebookAnalyticsSink(FacebookAnalyticsSinkOptions options = null)` | `FB.IsInitialized` | `AdImpressionEvent` "AdImpression", 이름 규칙, 사용자 정보 없음 |
 
 ## 자사 수집 (`Runtime/Collector/`, 어셈블리 `Geuneda.Analytics.Collector`)
 

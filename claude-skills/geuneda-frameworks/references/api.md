@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -245,15 +245,27 @@
 
 ## 19. com.geuneda.analytics
 
-- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **버전 / 최소 Unity**: 0.2.0 / 2021.3
 - **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
 - **선택 의존성**(asmdef `versionDefines`): `com.geuneda.http` 0.1.0 이상 → `Geuneda.Analytics.Collector`, `com.geuneda.account` 0.1.0 이상 → `Geuneda.Analytics.Account`
 - **어셈블리 / 네임스페이스**: `Geuneda.Analytics`, `Geuneda.Analytics.Collector`, `Geuneda.Analytics.Account`
 - **주요 기능**: `IAnalyticsService`/`AnalyticsService`/`AnalyticsOptions`(`LogEvent` 기록 시점 공통 맥락 스냅샷: ID, 시각·서버 시각 여부, 설치별 순번, 세션, 사용자 ID·속성, 앱 정보), `AnalyticsSinks` 비트, `IAnalyticsSink`(`MaxBatchSize`, `BatchDelay`, `IsReady`, `SendAsync` → `Delivered`/`Retry`/`Rejected`), sink 별 큐와 실패 sink 만 평문 JSON 저장·재전송(백오프 5초→5분, 포그라운드 복귀, 네트워크 복구, 다음 실행), `ConsoleSink`, `CollectorSink`(자사 수집 배치 POST), `AppSessionAnalytics`(세션 ID·세션 이벤트), `AnalyticsWire`(배치 형식)
 - **서버**: `Server~/Geuneda.Analytics.Server.slnx`(.NET 10): `AddGeunedaAnalytics`, `MapGeunedaAnalytics`(`POST {prefix}/events`, 이벤트별 검증), `IAnalyticsEventStore`(ID 중복 제거), `InMemoryAnalyticsEventStore`, 샘플 서버
-- **벤더 어댑터**: 별도 패키지(D3) `com.geuneda.analytics.firebase`·`airbridge`·`appsflyer`·`facebook`(예정)
+- **표준 이벤트**: `AnalyticsStandardEvents`(`purchase`, `ad_impression`), `AnalyticsPurchase`, `AnalyticsAdImpression`, `LogPurchase`·`LogAdImpression` 확장 메서드, 어댑터용 `TryRead`
+- **벤더 어댑터**: 별도 패키지(D3) `com.geuneda.analytics.firebase`·`airbridge`·`appsflyer`·`facebook`(아래 20절)
 - **테스트**: EditMode `Geuneda.Analytics.Tests.EditMode`, `Geuneda.Analytics.Collector.Tests.EditMode`(http 있을 때, `[Explicit]` 샘플 서버 상호 운용), `Geuneda.Analytics.Account.Tests.EditMode`(account 있을 때), PlayMode `Geuneda.Analytics.Tests.PlayMode`. 서버 `dotnet test "Server~/Geuneda.Analytics.Server.slnx"`
 - **문서**: `README.md`, `AGENTS.md`
+
+---
+
+## 20. com.geuneda.analytics.firebase / .airbridge / .appsflyer / .facebook
+
+- **버전 / 최소 Unity**: 각 0.1.0 / 2021.3(appsflyer 2023.1)
+- **package.json 의존성**: `com.geuneda.analytics` 0.2.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 벤더 SDK 는 게임이 먼저 설치(Firebase Unity SDK, Airbridge Unity SDK 4.x 어셈블리 `AirbridgeSDK`, AppsFlyer Unity 플러그인 7.x 어셈블리 `AppsFlyer`, Facebook SDK for Unity + uGUI)
+- **어셈블리 / 네임스페이스**: `Geuneda.Analytics.Firebase`, `Geuneda.Analytics.Airbridge`, `Geuneda.Analytics.AppsFlyer`, `Geuneda.Analytics.Facebook`. asmdef `defineConstraints: ["!GEUNEDA_SKIP_VENDOR_ADAPTERS"]`(호스트는 이 define 으로 제외)
+- **주요 기능**: `FirebaseAnalyticsSink`(`MarkReady`, 이름 규칙·제한, `purchase`·`ad_impression`), `AirbridgeAnalyticsSink`(카테고리·시맨틱 속성, 주문 완료·광고 노출), `AppsFlyerAnalyticsSink`(`MarkReady`, `af_purchase`·`logAdRevenue`), `FacebookAnalyticsSink`(`FB.IsInitialized`, `LogPurchase`·`AdImpression`). 모두 `HandleEvent` 옵션
+- **테스트**: EditMode `Geuneda.Analytics.<Vendor>.Tests.EditMode`(SDK 호출 대역). 호스트에서는 컴파일되지 않으므로 SDK 를 넣은 별도 프로젝트에서 실행
+- **문서**: 각 `README.md`, `AGENTS.md`
 
 ---
 
@@ -274,6 +286,10 @@
     "com.geuneda.resource": "https://github.com/geuneda/geuneda-resource.git",
     "com.geuneda.servertime": "https://github.com/geuneda/geuneda-servertime.git",
     "com.geuneda.analytics": "https://github.com/geuneda/geuneda-analytics.git",
+    "com.geuneda.analytics.firebase": "https://github.com/geuneda/geuneda-analytics-firebase.git",
+    "com.geuneda.analytics.airbridge": "https://github.com/geuneda/geuneda-analytics-airbridge.git",
+    "com.geuneda.analytics.appsflyer": "https://github.com/geuneda/geuneda-analytics-appsflyer.git",
+    "com.geuneda.analytics.facebook": "https://github.com/geuneda/geuneda-analytics-facebook.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

@@ -55,3 +55,15 @@
 [submodule "Packages/com.geuneda.analytics"]
 	path = Packages/com.geuneda.analytics
 	url = https://github.com/geuneda/geuneda-analytics.git
+[submodule "Packages/com.geuneda.analytics.firebase"]
+	path = Packages/com.geuneda.analytics.firebase
+	url = https://github.com/geuneda/geuneda-analytics-firebase.git
+[submodule "Packages/com.geuneda.analytics.airbridge"]
+	path = Packages/com.geuneda.analytics.airbridge
+	url = https://github.com/geuneda/geuneda-analytics-airbridge.git
+[submodule "Packages/com.geuneda.analytics.appsflyer"]
+	path = Packages/com.geuneda.analytics.appsflyer
+	url = https://github.com/geuneda/geuneda-analytics-appsflyer.git
+[submodule "Packages/com.geuneda.analytics.facebook"]
+	path = Packages/com.geuneda.analytics.facebook
+	url = https://github.com/geuneda/geuneda-analytics-facebook.git

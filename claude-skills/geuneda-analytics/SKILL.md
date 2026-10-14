@@ -1,6 +1,6 @@
 ---
 name: geuneda-analytics
-description: com.geuneda.analytics 패키지(네임스페이스 Geuneda.Analytics, 선택 어셈블리 Geuneda.Analytics.Collector·Geuneda.Analytics.Account, 서버 Geuneda.Analytics.Server)로 분석 이벤트 로깅 코드를 작성하거나 수정할 때 사용하는 스킬. IAnalyticsService·AnalyticsService·AnalyticsOptions 로 이벤트를 기록하거나(LogEvent, SetUserId, SetUserProperty, AddSink), AnalyticsSinks 비트로 받는 곳(콘솔, 자사 수집, Firebase, Airbridge, AppsFlyer, Facebook, Custom)을 고르거나, IAnalyticsSink 로 sink 를 만들거나, 실패한 sink 만 저장·재전송(백오프, 포그라운드 복귀, 네트워크 복구, 다음 실행)을 다루거나, CollectorSink 로 자사 수집 서버에 배치를 보내거나, AppSessionAnalytics 로 account 세션 ID·세션 이벤트를 붙이거나, IAnalyticsClock 으로 서버 시각을 쓰거나, ASP.NET Core 수집 서버(AddGeunedaAnalytics, MapGeunedaAnalytics, IAnalyticsEventStore, CollectedEvent)를 구현하거나, 배치 형식 AnalyticsWire 를 다룰 때 활성화한다.
+description: com.geuneda.analytics 패키지(네임스페이스 Geuneda.Analytics, 선택 어셈블리 Geuneda.Analytics.Collector·Geuneda.Analytics.Account, 서버 Geuneda.Analytics.Server)와 벤더 어댑터 패키지 com.geuneda.analytics.firebase·airbridge·appsflyer·facebook(Geuneda.Analytics.Firebase 등)으로 분석 이벤트 로깅 코드를 작성하거나 수정할 때 사용하는 스킬. 구매·광고 노출 수익 표준 이벤트(LogPurchase, LogAdImpression, AnalyticsPurchase, AnalyticsAdImpression)를 기록하거나, FirebaseAnalyticsSink·AirbridgeAnalyticsSink·AppsFlyerAnalyticsSink·FacebookAnalyticsSink 를 등록·MarkReady 하거나 HandleEvent 로 이벤트를 직접 보낼 때도 쓴다. IAnalyticsService·AnalyticsService·AnalyticsOptions 로 이벤트를 기록하거나(LogEvent, SetUserId, SetUserProperty, AddSink), AnalyticsSinks 비트로 받는 곳(콘솔, 자사 수집, Firebase, Airbridge, AppsFlyer, Facebook, Custom)을 고르거나, IAnalyticsSink 로 sink 를 만들거나, 실패한 sink 만 저장·재전송(백오프, 포그라운드 복귀, 네트워크 복구, 다음 실행)을 다루거나, CollectorSink 로 자사 수집 서버에 배치를 보내거나, AppSessionAnalytics 로 account 세션 ID·세션 이벤트를 붙이거나, IAnalyticsClock 으로 서버 시각을 쓰거나, ASP.NET Core 수집 서버(AddGeunedaAnalytics, MapGeunedaAnalytics, IAnalyticsEventStore, CollectedEvent)를 구현하거나, 배치 형식 AnalyticsWire 를 다룰 때 활성화한다.
 ---
 
 # Geuneda Analytics
@@ -9,13 +9,13 @@ description: com.geuneda.analytics 패키지(네임스페이스 Geuneda.Analytic
 
 ## 패키지 정보
 
-- **버전**: 0.1.0
+- **버전**: 0.2.0(어댑터 패키지는 각 0.1.0)
 - **네임스페이스 / 어셈블리**: `Geuneda.Analytics`. 선택 어셈블리 `Geuneda.Analytics.Collector`(http 패키지가 있을 때), `Geuneda.Analytics.Account`(account 패키지가 있을 때)는 `versionDefines` 로 자동으로 켜진다
 - **설치**: `https://github.com/geuneda/geuneda-analytics.git` (core, UniTask git URL 도 함께. 자사 수집은 http, 세션 연동은 account 도)
 - **의존성**: `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
 - **최소 Unity 버전**: 2021.3
 - **서버**: `Server~/` 의 .NET 10 솔루션 `Geuneda.Analytics.Server.slnx`. 배치 형식 상수는 `Runtime/Protocol/AnalyticsWire.cs` 를 링크
-- **벤더 어댑터**(D3: SDK 를 쓰는 게임만 설치): `com.geuneda.analytics.firebase`, `com.geuneda.analytics.airbridge`, `com.geuneda.analytics.appsflyer`, `com.geuneda.analytics.facebook`(예정)
+- **벤더 어댑터**(D3: SDK 를 쓰는 게임만 설치, SDK 없이 설치하면 컴파일 오류): `com.geuneda.analytics.firebase`(Firebase Unity SDK), `com.geuneda.analytics.airbridge`(Airbridge Unity SDK 4.x, 어셈블리 `AirbridgeSDK`), `com.geuneda.analytics.appsflyer`(AppsFlyer Unity 플러그인 7.x, Unity 2023.1+), `com.geuneda.analytics.facebook`(Facebook SDK for Unity). 레포 `geuneda-analytics-<vendor>`. define `GEUNEDA_SKIP_VENDOR_ADAPTERS` 가 있으면 컴파일하지 않음(호스트용)
 - **기여 가이드**: 패키지 루트의 `AGENTS.md`
 - **출처**: Lucky Defense Percent EventLogging(로드맵 4-1). sink 비트 팬아웃, 실패 sink 만 저장·재전송, 기록 시점 맥락 스냅샷은 따랐고, 재전송 트리거(백오프·복귀·네트워크 복구·다음 실행), 배치 전송, 4xx/5xx 규칙, 평문 저장(하드코딩 키 제거), 잠금 없는 저장(교착 회피), sink 별 큐, 이벤트 ID 중복 제거로 보완했다
 
@@ -33,6 +33,8 @@ description: com.geuneda.analytics 패키지(네임스페이스 Geuneda.Analytic
 - `ConsoleSink`: core 로거(`Geuneda.Analytics.Console`, Info)로 `이름 {키=값}`.
 - `CollectorSink(IHttpClient, CollectorSinkOptions { Endpoint, MaxBatchSize = 50, BatchDelay = 10초, MaxBodyBytes = 1 MiB, Timeout = 15초 })`.
 - `AppSessionAnalytics(IAppSession)`: `SessionId`, `LogSessionEvents(analytics, sinks)`, `Dispose`. 이벤트 이름 상수 `SessionStartEvent` 등, 파라미터 `ReasonParameter`.
+- 표준 이벤트: `analytics.LogPurchase(new AnalyticsPurchase(productId, price, currency, quantity = 1, transactionId = null, productName = null), extra = null[, sinks])`, `analytics.LogAdImpression(new AnalyticsAdImpression(platform, source, format, unitName, revenue, currency, placement = null), extra = null[, sinks])`. 이름 `AnalyticsStandardEvents.Purchase`("purchase")·`AdImpression`("ad_impression"), 파라미터 `AnalyticsStandardParameters`(Firebase 권장 이름). 어댑터는 `AnalyticsPurchase.TryRead`/`AnalyticsAdImpression.TryRead`, `IsStandardParameter`.
+- 어댑터: `new FirebaseAnalyticsSink(new FirebaseAnalyticsSinkOptions { HandleEvent })` + `MarkReady()`, `new AirbridgeAnalyticsSink(new AirbridgeAnalyticsSinkOptions { HandleEvent, Categories, SemanticAttributes })`(항상 준비), `new AppsFlyerAnalyticsSink(...)` + `MarkReady()`, `new FacebookAnalyticsSink(...)`(`FB.IsInitialized`).
 - 서버: `services.AddGeunedaAnalytics(o => ...)`, `services.AddSingleton<IAnalyticsEventStore, ...>()`, `app.MapGeunedaAnalytics("/analytics")`(→ `POST /analytics/events`, `RouteHandlerBuilder`), `AnalyticsServerOptions`(`MaxBodyBytes` 1 MiB, `MaxEventsPerBatch` 500, `MaxNameLength` 100, `MaxParameters` 100, `MaxStringLength` 1000), `IAnalyticsEventStore.AppendAsync` → `AnalyticsAppendResult`(`Accepted`, `Duplicates`), `CollectedEvent`, `InMemoryAnalyticsEventStore`.
 
 ## 사용 패턴
@@ -75,6 +77,38 @@ builder.Services.AddGeunedaAnalytics();
 builder.Services.AddSingleton<IAnalyticsEventStore, MyDbAnalyticsEventStore>();   // 이벤트 ID 고유 키
 app.MapGeunedaAnalytics("/analytics").RequireRateLimiting("analytics");
 ```
+
+## 벤더 어댑터
+
+```csharp
+var firebase = new FirebaseAnalyticsSink();
+analytics.AddSink(firebase);                       // 초기화를 기다리지 않고 먼저 등록
+analytics.AddSink(new AirbridgeAnalyticsSink());
+var appsFlyer = new AppsFlyerAnalyticsSink();
+analytics.AddSink(appsFlyer);
+analytics.AddSink(new FacebookAnalyticsSink());
+
+if (await FirebaseApp.CheckAndFixDependenciesAsync() == DependencyStatus.Available) firebase.MarkReady();
+await AppsFlyer.init(devKey, iosAppId); await AppsFlyer.start(); appsFlyer.MarkReady();
+
+// 표준 이벤트는 각 어댑터가 벤더 표준으로 바꾼다
+analytics.LogPurchase(new AnalyticsPurchase("gem_100", 1.99, "USD", transactionId: tx));
+if (adInfo.Revenue >= 0)   // MAX 는 수익을 모르면 -1
+    analytics.LogAdImpression(new AnalyticsAdImpression("AppLovin", adInfo.NetworkName, "rewarded", adInfo.AdUnitIdentifier, adInfo.Revenue, "USD"));
+```
+
+| 어댑터 | 일반 이벤트 | 구매 | 광고 노출 수익 | 사용자 |
+|---|---|---|---|---|
+| Firebase | 이름·파라미터 규칙(40자, 영문자 시작, 예약 접두사·이름은 버림), 25개, 문자열 100자, 불리언 0/1 | `purchase`(`currency`, `value`, `transaction_id`, `items`) | `ad_impression` | ID, 속성(24자 이름, 36자 값). 준비 전에는 들고 있다가 `MarkReady` 때 넘김 |
+| Airbridge | 카테고리 = 이름(`Categories`), `SemanticAttributes`(기본 action·label·value·currency)는 시맨틱, 나머지 커스텀 | `ORDER_COMPLETED`(`products`, `transactionID`, `inAppPurchased`) | `AD_IMPRESSION`(AppLovin 이면 `adPartners.appLovin`) | `SetUserID`/`ClearUserID`, 속성 |
+| AppsFlyer | `logEvent`, 값은 문자열 | `af_purchase`(`af_revenue`, `af_price`, `af_currency`, `af_content_id`, `af_quantity`, `af_order_id`) | `logAdRevenue`(플랫폼 → 미디에이션, 모르면 Custom) | `setCustomerUserId`(준비 전에는 보관, null 은 지울 수 없어 보내지 않음), 속성 없음 |
+| Facebook | 이름 규칙(2~40자, 영문자·숫자 시작), 25개, 문자열 100자 | `FB.LogPurchase`(`fb_content_id`, `fb_num_items`) | `AdImpression`(합산 값 = 수익, `fb_currency`, `ad_type`) | 없음 |
+
+- 각 옵션의 `HandleEvent` 가 true 를 돌려주면 그 sink 는 이벤트를 보내지 않는다(게임이 직접 보냄, 예: 운영 스위치로 구매 이벤트 끄기).
+- 받을 곳은 `LogEvent`/`LogPurchase` 의 `sinks` 로 고른다(예: Meta 에는 구매만).
+- Firebase·Airbridge·AppsFlyer 는 이벤트마다 기록할 때의 사용자 ID(·속성)로 SDK 를 맞춘 뒤 보내고 배치가 끝나면 지금 상태로 되돌린다(기다렸거나 저장했던 이벤트가 나중 사용자에게 붙지 않음).
+- Facebook 은 decimal·float 범위를 넘는 금액의 이벤트만 Warning 후 버린다. 표준 이벤트의 문자열 필드도 100자에서 자른다(Firebase·Facebook).
+- 다시 보낸 이벤트의 시각은 벤더가 받은 시각이다.
 
 ## 규칙
 
