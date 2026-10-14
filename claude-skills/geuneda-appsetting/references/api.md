@@ -1,6 +1,6 @@
 # Geuneda AppSetting API 레퍼런스
 
-네임스페이스 `Geuneda.AppSetting`, 서버 `Geuneda.AppSetting.Server`. 결과는 core `Result`/`Result<T>`.
+네임스페이스 `Geuneda.AppSetting`, 서버 `Geuneda.AppSetting.Server`. 결과는 core `Result`/`Result<T>`. 버전 0.2.0(리소스 매니페스트 추가).
 
 ## 서비스 (`Runtime/`)
 
@@ -31,6 +31,7 @@
 | `AppAccess GetAccess(DateTime utcNow)` | 노드 없음 → `UpdateRequired`, `internal` → `Internal`, `open` → 점검 시간 안이면 `Maintenance` 아니면 `Open`, `closed` → 새 공개 버전 있으면 `UpdateRequired` 아니면 `Maintenance`. UTC 가 아니면 `ArgumentException` |
 | `bool TryGetEndpoint(string name, out string address)` | 고른 노드의 서버 주소. 이름은 대소문자를 가림 |
 | `Result<T> GetFeatures<T>(JsonSerializerSettings settings = null)` | 기능 플래그 JSON 을 게임 형식으로(호출마다 새로). 노드·플래그가 없으면 `{}`. 형식이 안 맞으면 `InvalidDocument` |
+| `IReadOnlyDictionary<string, AppSettingResource> Resources` | 고른 노드의 리소스 매니페스트(카테고리 대소문자 구분 → 항목). 노드가 없으면 비어 있음. com.geuneda.resource 의 `ResourceEntry` 로 옮겨 받음 |
 
 `AppAccess`: `Open`, `Internal`, `Maintenance`, `UpdateRequired`.
 
@@ -39,8 +40,9 @@
 | 타입 | 멤버 |
 |------|------|
 | `AppSettingDocument` | `const string DefaultVersionKey = "*"`, `long Revision`, `IReadOnlyDictionary<string, AppVersionSetting> Versions`(키 대소문자 구분) |
-| `AppVersionSetting` | `Platforms`(이름 대소문자 무시 → `AppPlatformStatus`), `IsReview`, `Endpoints`(이름 → 주소), `Maintenance`(null 가능), `FeaturesJson`(서명한 본문에 쓴 그대로의 JSON 객체 텍스트, 없으면 `{}`), `GetStatus(platform)`(없으면 `Closed`) |
+| `AppVersionSetting` | `Platforms`(이름 대소문자 무시 → `AppPlatformStatus`), `IsReview`, `Endpoints`(이름 → 주소), `Resources`(카테고리 → `AppSettingResource`, 없으면 비어 있음), `Maintenance`(null 가능), `FeaturesJson`(서명한 본문에 쓴 그대로의 JSON 객체 텍스트, 없으면 `{}`), `GetStatus(platform)`(없으면 `Closed`) |
 | `MaintenanceNotice` | `StartAt`, `EndAt`(UTC, 끝 미포함), `DefaultLanguage`, `Messages`(언어 대소문자 무시), `IsActiveAt(utcNow)`(UTC 아니면 `ArgumentException`), `GetMessage(language)`(정확한 코드 → 기본 하위 태그 `ko-KR`→`ko` → 기본 언어, null·빈 값은 기본 언어) |
+| `AppSettingResource` | `Version`, `Size`(바이트), `Sha256`(소문자 16진수 64자), `Url`(http·https 절대 주소). 문서 서명이 크기·해시를 보장 |
 | `AppPlatformStatus` | `Closed` 0(없는 플랫폼, 모르는 상태 문자열 포함), `Open` 1, `Internal` 2. 문서에는 `open`·`internal`·`closed`(대소문자 무시) |
 | `AppSettingPlatforms` | `Android` "android", `Ios` "ios", `WebGl` "webgl", `Standalone` "standalone"(에디터·데스크톱), `Current`(UNITY_ANDROID·UNITY_IOS·UNITY_WEBGL define, 그 밖 Standalone) |
 | `AppSettingPublicKey(keyId, modulus, exponent)` | base64url(또는 base64) big-endian. `KeyId`, `KeySizeBits`, `Modulus`, `Exponent`, `MinimumKeySizeBits` 2048. 키 ID 빈 값, base64 아님, 2048 비트 미만, 짝수 modulus, 1 이하·짝수 exponent 는 `ArgumentException` |
@@ -71,6 +73,7 @@
 | `endpoints` | 이름 → 비어 있지 않은 주소. 엄격 모드는 호스트 있는 절대 주소만 |
 | `maintenance` | `startAt`·`endAt`(Z 나 오프셋 있는 ISO 8601, `endAt` > `startAt`), `defaultLanguage`(필수), `messages`(기본 언어 문구 필수) |
 | `features` | JSON 객체 |
+| `resources` | 카테고리 → `version`·`size`·`sha256`·`url`. 카테고리·버전은 `[a-z0-9._-]` 1~64자(소문자만, 끝의 점·Windows 장치 이름(`con` 등) 제외, `.`·`..` 제외, 캐시 파일 이름이 됨), `size` 0 이상 정수, `sha256` 16진수 64자(소문자로 맞춤), `url` 호스트 있는 http·https 절대 주소. 두 모드 모두 이 규칙을 적용(모르는 속성만 엄격 모드에서 거절) |
 
 공통: 중복 속성, JSON 뒤 다른 내용, 잘못된 UTF-8 거절(앞 BOM 허용). JSON `null` 은 없는 값. 날짜 문자열을 자동 변환하지 않음. 관대(클라이언트)는 모르는 속성 무시·모르는 상태는 닫힘, 엄격(CLI·`Sign`)은 모르는 속성·상태, 호스트 없는 주소, 앞뒤 공백 버전 키 거절.
 
@@ -84,6 +87,7 @@
 | `AppSettingSigner.Sign(byte[] payload, IEnumerable<AppSettingSigningKey>)` | 본문을 엄격하게 검사한 뒤 키마다 서명한 봉투(UTF-8 JSON). 본문 바이트는 그대로. 규칙 위반은 `AppSettingDocumentException`, 키 없음·null·ID 겹침은 `ArgumentException` |
 | `AppSettingSigner.Verify(byte[] document, IEnumerable<AppSettingPublicKey>, bool strict = false)` | 서명과 본문 검증 → `AppSettingDocument` |
 | `AppSettingSigner.PeekRevision(byte[] document)` | 서명 확인 없이 판만, 형식이 깨졌으면 null |
+| `AppSettingResources.Describe(category, version, url, filePath)` | 파일의 크기·SHA-256 으로 `{"카테고리": {"version", "size", "sha256", "url"}}` JSON. 이름·주소는 본문 엄격 규칙으로 확인(위반은 `AppSettingDocumentException`, 파일 오류는 `IOException`) |
 | `AppSettingPublicKeys.ToJson(keys)` / `FromJson(json)` / `ToCSharp(key)` | 공개 키 파일 `[{"keyId", "modulus", "exponent"}]`(형식 오류 `FormatException`, 키 오류·ID 겹침 `ArgumentException`), Unity 줄 `options.PublicKeys.Add(new AppSettingPublicKey(...));` |
 | `IServiceCollection.AddGeunedaAppSetting(Action<AppSettingServerOptions>)` | 옵션 `DocumentPath`(필수, 상대 경로는 콘텐츠 루트 기준), `PublicKeys`(하나 이상, ID 서로 다름), `CacheControl`(기본 `no-cache`). `TimeProvider` 도 등록 |
 | `IEndpointRouteBuilder.MapGeunedaAppSetting(pattern = "/appsetting")` → `IEndpointConventionBuilder` | 시작할 때 설정 검사와 문서 읽기·검증(실패면 `InvalidOperationException`). GET 에 ETag(문서 바이트 SHA-256)·Cache-Control, `If-None-Match`(약한 비교, 목록, `*`) 맞으면 304. 1초에 한 번까지 파일을 내용으로 비교해 다시 읽고, 검증 실패·낮은 판·파일 삭제면 지금 문서 유지(오류 로그 한 번) |
@@ -97,6 +101,7 @@
 | `keygen --key-id <id> --out <pem>` | RSA-3072 키를 권한 600 으로 씀(있으면 덮어쓰지 않고 실패). 공개 키 JSON 과 Unity 줄 출력 |
 | `public-key --key <pem> --key-id <id>` | 공개 키 출력 다시 보기 |
 | `sign --payload <json> --key <pem> --key-id <id> [--key ... --key-id ...] --out <json>` | 엄격 검사 → 서명 → 같은 폴더 임시 파일에 쓰고 이름 바꾸기. `--out` 의 판보다 낮으면 거절, 같으면 경고 |
-| `verify --document <json> --public-keys <json> [--strict]` | 클라이언트와 같은 규칙(또는 엄격)으로 검증하고 버전별 요약 출력 |
+| `resource --category <name> --version <v> --url <url> --file <file>` | 올릴 파일의 `resources` 항목 JSON(크기·SHA-256) 출력. 이름이 규칙에 맞지 않으면(경로 조작 등) 실패 |
+| `verify --document <json> --public-keys <json> [--strict]` | 클라이언트와 같은 규칙(또는 엄격)으로 검증하고 버전별 요약(리소스 `카테고리@버전` 포함) 출력 |
 
 샘플 서버: `dotnet run --project "Server~/samples/Geuneda.AppSetting.SampleServer" --no-launch-profile -- --urls http://127.0.0.1:5399`(시작할 때마다 새 키로 `appsetting.payload.json` 서명, 샘플 전용 `GET /sample/public-keys`·`POST /sample/publish`). Unity 상호 운용 테스트는 `GEUNEDA_APPSETTING_INTEROP_URL=http://127.0.0.1:5399`.

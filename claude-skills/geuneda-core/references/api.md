@@ -92,7 +92,7 @@
 
 `static int FromException(Exception exception)`: `OperationCanceledException`(`TaskCanceledException` 포함) → `Cancelled`, `TimeoutException` → `Timeout`, 그 밖 → `Unknown`. null 이면 `ArgumentNullException`.
 
-코드 범위: 0 성공, 1~999 core 공용, 1000~99999 패키지별 1000 단위 블록(core `README.md` "결과 코드 범위" 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 다음 빈 블록 5000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 101000 이상 게임.
+코드 범위: 0 성공, 1~999 core 공용, 1000~99999 패키지별 1000 단위 블록(core `README.md` "결과 코드 범위" 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 5000 resource, 다음 빈 블록 6000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 101000 이상 게임.
 
 ---
 

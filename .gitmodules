@@ -46,3 +46,6 @@
 [submodule "Packages/com.geuneda.appsetting"]
 	path = Packages/com.geuneda.appsetting
 	url = https://github.com/geuneda/geuneda-appsetting.git
+[submodule "Packages/com.geuneda.resource"]
+	path = Packages/com.geuneda.resource
+	url = https://github.com/geuneda/geuneda-resource.git

@@ -126,6 +126,7 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 | `Geuneda.Realtime`, `Geuneda.Realtime.Server`, `[RpcService]` 계약 | `/geuneda-realtime` |
 | `Geuneda.Account`, `Geuneda.Account.Server`, `Geuneda.Account.Apple`, `Geuneda.Account.Google` | `/geuneda-account` |
 | `Geuneda.AppSetting`, `Geuneda.AppSetting.Server` | `/geuneda-appsetting` |
+| `Geuneda.Resource` | `/geuneda-resource` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|

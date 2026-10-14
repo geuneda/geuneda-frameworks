@@ -1,14 +1,15 @@
 ---
 name: geuneda-appsetting
-description: com.geuneda.appsetting 패키지(네임스페이스 Geuneda.AppSetting, 서버 Geuneda.AppSetting.Server)로 원격 앱 설정 코드를 작성하거나 수정할 때 사용하는 스킬. IAppSettingService·AppSettingService·AppSettingServiceOptions 로 서명된 설정 문서를 받아 부팅 관문(점검·강제 업데이트)을 판정하거나, AppSetting.GetAccess·AppAccess·AppPlatformStatus·AppSettingPlatforms·MaintenanceNotice 로 접속 판정·점검 공지·서버 주소(TryGetEndpoint)·기능 플래그(GetFeatures)를 읽거나, AppSettingPublicKey 로 공개 키를 넣거나, AppSettingResultCodes(4000 블록)·AppSettingDocumentException 을 처리하거나, 설정 문서 본문(revision, versions, '*' 노드, platforms, review, endpoints, maintenance, features)을 쓰거나, 서버 쪽 AppSettingSigningKey·AppSettingSigner·AppSettingPublicKeys·AddGeunedaAppSetting·MapGeunedaAppSetting 과 서명 CLI geuneda-appsetting(keygen, public-key, sign, verify)으로 문서를 서명·배포할 때 활성화한다.
+description: com.geuneda.appsetting 패키지(네임스페이스 Geuneda.AppSetting, 서버 Geuneda.AppSetting.Server)로 원격 앱 설정 코드를 작성하거나 수정할 때 사용하는 스킬. IAppSettingService·AppSettingService·AppSettingServiceOptions 로 서명된 설정 문서를 받아 부팅 관문(점검·강제 업데이트)을 판정하거나, AppSetting.GetAccess·AppAccess·AppPlatformStatus·AppSettingPlatforms·MaintenanceNotice 로 접속 판정·점검 공지·서버 주소(TryGetEndpoint)·기능 플래그(GetFeatures)·리소스 매니페스트(AppSetting.Resources, AppSettingResource)를 읽거나, AppSettingPublicKey 로 공개 키를 넣거나, AppSettingResultCodes(4000 블록)·AppSettingDocumentException 을 처리하거나, 설정 문서 본문(revision, versions, '*' 노드, platforms, review, endpoints, maintenance, features, resources)을 쓰거나, 서버 쪽 AppSettingSigningKey·AppSettingSigner·AppSettingPublicKeys·AppSettingResources·AddGeunedaAppSetting·MapGeunedaAppSetting 과 서명 CLI geuneda-appsetting(keygen, public-key, sign, resource, verify)으로 문서를 서명·배포할 때 활성화한다.
 ---
 
 # Geuneda AppSetting
 
-원격 앱 설정이다. 서명된 설정 문서를 받아 검증하고, 이 앱 버전·플랫폼의 상태, 점검 공지, 서버 주소, 기능 플래그로 접속 판정(열림·내부·점검·업데이트 필요)을 돌려준다. 문서를 서명하는 CLI 와 ASP.NET Core 배포 헬퍼(`Server~/`)를 함께 둔다. 결과는 core 결과 규약(`Result`)을 따른다.
+원격 앱 설정이다. 서명된 설정 문서를 받아 검증하고, 이 앱 버전·플랫폼의 상태, 점검 공지, 서버 주소, 기능 플래그로 접속 판정(열림·내부·점검·업데이트 필요)을 돌려주며, 리소스 매니페스트(com.geuneda.resource 가 받는 파일 목록)도 담는다. 문서를 서명하는 CLI 와 ASP.NET Core 배포 헬퍼(`Server~/`)를 함께 둔다. 결과는 core 결과 규약(`Result`)을 따른다.
 
 ## 패키지 정보
 
+- **버전**: 0.2.0(리소스 매니페스트 추가)
 - **네임스페이스 / 어셈블리**: `Geuneda.AppSetting`
 - **설치**: `https://github.com/geuneda/geuneda-appsetting.git` (core, http, UniTask git URL 도 함께)
 - **의존성**: `com.geuneda.core` 0.2.0(Result, ModuleLogger), `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
@@ -23,12 +24,13 @@ description: com.geuneda.appsetting 패키지(네임스페이스 Geuneda.AppSett
 
 - `new AppSettingService(new AppSettingServiceOptions { HttpClient, DocumentUri, PublicKeys, AppVersion?, Platform?, RequestTimeout })` → `IAppSettingService`. `MainInstaller.Bind<IAppSettingService>`.
 - `RefreshAsync(ct)` → `Result<AppSetting>`. `Current`(이 실행에서 마지막으로 받아들인 설정, 처음엔 null), 이벤트 `Changed(AppSetting)`.
-- `AppSetting`: `GetAccess(utcNow)` → `AppAccess`(`Open`, `Internal`, `Maintenance`, `UpdateRequired`), `Status`(`AppPlatformStatus`), `MatchedVersion`(앱 버전 또는 `*`, 없으면 null), `Version`(`AppVersionSetting`), `Maintenance`(`MaintenanceNotice`), `NewerVersions`/`HasNewerVersion`, `IsReview`, `Revision`, `TryGetEndpoint(name, out address)`, `GetFeatures<T>()` → `Result<T>`.
+- `AppSetting`: `GetAccess(utcNow)` → `AppAccess`(`Open`, `Internal`, `Maintenance`, `UpdateRequired`), `Status`(`AppPlatformStatus`), `MatchedVersion`(앱 버전 또는 `*`, 없으면 null), `Version`(`AppVersionSetting`), `Maintenance`(`MaintenanceNotice`), `NewerVersions`/`HasNewerVersion`, `IsReview`, `Revision`, `TryGetEndpoint(name, out address)`, `GetFeatures<T>()` → `Result<T>`, `Resources`(카테고리 → `AppSettingResource`, 노드가 없으면 비어 있음).
+- `AppSettingResource`: `Version`, `Size`, `Sha256`(소문자 16진수), `Url`. `AppVersionSetting.Resources` 에도 있다.
 - `MaintenanceNotice`: `StartAt`, `EndAt`(UTC), `DefaultLanguage`, `Messages`, `IsActiveAt(utcNow)`, `GetMessage(language)`(정확한 코드 → 기본 하위 태그 → 기본 언어).
 - `AppSettingPublicKey(keyId, modulus, exponent)`: base64url modulus·exponent, 2048 비트 이상. CLI 가 생성자 호출 줄을 출력한다.
 - `AppSettingPlatforms`: `Android`, `Ios`, `Standalone`(에디터·데스크톱), `WebGl`, `Current`(빌드 대상 define 기준).
 - `AppSettingResultCodes`: `InvalidDocument` 4001, `InvalidSignature` 4002, `UnsupportedFormat` 4003.
-- 서버: `AppSettingSigningKey.Generate(keyId)`/`FromPem`, `AppSettingSigner.Sign(payload, keys)`/`Verify(document, keys, strict)`/`PeekRevision`, `AppSettingPublicKeys.FromJson`/`ToJson`/`ToCSharp`, `AddGeunedaAppSetting(o => { o.DocumentPath; o.PublicKeys })`, `MapGeunedaAppSetting("/appsetting")`.
+- 서버: `AppSettingSigningKey.Generate(keyId)`/`FromPem`, `AppSettingSigner.Sign(payload, keys)`/`Verify(document, keys, strict)`/`PeekRevision`, `AppSettingPublicKeys.FromJson`/`ToJson`/`ToCSharp`, `AppSettingResources.Describe(category, version, url, filePath)`(리소스 항목 JSON), `AddGeunedaAppSetting(o => { o.DocumentPath; o.PublicKeys })`, `MapGeunedaAppSetting("/appsetting")`.
 
 ## 사용 패턴
 
@@ -59,6 +61,11 @@ if (setting.HasNewerVersion && setting.GetFeatures<MyFeatures>().TryGetValue(out
     // 선택 업데이트 안내
 }
 setting.TryGetEndpoint("game", out var gameUrl);
+
+// 리소스 매니페스트 → com.geuneda.resource(두 패키지는 서로 의존하지 않아 게임이 옮긴다)
+var entries = setting.Resources
+    .Select(pair => new ResourceEntry(pair.Key, pair.Value.Version, pair.Value.Size, pair.Value.Sha256, pair.Value.Url))
+    .ToList();
 // 이어서 로그인(com.geuneda.account)
 ```
 
@@ -85,7 +92,9 @@ setting.TryGetEndpoint("game", out var gameUrl);
       "endpoints": { "game": "https://game.example.com/", "realtime": "wss://rt.example.com/rpc" },
       "maintenance": { "startAt": "2026-10-20T02:00:00Z", "endAt": "2026-10-20T04:00:00Z",
                        "defaultLanguage": "en", "messages": { "en": "Maintenance", "ko": "정기 점검" } },
-      "features": { "softUpdate": true }
+      "features": { "softUpdate": true },
+      "resources": { "tables": { "version": "20261014-1", "size": 48213, "sha256": "<16진수 64자>",
+                                 "url": "https://cdn.example.com/tables/20261014-1.json" } }
     },
     "*": { "platforms": { "android": "closed", "ios": "closed" } }
   }
@@ -97,6 +106,7 @@ setting.TryGetEndpoint("game", out var gameUrl);
 ```sh
 # CLI: dotnet run --project "Server~/src/Geuneda.AppSetting.Tool" -- <명령>
 geuneda-appsetting keygen --key-id 2026-10 --out appsetting-2026-10.pem          # RSA-3072, 권한 600, 덮어쓰지 않음
+geuneda-appsetting resource --category tables --version 20261014-1 --url https://cdn.example.com/tables/20261014-1.json --file tables.json   # resources 항목 JSON(크기·SHA-256)
 geuneda-appsetting sign --payload payload.json --key appsetting-2026-10.pem --key-id 2026-10 --out appsetting.json
 geuneda-appsetting verify --document appsetting.json --public-keys public-keys.json [--strict]
 ```
@@ -131,3 +141,5 @@ app.MapGeunedaAppSetting("/appsetting");   // ETag, If-None-Match 면 304, 1초�
 - 공개 키 파일은 `AppSettingPublicKeys.FromJson` 으로 읽는다(날짜 모양 키 ID 를 바꾸지 않음). 직접 `JArray.Parse` 하면 Newtonsoft 날짜 변환으로 키 ID 가 바뀐다.
 - 메인 스레드에서 쓴다. `Changed` 도 메인 스레드에서 오고 처리기 예외는 로그만 남긴다.
 - `Changed` 는 문서 변경 알림이지 접속 판정 변경 알림이 아니다. 같은 문서여도 `GetAccess(utcNow)` 는 예약 점검의 시작·끝에서 바뀐다. 판정을 `Changed` 처리기에만 두지 말고, 성공한 `RefreshAsync` 마다(304 포함) 그리고 오래 머무는 화면에서는 `Maintenance.StartAt`·`EndAt` 에 맞춰 다시 판정한다.
+- `resources` 항목은 com.geuneda.resource 가 파일 이름(`<카테고리>/<버전>.<해시 앞 16자>.bin`)과 검증 값으로 쓰므로 이름(`[a-z0-9._-]` 1~64자, 소문자만, 끝의 점·Windows 장치 이름(`con` 등) 제외, `.`·`..` 제외)·크기(0 이상 정수)·`sha256`(16진수 64자)·`url`(http·https 절대 주소) 규칙을 관대한 모드에서도 적용한다(모르는 속성만 엄격 모드에서 거절). 이름 규칙은 resource 의 `ResourceEntry` 와 같아야 하니 함께 바꾼다.
+- 리소스 버전은 앱 버전 노드마다 둔다(테이블 형식이 앱 버전에 따라 다를 수 있음). 파일 이름에 버전을 넣어 올리면 CDN 캐시 무효화가 필요 없다.
