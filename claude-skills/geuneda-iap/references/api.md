@@ -1,6 +1,6 @@
 # Geuneda IAP API 레퍼런스
 
-네임스페이스 `Geuneda.Iap`(선택 어셈블리 `Geuneda.Iap.Analytics`·`Geuneda.Iap.Http`, 어댑터 `Geuneda.Iap.Unity`, .NET 서버 `Geuneda.Iap.Server`). iap 0.1.0(main 의 [Unreleased]: 결제 서버·HTTP 지급자), iap.unity 0.1.0.
+네임스페이스 `Geuneda.Iap`(선택 어셈블리 `Geuneda.Iap.Analytics`·`Geuneda.Iap.Http`, 어댑터 `Geuneda.Iap.Unity`, .NET 서버 `Geuneda.Iap.Server`). iap 0.2.0(결제 서버·HTTP 지급자 포함), iap.unity 0.1.0.
 
 ## 서비스
 
@@ -130,12 +130,17 @@
 | `AddAppStore(Action<AppStoreOptions>)` | `BundleId`(필수), `AllowSandbox` true, `OnlineChecks` true, `RootCertificates`(비면 내장 `AppleRootCertificates.AppleRootCaG3`) |
 | `AddFakeStore()` | 가짜 스토어 주문을 검증 없이(Production 이면 시작 실패) |
 | `AddVerifier<T>()` | `IStoreVerifier`: `Stores`, `LedgerStore`, `VerifyAsync(request, product, ct)` → `StoreVerification`(`Verified`, `Invalid`, `AppMismatch`, `ProductMismatch`, `EnvironmentNotAllowed`, `Revoked`, `Pending`, `Unavailable`), `AcknowledgeAsync(record, product, ct)` → bool(끝났으면 true) |
-| `AddGrantor<T>(lifetime = Scoped)` | `IPurchaseGrantor.GrantAsync(PurchaseGrant{AccountId, Product, Purchase, Payload}, ct)` → `GrantResult.Granted(response)`·`Rejected(msg)`·`RetryLater(msg)`. 원장 트랜잭션 안에서 불림 |
-| `AddLedger<T>(lifetime = Scoped)`, `AddInMemoryLedger()` | `IPurchaseLedger`: `FindAsync(store, txId)`, `RedeemAsync(record, grant, ct)` → `LedgerRedeemResult`(`Recorded`, `Duplicate`, `NotGranted`), `FindDueAcknowledgementsAsync(now, limit)`, `MarkAcknowledgedAsync(store, txId)`, `DeferAcknowledgementAsync(store, txId, dueAt)` |
+| `AddGrantor<T>(lifetime = Scoped)` | `IPurchaseGrantor.GrantAsync(PurchaseGrant{AccountId, Product, Purchase, Payload, Quantity(지급할 수량)}, ct)` → `GrantResult.Granted(response)`·`Rejected(msg)`·`RetryLater(msg)`. 원장 트랜잭션 안에서 불림 |
+| `AddLedger<T>(lifetime = Scoped)`, `AddInMemoryLedger()` | `IPurchaseLedger`: `FindAsync(store, txId)`, `RedeemAsync(record, grant, ct)` → `LedgerRedeemResult`(`Recorded`, `Duplicate`, `NotGranted`), `FindDueAcknowledgementsAsync(now, limit)`, `MarkAcknowledgedAsync(store, txId)`, `DeferAcknowledgementAsync(store, txId, dueAt)`, `UpdateRefundAsync(RefundChange{Store, TransactionId, RefundedQuantity, ChangedAt, Mode(EventOrdered·NeverDecrease), ProductId, StoreProductId, Quantity}, apply)` → `LedgerRefundResult`(`Changed`, `Unchanged`, `Stale`, `RecordedBeforeGrant`), `FindByOriginalTransactionAsync(store, originalTxId)`(지급 기록만), `UpdateSubscriptionAsync(store, subscriptionId, next(stored), deliver)` → `Delivered`·`Stale`·`Skipped`. `RedeemAsync` 의 grant 콜백 인자는 지급 전 환불 기록(없으면 null) |
 | `endpoints.MapGeunedaIap(prefix, Func<HttpContext, Task<string>> resolveAccountId)` → `RouteHandlerBuilder` | `POST {prefix}/purchases`. null 계정 401, JSON 아님 415, 초과 413, 형식 오류 400, 그 밖 200(+본문 status), 지급자·원장 예외 500. 설정 오류는 여기서 예외 |
 | `IPurchaseRedeemer.RedeemAsync(accountId, request, ct)` → `IapRedeemResponse<object>` | 요청 범위. RPC 등에서 직접 호출 |
-| `VerifiedPurchase` | `Store`(원장 스토어), `TransactionId`, `StoreProductId`, `ProductType`, `OrderId`, `OriginalTransactionId`, `Quantity`, `PurchasedAt`, `ExpiresAt`, `SubscriptionState`(`IapSubscriptionState`: `Active`, `Canceled`, `GracePeriod`, `OnHold`, `Paused`, `Expired`), `IsTest`, `AccountToken`, `PaidAmount`, `PaidCurrency`, `RequiresAcknowledgement` |
-| `PurchaseRecord`(record) | `Store`, `TransactionId`, `AccountId`, `ProductId`, `StoreProductId`, `OrderId`, `OriginalTransactionId`, `Quantity`, `IsTest`, `PurchasedAt`, `RedeemedAt`, `PaidAmount`, `PaidCurrency`, `ExpiresAt`, `GrantResponse`(JSON), `AcknowledgementDueAt`(확인 대기면 다음 시도 시각) |
+| `AddNotificationHandler<T>(lifetime = Scoped)` | `IPurchaseNotificationHandler`: `OnRefundedAsync(PurchaseRefund)`, `OnRefundReversedAsync(PurchaseRefund)`(원장 트랜잭션 안), `OnSubscriptionChangedAsync(SubscriptionUpdate)` |
+| `MapGeunedaIapGooglePlayNotifications(prefix)` | `POST {prefix}/notifications/google-play`. `GooglePlayOptions.NotificationAudience`·`NotificationServiceAccountEmail` 필수(Pub/Sub 푸시 OIDC) |
+| `MapGeunedaIapAppStoreNotifications(prefix)` | `POST {prefix}/notifications/app-store`(V2). `AppStoreOptions.AppAppleId` 를 넣으면 운영 알림의 앱 ID 확인 |
+| `PurchaseRefund` | `Record`(바뀌기 전), `AccountId`, `Product`, `Quantity`(이번 회수·복구 수), `RefundedQuantity`(누적), `IsFullRefund`, `Reason`, `ObservedAt` |
+| `SubscriptionUpdate` | `Store`, `SubscriptionId`(Google 구매 토큰, App Store 원래 거래 ID), `LinkedSubscriptionId`, `StoreProductId`, `Product`, `AccountId`(원장, 없으면 null — 다시 오지 않으니 구독 ID 로 저장해 지급자가 연결), `State`, `ExpiresAt`, `GracePeriodExpiresAt`, `AutoRenewing`, `IsTest`, `NotificationType`, `ObservedAt`, `LatestTransactionId` |
+| `VerifiedPurchase` | `Store`(원장 스토어), `TransactionId`, `StoreProductId`, `ProductType`, `OrderId`, `OriginalTransactionId`, `Quantity`, `PurchasedAt`, `ExpiresAt`, `SubscriptionState`(`IapSubscriptionState`: `Active`, `Canceled`, `GracePeriod`, `OnHold`, `Paused`, `Expired`), `IsTest`, `AccountToken`, `PaidAmount`, `PaidCurrency`, `RequiresAcknowledgement`, `SubscriptionId`(구독만), `ObservedAt`(Google 조회 시각, App Store 서명 시각), `AutoRenewing`(Google) |
+| `PurchaseRecord`(record) | `Store`, `TransactionId`, `AccountId`, `ProductId`, `StoreProductId`, `OrderId`, `OriginalTransactionId`, `Quantity`, `IsTest`, `PurchasedAt`, `RedeemedAt`, `PaidAmount`, `PaidCurrency`, `ExpiresAt`, `GrantResponse`(JSON), `AcknowledgementDueAt`(확인 대기면 다음 시도 시각), `RefundedQuantity`, `RefundedAt`, `IsFullyRefunded`, `IsGranted`(false 면 지급 전 환불 기록, `AccountId` null) |
 
 ## 테스트 어셈블리
 

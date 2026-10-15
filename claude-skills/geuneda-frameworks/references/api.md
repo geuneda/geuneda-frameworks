@@ -272,11 +272,11 @@
 
 ## 21. com.geuneda.iap / .iap.unity
 
-- **버전 / 최소 Unity**: 각 0.1.0 / iap 2021.3, iap.unity 2022.3
+- **버전 / 최소 Unity**: iap 0.2.0, iap.unity 0.1.0 / iap 2021.3, iap.unity 2022.3, 결제 서버 .NET 10
 - **package.json 의존성**: iap 은 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. iap.unity 는 `com.geuneda.iap` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.purchasing` 5.4.4
-- **선택 의존성**(asmdef `versionDefines`): `com.geuneda.analytics` 0.2.0 이상 → `Geuneda.Iap.Analytics`, `com.geuneda.http` 0.1.0 이상 → `Geuneda.Iap.Http`(main 미출시)
+- **선택 의존성**(asmdef `versionDefines`): `com.geuneda.analytics` 0.2.0 이상 → `Geuneda.Iap.Analytics`, `com.geuneda.http` 0.1.0 이상 → `Geuneda.Iap.Http`
 - **어셈블리 / 네임스페이스**: `Geuneda.Iap`, `Geuneda.Iap.Analytics`, `Geuneda.Iap.Http`, `Geuneda.Iap.Unity`, .NET 서버 `Geuneda.Iap.Server`(`Server~`)
-- **주요 기능**: `IIapService`/`IapService`/`IapServiceOptions`(`InitializeAsync`, `PurchaseAsync`, `RecoverAsync`, `RestoreAsync`, `CheckEntitlementAsync`), 게임이 구현하는 `IPurchaseFulfiller`(`Granted`/`AlreadyGranted` 뒤에만 확정, `RetryLater` 백오프, `Rejected` 열어 둠), 이벤트 `OrderSettled`·`OrderFailed`·`PurchaseConfirmed`·`StoreUiChanged`, `IapResultCodes`(7000 블록), 스토어 계약 `IIapStore`, `UnityIapStore`(Unity IAP 5.4.4), `IapRevenueLogger`(거래의 첫 닫힘 때 `LogPurchase`). main 미출시: 공유 와이어 형식 `IapRedeemRequest`/`IapRedeemResponse<TGrant>`/`IapRedeemCodes`(7100~7199), `HttpPurchaseFulfiller<TGrant>`, 서버 `AddGeunedaIap`·`AddGooglePlay`·`AddAppStore`·`AddGrantor`·`AddLedger`·`MapGeunedaIap`, 게임 구현 `IPurchaseGrantor`·`IPurchaseLedger`
+- **주요 기능**: `IIapService`/`IapService`/`IapServiceOptions`(`InitializeAsync`, `PurchaseAsync`, `RecoverAsync`, `RestoreAsync`, `CheckEntitlementAsync`), 게임이 구현하는 `IPurchaseFulfiller`(`Granted`/`AlreadyGranted` 뒤에만 확정, `RetryLater` 백오프, `Rejected` 열어 둠), 이벤트 `OrderSettled`·`OrderFailed`·`PurchaseConfirmed`·`StoreUiChanged`, `IapResultCodes`(7000 블록), 스토어 계약 `IIapStore`, `UnityIapStore`(Unity IAP 5.4.4), `IapRevenueLogger`(거래의 첫 닫힘 때 `LogPurchase`), 공유 와이어 형식 `IapRedeemRequest`/`IapRedeemResponse<TGrant>`/`IapRedeemCodes`(7100~7199), `HttpPurchaseFulfiller<TGrant>`, 서버 `AddGeunedaIap`·`AddGooglePlay`·`AddAppStore`·`AddGrantor`·`AddLedger`·`MapGeunedaIap`, 게임 구현 `IPurchaseGrantor`·`IPurchaseLedger`·`IPurchaseNotificationHandler`, 서버 알림 `MapGeunedaIapGooglePlayNotifications`·`MapGeunedaIapAppStoreNotifications`(환불 회수, 구독 상태)
 - **테스트**: EditMode `Geuneda.Iap.Tests.EditMode`, `Geuneda.Iap.Analytics.Tests.EditMode`(analytics 있을 때), `Geuneda.Iap.Http.Tests.EditMode`(http 있을 때), 서버 `dotnet test "Server~/Geuneda.Iap.Server.slnx"`, `Geuneda.Iap.Unity.Tests.EditMode`, PlayMode `Geuneda.Iap.Unity.Tests.PlayMode`(define `IAP_FAKE_STORE_DEFAULT`)
 - **문서**: 각 `README.md`, `AGENTS.md`
 

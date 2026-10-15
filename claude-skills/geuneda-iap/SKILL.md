@@ -9,7 +9,7 @@ description: com.geuneda.iap 패키지(네임스페이스 Geuneda.Iap, 선택 �
 
 ## 패키지 정보
 
-- **버전**: iap 0.1.0(main 의 [Unreleased]: 결제 서버 `Server~`, HTTP 지급자), iap.unity 0.1.0
+- **버전**: iap 0.2.0(결제 서버 `Server~`, HTTP 지급자), iap.unity 0.1.0
 - **네임스페이스 / 어셈블리**: `Geuneda.Iap`. 선택 어셈블리 `Geuneda.Iap.Analytics`(analytics 0.2.0 이상), `Geuneda.Iap.Http`(http 0.1.0 이상, `versionDefines` 로 켜짐). 어댑터 `Geuneda.Iap.Unity`. .NET 서버 `Geuneda.Iap.Server`(`Server~`, .NET 10, Google.Apis.Auth 1.77.0)
 - **설치**: `https://github.com/geuneda/geuneda-iap.git`, `https://github.com/geuneda/geuneda-iap-unity.git` (core, UniTask git URL 도 함께)
 - **의존성**: iap 은 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10(Unity 2021.3+). iap.unity 는 여기에 `com.unity.purchasing` 5.4.4(Unity 2022.3+, UPM 의존성이라 함께 설치)
@@ -31,6 +31,7 @@ description: com.geuneda.iap 패키지(네임스페이스 Geuneda.Iap, 선택 �
 - `new UnityIapStore()`(Unity IAP 기본 스토어), `new UnityIapStore(StoreController, storeName)`. `Dispose()`.
 - `new IapRevenueLogger(iap, analytics, sinks = null, paidAmount = null)` → 확정 성공마다 `LogPurchase`. `paidAmount(PurchaseSettlement) → IapPaidAmount?`(금액, 통화)는 서버가 확인한 실결제(null 이면 기록 안 함). 기본 `DefaultPaidAmount` 는 지급 결과가 결제 서버 응답이면 테스트 결제·환불 제외하고 서버 금액, 그 밖은 구독 null, 표시 가격과 상품 조회 통화. `Dispose()`.
 - `new HttpPurchaseFulfiller<TGrant>(IHttpClient http)`(Geuneda.Iap.Http): 결제 서버 `POST purchases` 로 지급. 결과 `Response` 는 `IapRedeemResponse<TGrant>`(`Grant`, `Code`, `IsTest`, `PaidAmount`, `PaidCurrency`, `ExpiresAt`). 다른 경로(RPC)는 `order.ToRedeemRequest()`, `response.ToFulfillmentResult()`.
+- 서버 알림: `.AddNotificationHandler<T>()` 와 `app.MapGeunedaIapGooglePlayNotifications("/iap")`(Pub/Sub 푸시, `NotificationAudience`·`NotificationServiceAccountEmail`), `app.MapGeunedaIapAppStoreNotifications("/iap")`(V2, `AppAppleId`). 처리기는 `OnRefundedAsync`·`OnRefundReversedAsync`(원장 트랜잭션 안, `PurchaseRefund.Quantity` 만큼)와 `OnSubscriptionChangedAsync`(`SubscriptionUpdate` 스냅숏).
 - 서버: `services.AddGeunedaIap(o => o.Products.Add(new IapServerProduct(id, type, googlePlayId, appStoreId))).AddGooglePlay(o => { o.PackageName = ...; o.ServiceAccountKeyJson = ...; }).AddAppStore(o => o.BundleId = ...).AddGrantor<T>().AddLedger<T>()`, `app.MapGeunedaIap("/iap", ctx => accountId)`. 게임은 `IPurchaseGrantor`(원장 트랜잭션 안에서 지급)와 `IPurchaseLedger`(유일 키 + 지급 한 트랜잭션, 확인 대기 조회·표시)를 구현한다.
 
 ## 사용 패턴
@@ -135,4 +136,4 @@ app.MapGeunedaIap("/iap", async ctx => (await validator.ValidateAsync(BearerToke
 - 서버 App Store 검증은 인증서 내려받기를 끄고 신뢰 체인을 먼저 확인한 뒤에만 OCSP 를 묻는다(공격자 인증서의 AIA 주소로 서버가 요청하는 SSRF 방지). 직접 `X509Chain` 을 쓸 때도 같은 순서를 지킨다.
 - `AllowTestPurchases`·`AllowSandbox` 를 끄면 App Store 심사 구매(운영 서버로 오는 샌드박스 결제)가 실패한다. 매출에서는 `IsTest` 로 뺀다.
 - 원장을 바꾸면 이전 서버가 지급한 남은 거래가 다시 지급될 수 있다. `FindAsync` 가 이전 기록도 보게 한다.
-- 서버 알림(Google RTDN, App Store Server Notifications V2: 환불 회수, 구독 갱신)은 같은 작업의 다음 단계로 진행 중이다.
+- 서버 알림(`MapGeunedaIapGooglePlayNotifications`, `MapGeunedaIapAppStoreNotifications`, `IPurchaseNotificationHandler`)의 환불은 원장의 누적 환불 수량으로 한 번만 반영된다. 처리기에서 따로 중복을 막지 않아도 되지만, 회수 쓰기는 원장 트랜잭션에 참여해야 한다. 구독 변경은 원장이 구독마다 순서를 지켜 넘기므로 받은 순서대로 반영한다. 지급 전 갱신(`AccountId` null)은 다시 오지 않으니 `SubscriptionId` 로 저장해 두고 지급자가 `grant.Purchase.SubscriptionId` 로 연결한다(관측 시각이 늦은 쪽, 비슷하면 알림 상태 우선). 지급 요청보다 먼저 온 환불은 지급 전 환불 기록으로 남아 지급 요청이 환불 수량만큼 빼고 지급하거나 닫는다(지급자는 `PurchaseGrant.Quantity` 만큼 지급). 알림으로 지급하거나 확인하지 않는다(지급은 클라이언트 지급 요청으로).

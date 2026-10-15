@@ -34,7 +34,7 @@ Geuneda Unity Package Manager(UPM) 패키지 25개를 개발, 테스트, 검증�
 | `com.geuneda.analytics.airbridge` | 0.1.0 | 2021.3 | analytics 의 Airbridge sink. 카테고리·시맨틱/커스텀 속성, 표준 이벤트 → 주문 완료·광고 노출(AppLovin 파트너 상세). Airbridge Unity SDK 가 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.airbridge/README.md) |
 | `com.geuneda.analytics.appsflyer` | 0.1.0 | 2023.1 | analytics 의 AppsFlyer sink(플러그인 7.x). 값은 문자열, 표준 이벤트 → `af_purchase`·`logAdRevenue`(미디에이션 선택), `MarkReady` 로 준비. AppsFlyer 플러그인이 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.appsflyer/README.md) |
 | `com.geuneda.analytics.facebook` | 0.1.0 | 2021.3 | analytics 의 Facebook(Meta) App Events sink. 이름 규칙, 표준 이벤트 → `FB.LogPurchase`·`AdImpression`, `FB.IsInitialized` 로 준비. Facebook SDK 가 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.facebook/README.md) |
-| `com.geuneda.iap` | 0.1.0 | 2021.3 | 인앱 결제. 게임의 지급자(서버 지급)가 지급을 확인한 뒤에만 스토어 거래를 닫아 결제 후 지급 누락을 막음(지급 재시도 백오프, 초기화·복귀·복구 때 스토어 재조회, 늦게 온 결제 지급, 중복 거래·같은 상품 미확정 주문 먼저 지급, 확정만 재시도). 결과 코드 7000 블록, 지급 실패 이벤트, analytics 가 있으면 확정한 구매만 매출 기록 | [README](Packages/com.geuneda.iap/README.md) |
+| `com.geuneda.iap` | 0.2.0 | 2021.3 | 인앱 결제. 게임의 지급자(서버 지급)가 지급을 확인한 뒤에만 스토어 거래를 닫아 결제 후 지급 누락을 막음(지급 재시도 백오프, 초기화·복귀·복구 때 스토어 재조회, 늦게 온 결제 지급, 중복 거래·같은 상품 미확정 주문 먼저 지급, 확정만 재시도). 결과 코드 7000 블록, 지급 실패 이벤트, analytics 가 있으면 확정한 구매만 매출 기록, http 가 있으면 결제 서버 지급자. `Server~` 에 ASP.NET Core 결제 서버(Google Play·App Store 영수증 검증, 영수증 유일성 원장, 지급 엔드포인트, 서버 알림의 환불 회수·구독 상태) | [README](Packages/com.geuneda.iap/README.md) |
 | `com.geuneda.iap.unity` | 0.1.0 | 2022.3 | iap 의 Unity IAP 5.4.4(`StoreController`) 어댑터. 자동 재전달·조회 재시도 끄기, 실패 이유 멤버별 대응, App Store 거래 서명(JWS) 전달 | [README](Packages/com.geuneda.iap.unity/README.md) |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
 | `com.geuneda.services` | 5.1.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
@@ -102,7 +102,7 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | servertime | `com.geuneda.core` 0.4.0, `com.geuneda.services` 5.0.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10 |
 | analytics | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1. 선택: `com.geuneda.http` 0.1.0 이상(자사 수집), `com.geuneda.account` 0.1.0 이상(세션 연동) |
 | analytics.firebase·airbridge·appsflyer·facebook | `com.geuneda.analytics` 0.2.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 벤더 SDK 는 게임이 먼저 설치(Firebase Unity SDK, Airbridge Unity SDK 4.x, AppsFlyer Unity 플러그인 7.x, Facebook SDK for Unity) |
-| iap | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 선택: `com.geuneda.analytics` 0.2.0 이상(매출 기록) |
+| iap | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 선택: `com.geuneda.analytics` 0.2.0 이상(매출 기록), `com.geuneda.http` 0.1.0 이상(결제 서버 지급자). 결제 서버는 .NET 10 |
 | iap.unity | `com.geuneda.iap` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.purchasing` 5.4.4 |
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 2.4.2 |
