@@ -14,6 +14,8 @@
     "com.geuneda.analytics.airbridge": "https://github.com/geuneda/geuneda-analytics-airbridge.git",
     "com.geuneda.analytics.appsflyer": "https://github.com/geuneda/geuneda-analytics-appsflyer.git",
     "com.geuneda.analytics.facebook": "https://github.com/geuneda/geuneda-analytics-facebook.git",
+    "com.geuneda.iap": "https://github.com/geuneda/geuneda-iap.git",
+    "com.geuneda.iap.unity": "https://github.com/geuneda/geuneda-iap-unity.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

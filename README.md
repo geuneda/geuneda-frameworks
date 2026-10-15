@@ -1,6 +1,6 @@
 # Geuneda Frameworks (Unity)
 
-Geuneda Unity Package Manager(UPM) 패키지 23개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬이 함께 다룹니다).
+Geuneda Unity Package Manager(UPM) 패키지 25개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬이 함께 다룹니다).
 
 ## 어디부터 읽으면 되나
 
@@ -34,6 +34,8 @@ Geuneda Unity Package Manager(UPM) 패키지 23개를 개발, 테스트, 검증�
 | `com.geuneda.analytics.airbridge` | 0.1.0 | 2021.3 | analytics 의 Airbridge sink. 카테고리·시맨틱/커스텀 속성, 표준 이벤트 → 주문 완료·광고 노출(AppLovin 파트너 상세). Airbridge Unity SDK 가 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.airbridge/README.md) |
 | `com.geuneda.analytics.appsflyer` | 0.1.0 | 2023.1 | analytics 의 AppsFlyer sink(플러그인 7.x). 값은 문자열, 표준 이벤트 → `af_purchase`·`logAdRevenue`(미디에이션 선택), `MarkReady` 로 준비. AppsFlyer 플러그인이 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.appsflyer/README.md) |
 | `com.geuneda.analytics.facebook` | 0.1.0 | 2021.3 | analytics 의 Facebook(Meta) App Events sink. 이름 규칙, 표준 이벤트 → `FB.LogPurchase`·`AdImpression`, `FB.IsInitialized` 로 준비. Facebook SDK 가 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.facebook/README.md) |
+| `com.geuneda.iap` | 0.1.0 | 2021.3 | 인앱 결제. 게임의 지급자(서버 지급)가 지급을 확인한 뒤에만 스토어 거래를 닫아 결제 후 지급 누락을 막음(지급 재시도 백오프, 초기화·복귀·복구 때 스토어 재조회, 늦게 온 결제 지급, 중복 거래·같은 상품 미확정 주문 먼저 지급, 확정만 재시도). 결과 코드 7000 블록, 지급 실패 이벤트, analytics 가 있으면 확정한 구매만 매출 기록 | [README](Packages/com.geuneda.iap/README.md) |
+| `com.geuneda.iap.unity` | 0.1.0 | 2022.3 | iap 의 Unity IAP 5.4.4(`StoreController`) 어댑터. 자동 재전달·조회 재시도 끄기, 실패 이유 멤버별 대응, App Store 거래 서명(JWS) 전달 | [README](Packages/com.geuneda.iap.unity/README.md) |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
 | `com.geuneda.services` | 5.1.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 2.0.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
@@ -68,6 +70,8 @@ core
   ├── realtime
   └── analytics (http·account 는 선택: 있으면 해당 asmdef 가 켜짐)
         └── analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook (벤더 SDK 필요)
+  └── iap (analytics 는 선택: 있으면 매출 기록 asmdef 가 켜짐)
+        └── iap.unity (Unity IAP 5.4.4)
 gamedata
   ├── services
   │     └── gamesystems
@@ -76,7 +80,7 @@ gamedata
 uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Geuneda 패키지에 의존하지 않음
 ```
 
-`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
+`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
 
 외부 의존성(`package.json` 에 선언된 최소 버전):
 
@@ -98,6 +102,8 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | servertime | `com.geuneda.core` 0.4.0, `com.geuneda.services` 5.0.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10 |
 | analytics | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1. 선택: `com.geuneda.http` 0.1.0 이상(자사 수집), `com.geuneda.account` 0.1.0 이상(세션 연동) |
 | analytics.firebase·airbridge·appsflyer·facebook | `com.geuneda.analytics` 0.2.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 벤더 SDK 는 게임이 먼저 설치(Firebase Unity SDK, Airbridge Unity SDK 4.x, AppsFlyer Unity 플러그인 7.x, Facebook SDK for Unity) |
+| iap | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 선택: `com.geuneda.analytics` 0.2.0 이상(매출 기록) |
+| iap.unity | `com.geuneda.iap` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.purchasing` 5.4.4 |
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
@@ -139,6 +145,8 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 | servertime | services, gamedata, core, http, UniTask |
 | analytics | core, UniTask(자사 수집을 쓰면 http, 세션 연동을 쓰면 account 와 그 의존성) |
 | analytics.firebase·airbridge·appsflyer·facebook | analytics, core, UniTask, 그 벤더 SDK |
+| iap | core, UniTask(매출 기록을 쓰면 analytics) |
+| iap.unity | iap, core, UniTask(Unity IAP 는 레지스트리에서 자동 설치) |
 
 Unity 레지스트리에 있는 의존성(Addressables, Newtonsoft Json, Input System, Mobile Notifications 등)은 자동으로 설치됩니다.
 
@@ -159,14 +167,14 @@ geuneda-frameworks/
 ├── Assets/                 # 호스트 프로젝트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
 ├── Packages/
 │   ├── manifest.json       # 호스트 프로젝트 의존성
-│   └── com.geuneda.*/      # 패키지 23개, 각각 git 서브모듈 (.gitmodules)
+│   └── com.geuneda.*/      # 패키지 25개, 각각 git 서브모듈 (.gitmodules)
 ├── ProjectSettings/        # Unity 설정 (ProjectVersion.txt: 6000.3.2f1)
 ├── UserSettings/
 ├── claude-skills/
 │   ├── install.sh          # 스킬 설치
 │   ├── uninstall.sh        # 스킬 제거
 │   ├── geuneda-frameworks/ # 프레임워크 전체 스킬
-│   └── geuneda-<패키지>/    # 패키지별 스킬 17개
+│   └── geuneda-<패키지>/    # 패키지별 스킬 18개
 ├── .gitmodules
 ├── AGENTS.md               # AI 에이전트용 레포 가이드
 ├── CLAUDE.md               # 프레임워크를 쓰는 프로젝트의 공용 규칙
@@ -182,7 +190,7 @@ geuneda-frameworks/
 
 ## Claude Code 스킬
 
-`claude-skills/` 에는 패키지별 스킬 17개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
+`claude-skills/` 에는 패키지별 스킬 18개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
 
 | 스킬 | 대상 |
 |------|------|
@@ -204,6 +212,7 @@ geuneda-frameworks/
 | `geuneda-resource` | com.geuneda.resource |
 | `geuneda-servertime` | com.geuneda.servertime |
 | `geuneda-analytics` | com.geuneda.analytics, com.geuneda.analytics.firebase·airbridge·appsflyer·facebook |
+| `geuneda-iap` | com.geuneda.iap, com.geuneda.iap.unity |
 
 어떤 코드에서 어떤 스킬을 써야 하는지는 [CLAUDE.md](CLAUDE.md) 의 네임스페이스 매핑 표를 따릅니다.
 
@@ -212,9 +221,9 @@ geuneda-frameworks/
 스크립트는 자기 위치를 기준으로 동작하므로 어느 디렉터리에서 실행해도 됩니다.
 
 ```bash
-claude-skills/install.sh                     # 스킬 18개 모두 설치
+claude-skills/install.sh                     # 스킬 19개 모두 설치
 claude-skills/install.sh geuneda-services    # 하나만 설치
-claude-skills/uninstall.sh                   # 스킬 18개 모두 제거
+claude-skills/uninstall.sh                   # 스킬 19개 모두 제거
 claude-skills/uninstall.sh geuneda-services  # 하나만 제거
 ```
 

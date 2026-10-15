@@ -67,3 +67,9 @@
 [submodule "Packages/com.geuneda.analytics.facebook"]
 	path = Packages/com.geuneda.analytics.facebook
 	url = https://github.com/geuneda/geuneda-analytics-facebook.git
+[submodule "Packages/com.geuneda.iap"]
+	path = Packages/com.geuneda.iap
+	url = https://github.com/geuneda/geuneda-iap.git
+[submodule "Packages/com.geuneda.iap.unity"]
+	path = Packages/com.geuneda.iap.unity
+	url = https://github.com/geuneda/geuneda-iap-unity.git

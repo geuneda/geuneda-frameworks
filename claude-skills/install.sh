@@ -19,6 +19,7 @@ SKILLS=(
     "geuneda-frameworks"
     "geuneda-googlesheetimporter"
     "geuneda-http"
+    "geuneda-iap"
     "geuneda-inputextensions"
     "geuneda-nativeui"
     "geuneda-notificationservice"
