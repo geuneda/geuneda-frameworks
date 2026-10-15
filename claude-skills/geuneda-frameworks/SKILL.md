@@ -31,7 +31,7 @@ Geuneda UPM 패키지 25개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.resource` | 0.1.0 | 2021.3 | 원격 리소스(테이블 등 데이터 파일) 캐시(매니페스트 항목의 크기·SHA-256 판정, 검증 후 원자적 저장, 옛 버전 정리, 동시 다운로드 제한, 받기 전 용량 확인, 진행률) | `geuneda-resource` |
 | `com.geuneda.analytics` | 0.2.0 | 2021.3 | 분석 이벤트 로깅(기록 시점 맥락 스냅샷, sink 비트 팬아웃, 실패 sink 만 저장·재전송, 자사 수집 배치 sink 와 ASP.NET Core 수집 서버, account 세션 연동, 구매·광고 노출 수익 표준 이벤트) | `geuneda-analytics` |
 | `com.geuneda.analytics.firebase`·`.airbridge`·`.appsflyer`·`.facebook` | 0.1.0 | 2021.3(AppsFlyer 2023.1) | analytics 의 벤더 SDK sink(표준 이벤트를 벤더 표준으로 변환). 그 SDK 가 있는 게임만 설치 | `geuneda-analytics` |
-| `com.geuneda.iap` | 0.2.0 | 2021.3 | 인앱 결제(지급자 확인 뒤에만 스토어 확정, 지급 재시도 백오프, 재조회 복구, 늦은 결제 지급, 중복 거래·미확정 주문 먼저, 확정만 재시도, 결과 코드 7000, analytics 매출 기록 선택, http 지급자 선택), .NET 결제 서버 `Server~`(Google Play·App Store 영수증 검증, 영수증 원장, 지급 엔드포인트, 서버 알림의 환불 회수·구독 상태) | `geuneda-iap` |
+| `com.geuneda.iap` | 0.3.0 | 2021.3 | 인앱 결제(지급자 확인 뒤에만 스토어 확정, 지급 재시도 백오프, 재조회 복구, 늦은 결제 지급, 중복 거래·미확정 주문 먼저, 확정만 재시도, 결과 코드 7000, analytics 매출 기록 선택, http 지급자 선택), .NET 결제 서버 `Server~`(Google Play·App Store 영수증 검증, 영수증 원장, 지급 엔드포인트, 서버 알림의 환불 회수·구독 상태) | `geuneda-iap` |
 | `com.geuneda.iap.unity` | 0.1.0 | 2022.3 | iap 의 Unity IAP 5.4.4 어댑터 | `geuneda-iap` |
 | `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화(NTP·HTTPS `Date`·직접 구현 원천을 순서대로, 왕복 지연 보정, 지수 백오프 재시도, 30분 재동기화, 포그라운드 복귀 재동기화). services 시간 서비스의 기준점을 맞춤 | `geuneda-servertime` |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 보안 값(`SecureInt` 등), 직렬화 헬퍼 | `geuneda-gamedata` |

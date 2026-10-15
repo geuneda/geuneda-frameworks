@@ -9,7 +9,7 @@ description: com.geuneda.iap 패키지(네임스페이스 Geuneda.Iap, 선택 �
 
 ## 패키지 정보
 
-- **버전**: iap 0.2.0(결제 서버 `Server~`, HTTP 지급자), iap.unity 0.1.0
+- **버전**: iap 0.3.0(결제 서버 `Server~`, HTTP 지급자), iap.unity 0.1.0
 - **네임스페이스 / 어셈블리**: `Geuneda.Iap`. 선택 어셈블리 `Geuneda.Iap.Analytics`(analytics 0.2.0 이상), `Geuneda.Iap.Http`(http 0.1.0 이상, `versionDefines` 로 켜짐). 어댑터 `Geuneda.Iap.Unity`. .NET 서버 `Geuneda.Iap.Server`(`Server~`, .NET 10, Google.Apis.Auth 1.77.0)
 - **설치**: `https://github.com/geuneda/geuneda-iap.git`, `https://github.com/geuneda/geuneda-iap-unity.git` (core, UniTask git URL 도 함께)
 - **의존성**: iap 은 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10(Unity 2021.3+). iap.unity 는 여기에 `com.unity.purchasing` 5.4.4(Unity 2022.3+, UPM 의존성이라 함께 설치)
@@ -110,7 +110,7 @@ app.MapGeunedaIap("/iap", async ctx => (await validator.ValidateAsync(BearerToke
 
 - **확정은 지급 뒤에만**: `Granted`·`AlreadyGranted` 뒤에만 스토어 거래를 닫는다. `RetryLater`·지급자 예외·`FulfillTimeout` 초과는 거래를 열어 두고 백오프(5초→두 배→5분, 50~100%)로 다시 지급, `Rejected` 는 열어 두고 이번 실행에서 자동 재시도하지 않는다(`RecoverAsync`·같은 상품 구매·다음 실행 때 다시).
 - **서버**: 영수증(또는 거래 ID)을 유일 키로 저장하고 지급과 같은 트랜잭션에서 처리한다. 같은 영수증이 다시 오면 `AlreadyGranted`(오류 아님). 검증과 지급 저장을 나누면 그 사이 앱 종료 때 재시도가 '이미 쓴 영수증'으로 거절돼 영구 누락된다. 시간 초과 뒤 같은 주문이 다시 올 수 있으니 멱등이어야 한다. App Store 는 `SignedTransaction`(JWS)으로 검증한다(`Receipt` 의 앱 영수증은 StoreKit 2 에서 비어 있을 수 있음). `Geuneda.Iap.Server` 가 이것을 지킨다.
-- **결제 서버 처리**: 원장 확인(있으면 스토어 안 부름, 같은 계정 `Duplicate`+처음 응답, 다른 계정 `OwnedByOtherAccount`, 둘 다 `AlreadyGranted`) → 스토어 검증 → 원장 트랜잭션 안에서 지급자 → 커밋 뒤 Google 확인(acknowledge, 소비는 안 함). 확인 실패·서버 종료는 원장의 `AcknowledgementDueAt` 으로 확인 작업자가 다시 한다(실패는 뒤로 미뤄 다음 배치, 3일 기한). App Store·Mac App Store 는 원장 스토어 하나(`AppleAppStore`).
+- **결제 서버 처리**: 원장 확인(지급 기록이 있으면 스토어 안 부름, 계정 없는 지급 전 환불 기록뿐이면 검증으로, 같은 계정 `Duplicate`+처음 응답, 다른 계정 `OwnedByOtherAccount`, 둘 다 `AlreadyGranted`) → 스토어 검증 → 원장 트랜잭션 안에서 지급자 → 커밋 뒤 Google 확인(acknowledge, 소비는 안 함). 확인 실패·서버 종료는 원장의 `AcknowledgementDueAt` 으로 확인 작업자가 다시 한다(실패는 뒤로 미뤄 다음 배치, 3일 기한). App Store·Mac App Store 는 원장 스토어 하나(`AppleAppStore`).
 - **확실하지 않으면 닫지 않는다**: 서버는 모르는 상태·네트워크·401/403/429/5xx·상품 목록 없는 응답·OCSP 미도달을 `RetryLater`, 클라이언트 변환도 5xx·본문 오류·모르는 상태를 `RetryLater` 로 둔다. 지급 없이 닫는 것(`Revoked`)은 스토어가 환불·취소라고 분명히 답할 때만.
 - **재조회**: 초기화, 포그라운드 복귀, `RecoverAsync`, 중복 거래 때 스토어를 다시 조회한다. 조회 실패는 실패 코드다(빈 목록 아님).
 - **늦은 결제**: 결제창 시간 초과(`Timeout`)·호출자 취소(`Cancelled`)·승인 대기(`Deferred`) 뒤 온 결제는 그 구매의 `Payload` 로 뒤에서 지급하고 `OrderSettled(IsAwaited false)` 로 알린다. 같은 상품을 다시 사면 먼저 재조회해 그 결제가 와 있으면 그것을 지급해 돌려주고, 없을 때만 이전 페이로드를 버리고 결제창을 연다.
@@ -136,4 +136,4 @@ app.MapGeunedaIap("/iap", async ctx => (await validator.ValidateAsync(BearerToke
 - 서버 App Store 검증은 인증서 내려받기를 끄고 신뢰 체인을 먼저 확인한 뒤에만 OCSP 를 묻는다(공격자 인증서의 AIA 주소로 서버가 요청하는 SSRF 방지). 직접 `X509Chain` 을 쓸 때도 같은 순서를 지킨다.
 - `AllowTestPurchases`·`AllowSandbox` 를 끄면 App Store 심사 구매(운영 서버로 오는 샌드박스 결제)가 실패한다. 매출에서는 `IsTest` 로 뺀다.
 - 원장을 바꾸면 이전 서버가 지급한 남은 거래가 다시 지급될 수 있다. `FindAsync` 가 이전 기록도 보게 한다.
-- 서버 알림(`MapGeunedaIapGooglePlayNotifications`, `MapGeunedaIapAppStoreNotifications`, `IPurchaseNotificationHandler`)의 환불은 원장의 누적 환불 수량으로 한 번만 반영된다. 처리기에서 따로 중복을 막지 않아도 되지만, 회수 쓰기는 원장 트랜잭션에 참여해야 한다. 구독 변경은 원장이 구독마다 순서를 지켜 넘기므로 받은 순서대로 반영한다. 지급 전 갱신(`AccountId` null)은 다시 오지 않으니 `SubscriptionId` 로 저장해 두고 지급자가 `grant.Purchase.SubscriptionId` 로 연결한다(관측 시각이 늦은 쪽, 비슷하면 알림 상태 우선). 지급 요청보다 먼저 온 환불은 지급 전 환불 기록으로 남아 지급 요청이 환불 수량만큼 빼고 지급하거나 닫는다(지급자는 `PurchaseGrant.Quantity` 만큼 지급). 알림으로 지급하거나 확인하지 않는다(지급은 클라이언트 지급 요청으로).
+- 서버 알림(`MapGeunedaIapGooglePlayNotifications`, `MapGeunedaIapAppStoreNotifications`, `IPurchaseNotificationHandler`)의 환불은 원장의 누적 환불 수량으로 한 번만 반영된다. 처리기에서 따로 중복을 막지 않아도 되지만, 회수 쓰기는 원장 트랜잭션에 참여해야 한다. 구독은 서버가 원장의 구독 잠금 안에서 서버 알림과 구독 지급을 합친 권한 스냅숏(`SubscriptionUpdate`)으로 넘긴다. 처리기는 `SubscriptionId` 로 그대로 저장하고, 지급자는 구독 권한을 쓰지 않는다(서버 알림을 쓰지 않을 때만 `grant.Purchase` 로). 구독 지급은 지급 트랜잭션 안에서 합치고(가짜·사용자 정의 스토어도 지급한 거래로, 구독 거래에 `SubscriptionState`·`PurchasedAt` 필요, 없으면 지급 전 예외), Google 지금 상태를 못 읽으면 지급까지 롤백하고 `RetryLater`. 소유 계정은 스냅숏이 정한다. 지급 요청 전에 모두 환불된 결제는 기록 없이 `Revoked` 로 닫고(계정은 Warning 로그 `Closed ... without granting`), 그 뒤 App Store 환불 취소는 자동 지급하지 않는다(Warning 로그로 고객 지원). 지급 요청보다 먼저 온 환불은 지급 전 환불 기록으로 남아 지급 요청이 환불 수량만큼 빼고 지급하거나 닫는다(지급자는 `PurchaseGrant.Quantity` 만큼 지급). 알림으로 지급하거나 확인하지 않는다(지급은 클라이언트 지급 요청으로).

@@ -272,7 +272,7 @@
 
 ## 21. com.geuneda.iap / .iap.unity
 
-- **버전 / 최소 Unity**: iap 0.2.0, iap.unity 0.1.0 / iap 2021.3, iap.unity 2022.3, 결제 서버 .NET 10
+- **버전 / 최소 Unity**: iap 0.3.0, iap.unity 0.1.0 / iap 2021.3, iap.unity 2022.3, 결제 서버 .NET 10
 - **package.json 의존성**: iap 은 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. iap.unity 는 `com.geuneda.iap` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.purchasing` 5.4.4
 - **선택 의존성**(asmdef `versionDefines`): `com.geuneda.analytics` 0.2.0 이상 → `Geuneda.Iap.Analytics`, `com.geuneda.http` 0.1.0 이상 → `Geuneda.Iap.Http`
 - **어셈블리 / 네임스페이스**: `Geuneda.Iap`, `Geuneda.Iap.Analytics`, `Geuneda.Iap.Http`, `Geuneda.Iap.Unity`, .NET 서버 `Geuneda.Iap.Server`(`Server~`)
