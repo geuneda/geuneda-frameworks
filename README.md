@@ -1,6 +1,6 @@
 # Geuneda Frameworks (Unity)
 
-Geuneda Unity Package Manager(UPM) 패키지 25개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬이 함께 다룹니다).
+Geuneda Unity Package Manager(UPM) 패키지 27개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬, MAX 어댑터는 ads 스킬이 함께 다룹니다).
 
 ## 어디부터 읽으면 되나
 
@@ -36,6 +36,8 @@ Geuneda Unity Package Manager(UPM) 패키지 25개를 개발, 테스트, 검증�
 | `com.geuneda.analytics.facebook` | 0.1.0 | 2021.3 | analytics 의 Facebook(Meta) App Events sink. 이름 규칙, 표준 이벤트 → `FB.LogPurchase`·`AdImpression`, `FB.IsInitialized` 로 준비. Facebook SDK 가 있는 게임만 설치 | [README](Packages/com.geuneda.analytics.facebook/README.md) |
 | `com.geuneda.iap` | 0.3.0 | 2021.3 | 인앱 결제. 게임의 지급자(서버 지급)가 지급을 확인한 뒤에만 스토어 거래를 닫아 결제 후 지급 누락을 막음(지급 재시도 백오프, 초기화·복귀·복구 때 스토어 재조회, 늦게 온 결제 지급, 중복 거래·같은 상품 미확정 주문 먼저 지급, 확정만 재시도). 결과 코드 7000 블록, 지급 실패 이벤트, analytics 가 있으면 확정한 구매만 매출 기록, http 가 있으면 결제 서버 지급자. `Server~` 에 ASP.NET Core 결제 서버(Google Play·App Store 영수증 검증, 영수증 유일성 원장, 지급 엔드포인트, 서버 알림의 환불 회수·구독 상태) | [README](Packages/com.geuneda.iap/README.md) |
 | `com.geuneda.iap.unity` | 0.1.0 | 2022.3 | iap 의 Unity IAP 5.4.4(`StoreController`) 어댑터. 자동 재전달·조회 재시도 끄기, 실패 이유 멤버별 대응, App Store 거래 서명(JWS) 전달 | [README](Packages/com.geuneda.iap.unity/README.md) |
+| `com.geuneda.ads` | 0.1.0 | 2021.3 | 보상형·전면 광고. 표시 요청마다 결과 하나(보상 받음은 성공, 보상 없이 닫음·표시 실패·시간 초과·준비 안 됨은 결과 코드 8000 블록), 닫힘 콜백이 없으면 앱이 앞에 있는 시간으로 시간 초과 판정(표시 콜백 없음, 광고가 앱을 멈추는 미디에이션의 복귀 뒤, 절대 5분), 시간 초과 뒤 늦은 보상 이벤트, 앞 광고의 늦은 콜백을 광고 식별 값으로 거름, 로드 실패 2초→30초 백오프. analytics 가 있으면 노출 수익 기록 | [README](Packages/com.geuneda.ads/README.md) |
+| `com.geuneda.ads.max` | 0.1.0 | 2021.3 | ads 의 AppLovin MAX(8.6.3 이상) 어댑터. 단위 거르기, 만료 광고 재로드를 새 로드로, 광고 식별 값, 모르는 수익(-1)은 null. MAX 가 있을 때만 컴파일(`versionDefines`) | [README](Packages/com.geuneda.ads.max/README.md) |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
 | `com.geuneda.services` | 5.1.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 2.0.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
@@ -72,6 +74,8 @@ core
         └── analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook (벤더 SDK 필요)
   └── iap (analytics 는 선택: 있으면 매출 기록 asmdef 가 켜짐)
         └── iap.unity (Unity IAP 5.4.4)
+  └── ads (analytics 는 선택: 있으면 노출 수익 기록 asmdef 가 켜짐)
+        └── ads.max (AppLovin MAX 가 있을 때만 컴파일)
 gamedata
   ├── services
   │     └── gamesystems
@@ -80,7 +84,7 @@ gamedata
 uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Geuneda 패키지에 의존하지 않음
 ```
 
-`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
+`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
 
 외부 의존성(`package.json` 에 선언된 최소 버전):
 
@@ -104,6 +108,8 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | analytics.firebase·airbridge·appsflyer·facebook | `com.geuneda.analytics` 0.2.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 벤더 SDK 는 게임이 먼저 설치(Firebase Unity SDK, Airbridge Unity SDK 4.x, AppsFlyer Unity 플러그인 7.x, Facebook SDK for Unity) |
 | iap | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 선택: `com.geuneda.analytics` 0.2.0 이상(매출 기록), `com.geuneda.http` 0.1.0 이상(결제 서버 지급자). 결제 서버는 .NET 10 |
 | iap.unity | `com.geuneda.iap` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.purchasing` 5.4.4 |
+| ads | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 선택: `com.geuneda.analytics` 0.2.0 이상(노출 수익 기록) |
+| ads.max | `com.geuneda.ads` 0.1.0. AppLovin MAX(`com.applovin.mediation.ads` 8.6.3 이상)는 게임이 AppLovin 레지스트리로 설치(의존성 아님) |
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
@@ -147,6 +153,8 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 | analytics.firebase·airbridge·appsflyer·facebook | analytics, core, UniTask, 그 벤더 SDK |
 | iap | core, UniTask(매출 기록을 쓰면 analytics) |
 | iap.unity | iap, core, UniTask(Unity IAP 는 레지스트리에서 자동 설치) |
+| ads | core, UniTask(노출 수익 기록을 쓰면 analytics) |
+| ads.max | ads, core, UniTask, AppLovin MAX |
 
 Unity 레지스트리에 있는 의존성(Addressables, Newtonsoft Json, Input System, Mobile Notifications 등)은 자동으로 설치됩니다.
 
@@ -190,7 +198,7 @@ geuneda-frameworks/
 
 ## Claude Code 스킬
 
-`claude-skills/` 에는 패키지별 스킬 18개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
+`claude-skills/` 에는 패키지별 스킬 19개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap`, MAX 어댑터는 `geuneda-ads` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
 
 | 스킬 | 대상 |
 |------|------|
@@ -213,6 +221,7 @@ geuneda-frameworks/
 | `geuneda-servertime` | com.geuneda.servertime |
 | `geuneda-analytics` | com.geuneda.analytics, com.geuneda.analytics.firebase·airbridge·appsflyer·facebook |
 | `geuneda-iap` | com.geuneda.iap, com.geuneda.iap.unity |
+| `geuneda-ads` | com.geuneda.ads, com.geuneda.ads.max |
 
 어떤 코드에서 어떤 스킬을 써야 하는지는 [CLAUDE.md](CLAUDE.md) 의 네임스페이스 매핑 표를 따릅니다.
 

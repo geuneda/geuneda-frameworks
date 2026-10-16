@@ -73,3 +73,9 @@
 [submodule "Packages/com.geuneda.iap.unity"]
 	path = Packages/com.geuneda.iap.unity
 	url = https://github.com/geuneda/geuneda-iap-unity.git
+[submodule "Packages/com.geuneda.ads"]
+	path = Packages/com.geuneda.ads
+	url = https://github.com/geuneda/geuneda-ads.git
+[submodule "Packages/com.geuneda.ads.max"]
+	path = Packages/com.geuneda.ads.max
+	url = https://github.com/geuneda/geuneda-ads-max.git

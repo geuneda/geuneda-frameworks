@@ -16,6 +16,8 @@
     "com.geuneda.analytics.facebook": "https://github.com/geuneda/geuneda-analytics-facebook.git",
     "com.geuneda.iap": "https://github.com/geuneda/geuneda-iap.git",
     "com.geuneda.iap.unity": "https://github.com/geuneda/geuneda-iap-unity.git",
+    "com.geuneda.ads": "https://github.com/geuneda/geuneda-ads.git",
+    "com.geuneda.ads.max": "https://github.com/geuneda/geuneda-ads-max.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
