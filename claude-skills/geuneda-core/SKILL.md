@@ -30,7 +30,7 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 - `Result<T>`: 위와 같고 `Ok(T value)`, `Value`(실패면 `InvalidOperationException`), `TryGetValue(out T)`. `Result` 로 암시적 변환.
 - `ResultCodes`: `Success` 0, `Unknown` 1, `Cancelled` 2, `Timeout` 3, `NetworkError` 4, `InProgress` 5, `FromException(Exception)`.
 - 규칙: 실행 중 일어날 수 있는 실패(네트워크, 타임아웃, 취소, 서버 거절, 중복 실행)는 결과 코드, 오용(잘못된 인자·상태)은 즉시 예외.
-- 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 5000 resource, 6000 servertime, 7000 iap, 8000 ads, 9000 consent, 다음 빈 블록 10000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 게임 101000 이상.
+- 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 5000 resource, 6000 servertime, 7000 iap, 8000 ads, 9000 consent, 10000 notice, 다음 빈 블록 11000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 게임 101000 이상.
 
 ## 빌드 환경 핵심 API
 

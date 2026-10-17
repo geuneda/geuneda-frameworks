@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, banword, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, banword, notice, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -313,6 +313,15 @@
 - **테스트**: EditMode `Geuneda.BanWord.Tests.EditMode`, `Geuneda.BanWord.Resource.Tests.EditMode`(호스트에서 실행됨). 같은 파일을 `Server~/tests/Geuneda.BanWord.Tests`(NUnit 3)가 .NET 10 에서 돌림: `dotnet test Server~/Geuneda.BanWord.Server.slnx`
 - **문서**: `README.md`, `AGENTS.md`
 
+## 25. com.geuneda.notice
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
+- **어셈블리 / 네임스페이스**: `Geuneda.Notice`. 서버는 `Server~/src/Geuneda.Notice.Server`(net10.0, ASP.NET Core, Newtonsoft 13.0.3, `Runtime/Document/*.cs` 링크, 네임스페이스 `Geuneda.Notice.Server`)
+- **주요 기능**: `INoticeService`/`NoticeService`/`NoticeServiceOptions`(`RefreshAsync` single-flight·ETag, `GetNotices`·`GetUnreadCount`·`GetPopups`, `MarkRead`·`IsRead`, `SnoozeForToday`·`IsSnoozed`, `Language`, `Changed`), `Notice`, 문서 `NoticeDocument`(`Parse` strict·관대, `ToUtf8Json`, `ActiveAt`)·`NoticeItem`·`NoticeContent`·`NoticePlatforms`, `NoticeResultCodes`(10000 블록). 서버 `AddGeunedaNotice`·`AddFileSource`·`AddSource<T>`·`MapGeunedaNotice`·`INoticeSource`
+- **테스트**: EditMode `Geuneda.Notice.Tests.EditMode`(호스트에서 실행됨, `SampleServerInteropTest` 는 명시 실행). .NET: `dotnet test Server~/Geuneda.Notice.Server.slnx`(`Geuneda.Notice.Document.Tests` 는 Unity 문서 테스트를 링크한 NUnit 3, `Geuneda.Notice.Server.Tests` 는 xUnit)
+- **문서**: `README.md`, `AGENTS.md`
+
 ---
 
 ## 호스트 프로젝트 manifest.json
@@ -344,6 +353,7 @@
     "com.geuneda.consent.ump": "https://github.com/geuneda/geuneda-consent-ump.git",
     "com.geuneda.consent.att": "https://github.com/geuneda/geuneda-consent-att.git",
     "com.geuneda.banword": "https://github.com/geuneda/geuneda-banword.git",
+    "com.geuneda.notice": "https://github.com/geuneda/geuneda-notice.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

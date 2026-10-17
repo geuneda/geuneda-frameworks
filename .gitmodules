@@ -91,3 +91,6 @@
 [submodule "Packages/com.geuneda.banword"]
 	path = Packages/com.geuneda.banword
 	url = https://github.com/geuneda/geuneda-banword.git
+[submodule "Packages/com.geuneda.notice"]
+	path = Packages/com.geuneda.notice
+	url = https://github.com/geuneda/geuneda-notice.git

@@ -25,6 +25,7 @@ SKILLS=(
     "geuneda-iap"
     "geuneda-inputextensions"
     "geuneda-nativeui"
+    "geuneda-notice"
     "geuneda-notificationservice"
     "geuneda-realtime"
     "geuneda-resource"

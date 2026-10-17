@@ -22,6 +22,7 @@
     "com.geuneda.consent.ump": "https://github.com/geuneda/geuneda-consent-ump.git",
     "com.geuneda.consent.att": "https://github.com/geuneda/geuneda-consent-att.git",
     "com.geuneda.banword": "https://github.com/geuneda/geuneda-banword.git",
+    "com.geuneda.notice": "https://github.com/geuneda/geuneda-notice.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",
