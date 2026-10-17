@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, banword, notice, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, banword, notice, coupon, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -322,6 +322,15 @@
 - **테스트**: EditMode `Geuneda.Notice.Tests.EditMode`(호스트에서 실행됨, `SampleServerInteropTest` 는 명시 실행). .NET: `dotnet test Server~/Geuneda.Notice.Server.slnx`(`Geuneda.Notice.Document.Tests` 는 Unity 문서 테스트를 링크한 NUnit 3, `Geuneda.Notice.Server.Tests` 는 xUnit)
 - **문서**: `README.md`, `AGENTS.md`
 
+## 26. com.geuneda.coupon
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
+- **어셈블리 / 네임스페이스**: `Geuneda.Coupon`. 서버는 `Server~/src/Geuneda.Coupon.Server`(net10.0, ASP.NET Core, `Runtime/Protocol/*.cs` 링크, 네임스페이스 `Geuneda.Coupon.Server`)
+- **주요 기능**: `ICouponService`/`CouponService`/`CouponServiceOptions`(`RedeemAsync<TGrant>`), `CouponRedemption<TGrant>`(`AlreadyRedeemed`), 공유 `CouponRedeemRequest`·`CouponRedeemResponse<TGrant>`·`CouponResultCodes`(11000 블록)·`CouponCodes`·`CouponPlatforms`·`CouponRoutes`. 서버 `AddGeunedaCoupon`·`MapGeunedaCoupon`·`CouponServerBuilder`, `CouponCampaign`(Shared·Unique)·`CouponConditions`·`CouponAdmin`, `ICouponStore`·`InMemoryCouponStore`, `ICouponAttemptStore`(원자 예약)·`InMemoryCouponAttemptStore`, `ICouponGrantor`·`CouponGrantResult`, `ICouponContextResolver`, `ICouponRedeemer`
+- **테스트**: EditMode `Geuneda.Coupon.Tests.EditMode`(호스트에서 실행됨, `SampleServerInteropTest` 는 명시 실행). .NET: `dotnet test Server~/Geuneda.Coupon.Server.slnx`(xUnit, Kestrel)
+- **문서**: `README.md`, `AGENTS.md`
+
 ---
 
 ## 호스트 프로젝트 manifest.json
@@ -354,6 +363,7 @@
     "com.geuneda.consent.att": "https://github.com/geuneda/geuneda-consent-att.git",
     "com.geuneda.banword": "https://github.com/geuneda/geuneda-banword.git",
     "com.geuneda.notice": "https://github.com/geuneda/geuneda-notice.git",
+    "com.geuneda.coupon": "https://github.com/geuneda/geuneda-coupon.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

@@ -1,6 +1,6 @@
 # Geuneda Frameworks (Unity)
 
-Geuneda Unity Package Manager(UPM) 패키지 32개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬, MAX 어댑터는 ads 스킬, UMP·ATT 어댑터는 consent 스킬이 함께 다룹니다).
+Geuneda Unity Package Manager(UPM) 패키지 33개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬, MAX 어댑터는 ads 스킬, UMP·ATT 어댑터는 consent 스킬이 함께 다룹니다).
 
 ## 어디부터 읽으면 되나
 
@@ -43,6 +43,7 @@ Geuneda Unity Package Manager(UPM) 패키지 32개를 개발, 테스트, 검증�
 | `com.geuneda.consent.att` | 0.1.0 | 2021.3 | consent 의 iOS ATT 공급자. completion 콜백, 앱 활성 대기, 추적 설명 문구(언어별 InfoPlist.strings) 빌드 후처리, AppTrackingTransparency 약한 링크 | [README](Packages/com.geuneda.consent.att/README.md) |
 | `com.geuneda.banword` | 0.1.0 | 2021.3 | 금칙어 검사. 금칙어·허용어를 Aho-Corasick 오토마톤 하나로 찾고 허용어가 완전히 덮는 금칙어는 뺌, 포함 여부·위치·가리기. 대소문자만 무시(패키지에 넣은 유니코드 단순 대소문자 접기 표라 Mono·IL2CPP·.NET 판정이 같음). 단어장 파일(`[denied]`/`[allowed]`) 읽기. 의존성 없음(resource 가 있으면 지금 → 마지막 → 내장 단어장 순서로 읽는 로더가 켜짐), `Server~` 에 같은 소스를 링크한 .NET 라이브러리 | [README](Packages/com.geuneda.banword/README.md) |
 | `com.geuneda.notice` | 0.1.0 | 2021.3 | 게임 공지 목록. 모든 언어·플랫폼 공지를 담은 JSON 문서를 ETag 조건부 요청으로 받아 기간·플랫폼·언어·분류로 거르고 정렬, 읽음(최근 500개)·'오늘 안 보기'(하루 기준 시간대의 다음 날 시작까지)를 기기에 기록해 안 읽은 수와 진입 팝업을 줌. 문서 형식은 Unity·.NET 공유, `Server~` 에 지금 보이는 공지만 ETag 와 함께 내려주는 ASP.NET Core 배포 헬퍼 | [README](Packages/com.geuneda.notice/README.md) |
+| `com.geuneda.coupon` | 0.1.0 | 2021.3 | 쿠폰 사용. 클라이언트는 코드를 다듬어 보내고 지급 결과를 게임 형식으로 받음(이미 쓴 캠페인은 처음 결과와 함께 성공). `Server~` 의 ASP.NET Core 라이브러리가 공용·개별 일회용 코드, 기간, 대상 조건(플랫폼·국가·최소 앱 버전), 계정별 실패 제한(무작위 대입 방지)을 판정하고 사용 기록과 게임 지급을 저장소 한 트랜잭션으로 묶음 | [README](Packages/com.geuneda.coupon/README.md) |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
 | `com.geuneda.services` | 5.1.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 2.0.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
@@ -74,6 +75,7 @@ core
   │     ├── appsetting
   │     ├── resource
   │     ├── notice
+  │     ├── coupon
   │     └── servertime (services 에도 의존)
   ├── realtime
   └── analytics (http·account 는 선택: 있으면 해당 asmdef 가 켜짐)
@@ -92,7 +94,7 @@ gamedata
 uiservice, statechart, inputextensions, nativeui, notificationservice, banword: 다른 Geuneda 패키지에 의존하지 않음(banword 는 resource 가 있으면 로더 asmdef 가 켜짐)
 ```
 
-`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처), banword 의 선택 로더(결과 규약, 로거), notice(결과 규약, 로거)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
+`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처), banword 의 선택 로더(결과 규약, 로거), notice·coupon(결과 규약, 로거)이 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
 
 외부 의존성(`package.json` 에 선언된 최소 버전):
 
@@ -123,6 +125,7 @@ uiservice, statechart, inputextensions, nativeui, notificationservice, banword: 
 | consent.att | `com.geuneda.consent` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10 |
 | banword | 없음. 선택: `com.geuneda.resource` 0.1.0 이상(로더). 서버 라이브러리(`Server~`)는 .NET 10 |
 | notice | `com.geuneda.core` 0.4.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1. 배포 헬퍼(`Server~`)는 .NET 10 |
+| coupon | `com.geuneda.core` 0.4.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1. 서버 라이브러리(`Server~`)는 .NET 10 |
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
@@ -173,6 +176,7 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 | consent.att | consent, core, UniTask |
 | banword | 없음(로더를 쓰려면 resource, core, http, UniTask) |
 | notice | core, http, UniTask |
+| coupon | core, http, UniTask |
 
 Unity 레지스트리에 있는 의존성(Addressables, Newtonsoft Json, Input System, Mobile Notifications 등)은 자동으로 설치됩니다.
 
@@ -216,7 +220,7 @@ geuneda-frameworks/
 
 ## Claude Code 스킬
 
-`claude-skills/` 에는 패키지별 스킬 22개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap`, MAX 어댑터는 `geuneda-ads`, UMP·ATT 어댑터는 `geuneda-consent` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
+`claude-skills/` 에는 패키지별 스킬 23개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap`, MAX 어댑터는 `geuneda-ads`, UMP·ATT 어댑터는 `geuneda-consent` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
 
 | 스킬 | 대상 |
 |------|------|
@@ -243,6 +247,7 @@ geuneda-frameworks/
 | `geuneda-consent` | com.geuneda.consent, com.geuneda.consent.ump, com.geuneda.consent.att |
 | `geuneda-banword` | com.geuneda.banword |
 | `geuneda-notice` | com.geuneda.notice |
+| `geuneda-coupon` | com.geuneda.coupon |
 
 어떤 코드에서 어떤 스킬을 써야 하는지는 [CLAUDE.md](CLAUDE.md) 의 네임스페이스 매핑 표를 따릅니다.
 

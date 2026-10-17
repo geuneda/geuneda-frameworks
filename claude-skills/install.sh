@@ -17,6 +17,7 @@ SKILLS=(
     "geuneda-banword"
     "geuneda-consent"
     "geuneda-core"
+    "geuneda-coupon"
     "geuneda-gamedata"
     "geuneda-gamesystems"
     "geuneda-frameworks"

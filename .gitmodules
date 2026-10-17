@@ -94,3 +94,6 @@
 [submodule "Packages/com.geuneda.notice"]
 	path = Packages/com.geuneda.notice
 	url = https://github.com/geuneda/geuneda-notice.git
+[submodule "Packages/com.geuneda.coupon"]
+	path = Packages/com.geuneda.coupon
+	url = https://github.com/geuneda/geuneda-coupon.git
