@@ -14,7 +14,7 @@ Unity 게임용 데이터 기반 패키지. 반응형 데이터 타입, 타입 �
 - 런타임 네임스페이스: `Geuneda.DataExtensions` (어셈블리 `Geuneda.GameData`)
 - 에디터 네임스페이스: `GeunedaEditor.GameData` (`MigrationRunner`, `IConfigMigration`, `ConfigMigrationAttribute`, `EditorConfigValidator`, `EnumSelectorPropertyDrawer<T>`), 에디터 창은 `Geuneda.DataExtensions.Editor` (어셈블리 `Geuneda.GameData.Editor`)
 - Unity 6000.0 이상
-- 의존성: `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0(TextMeshPro 포함, 샘플 UI 용). UniTask 는 Unity 레지스트리에 없으므로 manifest 에 git URL(`https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask`)로 먼저 넣어야 한다.
+- 의존성: `com.geuneda.core` 0.4.0(2.0.0 부터, 로거 `ModuleLogger`), `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0(TextMeshPro 포함, 샘플 UI 용). core 와 UniTask 는 Unity 레지스트리에 없으므로 manifest 에 git URL(`https://github.com/geuneda/geuneda-core.git`, `https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask`)로 먼저 넣어야 한다. 런타임 로그는 `[Geuneda.GameData]` 로 시작한다.
 
 ## 핵심 API
 

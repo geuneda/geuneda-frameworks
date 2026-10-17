@@ -11,7 +11,7 @@ description: com.geuneda.gamesystems 패키지(네임스페이스 Geuneda.GameSy
 
 - **네임스페이스 / 어셈블리**: `Geuneda.GameSystems.RedDot` (기능마다 `Geuneda.GameSystems.<기능>`), 에디터 디버그 창은 `Geuneda.GameSystems.RedDot.Editor`
 - **설치**: `https://github.com/geuneda/geuneda-gamesystems.git` (버전 고정이 필요하면 `#<태그>`, 실제 있는 태그만)
-- **현재 버전**: 0.3.0
+- **현재 버전**: 0.3.1
 - **의존성**: `com.geuneda.services` 5.1.0 이상(`MainInstaller.BindingChanged`). git 의존성은 자동 해결되지 않으므로 manifest 에 UniTask, core, gamedata, services 를 함께 넣는다(services 3.0.0 부터 core 필요)
 - **최소 Unity 버전**: 6000.3
 - **기여 가이드**: 패키지 루트의 `AGENTS.md`(구조 규칙, 설계 불변식, 테스트 실행)
@@ -141,7 +141,7 @@ public sealed class ShopTabBadge : MonoBehaviour
 
 ## 새 기능을 추가할 때
 
-- `Runtime/<기능>/` 폴더와 `Geuneda.GameSystems.<기능>.asmdef` 하나. 기능 asmdef끼리 서로 참조 금지, 의존은 `Geuneda.GameData`, `Geuneda.Services`까지.
+- `Runtime/<기능>/` 폴더와 `Geuneda.GameSystems.<기능>.asmdef` 하나. 기능 asmdef끼리 서로 참조 금지, 의존은 `Geuneda.Core`, `Geuneda.GameData`, `Geuneda.Services`까지.
 - 에디터 도구는 `Editor/<기능>/Geuneda.GameSystems.<기능>.Editor.asmdef`(Editor 플랫폼만). 런타임 내부는 `InternalsVisibleTo` 로 열고 디버그용 공개 API 를 늘리지 않는다.
 - 게임 규칙, 경로, 수치는 넣지 않고 델리게이트, 이벤트, 인터페이스로 연다.
 - 공개 MonoBehaviour 는 `sealed`, 로직은 POCO. 테스트는 `Tests/EditMode/<기능>/`, `Tests/PlayMode/<기능>/`.

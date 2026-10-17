@@ -60,7 +60,7 @@ public static void ShowAlertPopUp(bool isAlertSheet, string title, string messag
 
 | 플랫폼 (컴파일 분기) | 동작 |
 |----------------------|------|
-| `UNITY_EDITOR` | `Debug.Log` 로 title, message 만 출력. 콜백 호출 없음 |
+| `UNITY_EDITOR` | `Geuneda.NativeUi` 로거의 Info 로 title, message 만 출력. 콜백 호출 없음 |
 | `UNITY_IOS` | `buttons` 가 null 이거나 비어 있으면 `ArgumentException`. `_currentButtons` 에 저장 후 네이티브 `AlertMessage` 호출. 알림 생성과 표시는 메인 큐에서 `UnityGetGLViewController()` 로 present |
 | `UNITY_ANDROID` | `AlertDialog.Builder(currentActivity).create()` 로 만든 `AlertDialog` 에 `setTitle`, `setMessage`, 버튼마다 `setButton(style, text, listener)` 후 `show` |
 | 그 외 | `SystemException` |
@@ -82,7 +82,7 @@ public static void ShowToastMessage(string message, bool isLongDuration)
 
 | 플랫폼 (컴파일 분기) | 동작 |
 |----------------------|------|
-| `UNITY_EDITOR` | `Debug.Log` 로 message 출력 |
+| `UNITY_EDITOR` | `Geuneda.NativeUi` 로거의 Info 로 message 출력 |
 | `UNITY_IOS` | 네이티브 `ToastMessage` 호출. 메인 큐에서 제목 없는 `UIAlertController`(Alert 스타일, 버튼 없음)를 띄우고 `dispatch_after` 로 지정 시간 후 닫음 |
 | `UNITY_ANDROID` | `Toast.makeText(currentActivity, message, duration)` 후 `show` |
 | 그 외 | `SystemException` |
@@ -115,7 +115,7 @@ public static void ShowToastMessage(string message, bool isLongDuration)
 | 클릭 리스너 | `private class AndroidButtonCallback : AndroidJavaProxy` (`android.content.DialogInterface$OnClickListener`) |
 | 스타일 변환 | `private static int ConvertToAndroidStyle(AlertButtonStyle style)` |
 
-- 다이얼로그와 토스트는 `RunOnAndroidUiThread(Action<AndroidJavaObject>)` 로 `activity.runOnUiThread` 안에서 만들고 표시한다(v0.2.8). 액티비티 참조는 UI 스레드에서 다시 얻고, 그 안의 예외는 `Debug.LogException` 으로 남긴다. 두 메서드는 표시 완료를 기다리지 않는다.
-- `AndroidButtonCallback(Action callback, SynchronizationContext callbackContext)` 는 `ShowAlertPopUp` 을 부른 스레드의 `SynchronizationContext.Current` 를 받는다. `onClick(AndroidJavaObject dialog, int which)` 는 Android UI 스레드에서 불려 `dialog.Call("dismiss")` 후 콜백을 그 컨텍스트로 `Post` 한다(Unity 메인 스레드가 큐를 처리할 때 실행). 컨텍스트가 없으면 UI 스레드에서 바로 부른다. `buttons` 는 복사해서 쓴다.
+- 다이얼로그와 토스트는 `RunOnAndroidUiThread(Action<AndroidJavaObject>)` 로 `activity.runOnUiThread` 안에서 만들고 표시한다(v0.2.8). 액티비티 참조는 UI 스레드에서 다시 얻고, 그 안의 예외는 `Geuneda.NativeUi` 로거로 Error 줄과 예외를 남긴다. 두 메서드는 표시 완료를 기다리지 않는다.
+- `AndroidButtonCallback(Action callback)` 의 `onClick(AndroidJavaObject dialog, int which)` 는 Android UI 스레드에서 불려 `dialog.Call("dismiss")` 후 콜백을 core 의 `MainThreadDispatcher.Post` 로 넘긴다(다음 프레임 Update 전에 Unity 메인 스레드에서 실행, v0.3.0). `buttons` 는 복사해서 쓴다.
 - `ConvertToAndroidStyle` 은 정의되지 않은 값에 `ArgumentOutOfRangeException` 을 던진다.
 - `AlertDialog.setButton` 은 버튼 종류(`which`)당 하나만 유지하므로 버튼은 스타일당 하나, 최대 3개다.

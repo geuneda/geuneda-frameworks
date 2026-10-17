@@ -148,7 +148,7 @@ public StatechartEvent(string name)
   - `CancellationToken` 을 받는 `WaitingFor` 는 실행마다 새 토큰을 넘긴다. 부모 Nest/Split 이 퇴장하려 하거나 `Statechart.Reset()` 되면 취소를 요청한다. 이 취소로 생긴 `OperationCanceledException` 은 실패가 아니며, 리셋으로 취소된 실행의 완료는 무시된다.
 - **Leave**: Nest/Split 내부에서만 의미가 있다. `Transition()` 의 대상은 바로 위 영역(한 레이어 위)의 상태여야 한다.
 
-`OnEnter`/`OnExit`/`OnTransition` 과 대기 액션에서 발생한 예외는 잡혀서 `Debug.LogError` + `Debug.LogException` 으로 출력되며 흐름은 계속된다. `Wait` 의 대기 액션이 예외를 던지면 활동이 완료되거나 이벤트가 올 때까지 기다리고, `TaskWait` 의 태스크가 예외로 끝나면 위 규칙대로 전이한다.
+`OnEnter`/`OnExit`/`OnTransition` 과 대기 액션에서 발생한 예외는 잡혀서 `Geuneda.Statechart` 로거로 Error 줄 + 예외가 출력되며 흐름은 계속된다. `Wait` 의 대기 액션이 예외를 던지면 활동이 완료되거나 이벤트가 올 때까지 기다리고, `TaskWait` 의 태스크가 예외로 끝나면 위 규칙대로 전이한다.
 
 ---
 

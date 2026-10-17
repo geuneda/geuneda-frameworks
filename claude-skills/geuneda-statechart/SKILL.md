@@ -9,7 +9,7 @@ description: com.geuneda.statechart 패키지(네임스페이스 Geuneda.Statech
 
 - 패키지: `com.geuneda.statechart` (`https://github.com/geuneda/geuneda-statechart.git`)
 - 네임스페이스: `using Geuneda.StatechartMachine;` (`Geuneda.Statechart` 가 아니다. 어셈블리 이름만 `Geuneda.Statechart`)
-- 의존성: `com.cysharp.unitask` 2.5.10, Unity 2022.3 이상
+- 의존성: `com.geuneda.core` 0.4.0(0.11.0 부터, 로거. manifest 에 git URL 로 직접 추가), `com.cysharp.unitask` 2.5.10, Unity 2022.3 이상. 로그는 `[Geuneda.Statechart]` 로 시작
 - 전체 공개 API: [references/api.md](references/api.md)
 
 ## 핵심 API

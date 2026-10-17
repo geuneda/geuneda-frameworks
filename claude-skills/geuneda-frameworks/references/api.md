@@ -11,10 +11,10 @@
 
 ## 1. com.geuneda.gamedata
 
-- **버전 / 최소 Unity**: 1.2.0 / 6000.0
-- **package.json 의존성**: `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
+- **버전 / 최소 Unity**: 2.0.0 / 6000.0. 2.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 기존 프로젝트는 `#v1.2.0` 으로 고정한다
+- **package.json 의존성**: `com.geuneda.core` 0.4.0(로거), `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
 - **이 패키지에 의존하는 패키지**: services, googlesheetimporter
-- **어셈블리**: `Geuneda.GameData`(Runtime, `UniTask` + `Newtonsoft.Json.dll` 참조, `allowUnsafeCode`), `Geuneda.GameData.Editor`(Editor)
+- **어셈블리**: `Geuneda.GameData`(Runtime, `Geuneda.Core`·`UniTask` + `Newtonsoft.Json.dll` 참조, `allowUnsafeCode`), `Geuneda.GameData.Editor`(Editor)
 - **네임스페이스**: `Geuneda.DataExtensions`(Runtime), `Geuneda.DataExtensions.Editor` 와 `GeunedaEditor.GameData`(Editor)
 - **주요 기능**:
   - Observable: `ObservableField`, `ObservableList`, `ObservableDictionary`, `ObservableHashSet`, Resolver 변형, `ObservableBatch`, `ComputedField`
@@ -31,7 +31,7 @@
 
 ## 2. com.geuneda.services
 
-- **버전 / 최소 Unity**: 5.1.0 / 6000.3
+- **버전 / 최소 Unity**: 5.2.0 / 6000.3
 - **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10
 - **이 패키지에 의존하는 패키지**: gamesystems, servertime
 - **어셈블리**: `Geuneda.Services`(Runtime, `Geuneda.Core`, `Geuneda.GameData` 와 Addressables/UniTask 계열 참조), `Geuneda.Services.Editor`(Editor)
@@ -50,8 +50,8 @@
 
 ## 3. com.geuneda.uiservice
 
-- **버전 / 최소 Unity**: 2.0.0 / 6000.0. 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이며 기존 프로젝트는 `#v1.3.2` 로 고정한다
-- **package.json 의존성**: `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
+- **버전 / 최소 Unity**: 3.0.0 / 6000.0. 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며(core 를 넣지 않을 프로젝트는 `#v2.0.0`), 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이다(그 전 프로젝트는 `#v1.3.2`)
+- **package.json 의존성**: `com.geuneda.core` 0.4.0(로거), `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
 - **선택 의존성**(asmdef `versionDefines`): `com.unity.inputsystem` 1.0.0 이상 → `GEUNEDA_INPUT_SYSTEM`(`ReadsBackInput` 이 `<Keyboard>/escape` 액션 사용, 없으면 레거시 Input Manager)
 - **이 패키지에 의존하는 패키지**: 없음. gamedata/services 에도 의존하지 않는다.
 - **어셈블리**: `Geuneda.UiService`(Runtime), `Geuneda.UiService.Editor`(Editor)
@@ -64,8 +64,8 @@
 
 ## 4. com.geuneda.statechart
 
-- **버전 / 최소 Unity**: 0.10.0 / 2022.3
-- **package.json 의존성**: `com.cysharp.unitask` 2.5.10
+- **버전 / 최소 Unity**: 0.11.0 / 2022.3. 0.11.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 기존 프로젝트는 `#v0.10.0` 으로 고정한다
+- **package.json 의존성**: `com.geuneda.core` 0.4.0(로거), `com.cysharp.unitask` 2.5.10
 - **어셈블리**: `Geuneda.Statechart`
 - **네임스페이스**: `Geuneda.StatechartMachine`(내부 구현은 `Geuneda.StatechartMachine.Internal`)
 - **주요 기능**: `Statechart`, `IStateFactory` 로 상태 구성. Simple, Nest, Split, Choice, Wait, TaskWait, Leave, Initial, Final 상태, `StatechartEvent` 기반 전환
@@ -88,8 +88,8 @@
 
 ## 6. com.geuneda.nativeui
 
-- **버전 / 최소 Unity**: 0.2.8 / 2020.3
-- **package.json 의존성**: 없음
+- **버전 / 최소 Unity**: 0.3.0 / 2021.3. 0.3.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 기존 프로젝트는 `#v0.2.8` 로 고정한다
+- **package.json 의존성**: `com.geuneda.core` 0.4.0(로거, `MainThreadDispatcher`)
 - **어셈블리**: `Geuneda.NativeUi`(iOS 네이티브 코드 `Runtime/Plugins/iOS/NativeUi.m` 포함)
 - **네임스페이스**: `Geuneda.NativeUi`
 - **주요 기능**: `NativeUiService.ShowAlertPopUp`, `NativeUiService.ShowToastMessage`(iOS/Android, 에디터에서는 로그만)
@@ -100,8 +100,8 @@
 
 ## 7. com.geuneda.notificationservice
 
-- **버전 / 최소 Unity**: 0.2.0 / 2021.3
-- **package.json 의존성**: `com.unity.mobile.notifications` 2.4.2
+- **버전 / 최소 Unity**: 0.3.0 / 2021.3. 0.3.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 기존 프로젝트는 `#v0.2.0` 으로 고정한다
+- **package.json 의존성**: `com.geuneda.core` 0.4.0(로거), `com.unity.mobile.notifications` 2.4.2
 - **어셈블리**: `Geuneda.NotificationService`
 - **네임스페이스**: `Geuneda.NotificationService`
 - **주요 기능**: `MobileNotificationService`(알림 생성/예약/취소/해제, 앱 안 알림 설정 `IsEnabled`, OS 권한 `Permission`/`RequestPermission`), `GameNotificationChannel`, Android/iOS 플랫폼 구현
@@ -125,9 +125,9 @@
 
 ## 9. com.geuneda.gamesystems
 
-- **버전 / 최소 Unity**: 0.3.0 / 6000.3
-- **package.json 의존성**: `com.geuneda.services` 5.1.0(`MainInstaller.BindingChanged`)
-- **어셈블리**: 기능마다 하나. 현재 `Geuneda.GameSystems.RedDot`(`Geuneda.Services` 참조)와 에디터 `Geuneda.GameSystems.RedDot.Editor`(디버그 창)
+- **버전 / 최소 Unity**: 0.3.1 / 6000.3
+- **package.json 의존성**: `com.geuneda.core` 0.4.0(로거), `com.geuneda.services` 5.1.0(`MainInstaller.BindingChanged`)
+- **어셈블리**: 기능마다 하나. 현재 `Geuneda.GameSystems.RedDot`(`Geuneda.Core`·`Geuneda.Services` 참조)와 에디터 `Geuneda.GameSystems.RedDot.Editor`(디버그 창)
 - **네임스페이스**: `Geuneda.GameSystems.<기능>`, 현재 `Geuneda.GameSystems.RedDot`
 - **주요 기능**: 레드닷. '/' 경로 트리 알림 배지, 리프 값의 조상 합산, 뮤트, 경로 단위 구독(`IRedDotService`, `RedDotService`, `RedDotBinding`, `RedDotView`), 일괄 변경(`BeginBatch`/`RedDotBatch`), MainInstaller 늦은 바인딩·교체 추적, 알림 순환 상한, `Tools > Geuneda > RedDot Debugger`
 - **테스트**: `Geuneda.GameSystems.Tests.EditMode`(`Tests/EditMode`), `Geuneda.GameSystems.Tests.PlayMode`(`Tests/PlayMode`)
@@ -139,7 +139,7 @@
 
 - **버전 / 최소 Unity**: 0.4.0 / 2021.3
 - **package.json 의존성**: 없음
-- **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads
+- **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads, consent, notice, coupon, webview, gamedata, statechart, uiservice, nativeui, notificationservice, gamesystems(banword 는 선택 로더만)
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드, Android R8 keep 규칙 훅)
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
 - **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능), 단조 시계(`IMonotonicClock`/`MonotonicClock`, Android `CLOCK_BOOTTIME`·macOS `CLOCK_MONOTONIC` libc, iOS 플러그인 `GeunedaMonotonicClock.mm`, 그 밖은 `Stopwatch`)

@@ -46,15 +46,15 @@ Geuneda Unity Package Manager(UPM) 패키지 35개를 개발, 테스트, 검증�
 | `com.geuneda.coupon` | 0.1.0 | 2021.3 | 쿠폰 사용. 클라이언트는 코드를 다듬어 보내고 지급 결과를 게임 형식으로 받음(이미 쓴 캠페인은 처음 결과와 함께 성공). `Server~` 의 ASP.NET Core 라이브러리가 공용·개별 일회용 코드, 기간, 대상 조건(플랫폼·국가·최소 앱 버전), 계정별 실패 제한(무작위 대입 방지)을 판정하고 사용 기록과 게임 지급을 저장소 한 트랜잭션으로 묶음 | [README](Packages/com.geuneda.coupon/README.md) |
 | `com.geuneda.webview` | 0.1.0 | 2021.3 | 앱 안 웹뷰와 페이지 명령 브리지. 함께 주는 JS 파일의 `geuneda.call` 이 요청 ID 로 짝지은 결과를 Promise 로 받고 Unity 는 이벤트를 보냄. 허용 출처의 페이지만 열고 명령을 받으며(그 밖으로는 이동 막음, 다른 출처 링크는 외부 브라우저) 페이지에 토큰을 넘기지 않음. RectTransform 영역 추적, 뒤로가기(페이지 기록 → 닫기), 열기 성공은 페이지 브리지 준비. notice·coupon 이 있으면 공지·쿠폰 명령 asmdef 가 켜짐 | [README](Packages/com.geuneda.webview/README.md) |
 | `com.geuneda.webview.gree` | 0.1.0 | 2021.3 | webview 의 gree unity-webview 어댑터. 준비 전 값은 준비 뒤 이동 제한 → 여백 → 로드 순서로 적용, 여백은 화면 비율, Android 강제 다크 모드 끔. gree 가 있을 때만 컴파일(`versionDefines`) | [README](Packages/com.geuneda.webview.gree/README.md) |
-| `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
-| `com.geuneda.services` | 5.1.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
-| `com.geuneda.uiservice` | 2.0.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
-| `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
+| `com.geuneda.gamedata` | 2.0.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
+| `com.geuneda.services` | 5.2.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
+| `com.geuneda.uiservice` | 3.0.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
+| `com.geuneda.statechart` | 0.11.0 | 2022.3 | 계층적 상태 머신(Statechart) | [README](Packages/com.geuneda.statechart/README.md) |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](Packages/com.geuneda.inputextensions/README.md) |
-| `com.geuneda.nativeui` | 0.2.8 | 2020.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](Packages/com.geuneda.nativeui/README.md) |
-| `com.geuneda.notificationservice` | 0.2.0 | 2021.3 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](Packages/com.geuneda.notificationservice/README.md) |
+| `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](Packages/com.geuneda.nativeui/README.md) |
+| `com.geuneda.notificationservice` | 0.3.0 | 2021.3 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](Packages/com.geuneda.notificationservice/README.md) |
 | `com.geuneda.googlesheetimporter` | 0.10.0 | 6000.0 | Google 스프레드시트 데이터를 ScriptableObject 설정 데이터로 가져오는 에디터 도구 | [README](Packages/com.geuneda.googlesheetimporter/README.md) |
-| `com.geuneda.gamesystems` | 0.3.0 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷: 일괄 변경, 늦은 바인딩 추적, 디버그 창) | [README](Packages/com.geuneda.gamesystems/README.md) |
+| `com.geuneda.gamesystems` | 0.3.1 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷: 일괄 변경, 늦은 바인딩 추적, 디버그 창) | [README](Packages/com.geuneda.gamesystems/README.md) |
 
 레포지토리 URL 은 모두 `https://github.com/geuneda/<레포>.git` 형식이고, 레포 이름은 패키지 이름의 `com.geuneda.` 를 `geuneda-` 로 바꾸고 나머지 점을 `-` 로 바꾼 것입니다(예: `com.geuneda.services` -> `geuneda-services`, `com.geuneda.account.apple` -> `geuneda-account-apple`).
 
@@ -69,7 +69,6 @@ Geuneda 패키지끼리의 의존 관계입니다(`package.json` 과 asmdef 기�
 
 ```
 core
-  ├── services (gamedata 에도 의존)
   ├── http
   │     ├── account
   │     │     ├── account.apple
@@ -90,24 +89,25 @@ core
         └── consent.ump (UMP SDK 는 EDM4U), consent.att (iOS ATT)
   └── webview (notice·coupon 은 선택: 있으면 공지·쿠폰 명령 asmdef 가 켜짐)
         └── webview.gree (gree unity-webview 가 있을 때만 컴파일)
-gamedata
-  ├── services
-  │     └── gamesystems
-  └── googlesheetimporter
+  ├── gamedata
+  │     ├── services (core 에도 직접 의존)
+  │     │     └── gamesystems (core 에도 직접 의존)
+  │     └── googlesheetimporter
+  └── uiservice, statechart, nativeui, notificationservice
 
-uiservice, statechart, inputextensions, nativeui, notificationservice, banword: 다른 Geuneda 패키지에 의존하지 않음(banword 는 resource 가 있으면 로더 asmdef 가 켜짐)
+inputextensions, banword: 다른 Geuneda 패키지에 의존하지 않음(banword 는 resource 가 있으면 로더 asmdef 가 켜짐)
 ```
 
-`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처), banword 의 선택 로더(결과 규약, 로거), notice·coupon(결과 규약, 로거), webview(결과 규약, 로거, 메인 스레드 디스패처)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
+`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`, 로거), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처), banword 의 선택 로더(결과 규약, 로거), notice·coupon(결과 규약, 로거), webview(결과 규약, 로거, 메인 스레드 디스패처), gamedata·statechart·uiservice·notificationservice·gamesystems(로거), nativeui(로거, 메인 스레드 디스패처)가 참조합니다. 에디터 전용 코드와 googlesheetimporter(에디터 도구)는 `Debug.Log*` 를 그대로 씁니다.
 
 외부 의존성(`package.json` 에 선언된 최소 버전):
 
 | 패키지 | 외부 의존성 |
 |--------|-------------|
-| gamedata | `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
+| gamedata | `com.geuneda.core` 0.4.0, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
 | services | `com.geuneda.core` 0.4.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
-| uiservice | `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 (선택: `com.unity.inputsystem`) |
-| statechart | `com.cysharp.unitask` 2.5.10 |
+| uiservice | `com.geuneda.core` 0.4.0, `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 (선택: `com.unity.inputsystem`) |
+| statechart | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10 |
 | inputextensions | `com.unity.inputsystem` 1.1.1, `com.unity.ugui` 1.0.0 |
 | core | 없음 |
 | http | `com.geuneda.core` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.unitywebrequest` 1.0.0 |
@@ -132,10 +132,10 @@ uiservice, statechart, inputextensions, nativeui, notificationservice, banword: 
 | coupon | `com.geuneda.core` 0.4.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1. 서버 라이브러리(`Server~`)는 .NET 10 |
 | webview | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.ui` 1.0.0 |
 | webview.gree | `com.geuneda.webview` 0.1.0. gree unity-webview(`net.gree.unity-webview`, 태그 없는 git 패키지, 커밋 고정)와 uGUI 는 게임이 설치(의존성 아님) |
-| nativeui | 없음 |
-| notificationservice | `com.unity.mobile.notifications` 2.4.2 |
+| nativeui | `com.geuneda.core` 0.4.0 |
+| notificationservice | `com.geuneda.core` 0.4.0, `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
-| gamesystems | `com.geuneda.services` 5.1.0 |
+| gamesystems | `com.geuneda.core` 0.4.0, `com.geuneda.services` 5.1.0 |
 
 호스트 프로젝트는 Unity 6000.3.2f1 에서 Addressables 2.7.6, Input System 1.17.0, Mobile Notifications 2.4.2, Test Framework 1.6.0, uGUI 2.0.0 으로 검증합니다(`Packages/manifest.json`, `ProjectSettings/ProjectVersion.txt`). 패키지별 최소 Unity 버전은 서로 다르지만 이 호스트에서 함께 검증하는 버전은 6000.3 입니다.
 
@@ -160,10 +160,11 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 
 | 설치하는 패키지 | 같이 추가할 패키지 |
 |----------------|-------------------|
-| gamedata, uiservice, statechart | UniTask |
+| gamedata, uiservice, statechart | core, UniTask |
 | services | UniTask, gamedata, core |
-| googlesheetimporter | gamedata, UniTask(gamedata 의존성) |
+| googlesheetimporter | gamedata, core, UniTask(gamedata 의존성) |
 | gamesystems | services, gamedata, core, UniTask |
+| nativeui, notificationservice | core |
 | http | core, UniTask |
 | realtime | core, UniTask(MessagePack 을 쓰면 UnityNuGet 레지스트리와 `org.nuget.messagepack`, `org.nuget.microsoft.net.stringtools`) |
 | account | core, http, UniTask |

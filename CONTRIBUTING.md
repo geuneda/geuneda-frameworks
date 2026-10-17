@@ -56,6 +56,7 @@ git commit -m "chore: services 포인터 갱신"
   - Runtime 코드에서 `UnityEditor` 를 참조하면 안 됩니다
   - Editor 도구는 `Editor/` 폴더와 Editor 전용 asmdef 에 둡니다
 - **비동기**: 비동기 흐름이 필요한 패키지는 UniTask 를 씁니다
+- **로그**: Runtime 코드는 `Debug.Log*` 대신 core 의 `ModuleLogger`(모듈 이름 `Geuneda.<패키지>[.<기능>]`)로 남깁니다. 예외는 `Logger.Error(exception, "무엇이 실패했는지")` 로 남깁니다. 제네릭 형식에는 static 로거를 두지 않습니다(닫힌 형식마다 생김). Editor 도구는 `Debug.Log*` 를 써도 됩니다
 - **의존성**: 패키지 간 순환 의존은 금지합니다. 새 의존성은 `package.json` 의 `dependencies` 와 asmdef 의 `references` 양쪽에 반영합니다
 - 프레임워크를 쓰는 게임 코드의 설계 규칙은 [CLAUDE.md](CLAUDE.md) 를 따릅니다
 

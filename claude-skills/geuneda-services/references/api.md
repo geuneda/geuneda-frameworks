@@ -1,6 +1,6 @@
 # Geuneda Services - 공개 API 레퍼런스
 
-`com.geuneda.services` 5.1.0 소스 기준. 런타임 어셈블리 `Geuneda.Services`, 에디터 어셈블리 `Geuneda.Services.Editor`.
+`com.geuneda.services` 5.2.0 소스 기준. 런타임 로그는 core `ModuleLogger` 로 `[Geuneda.Services.<기능>]` 을 붙인다(Data, Version, AssetResolver, Tick, Time, Installer). 런타임 어셈블리 `Geuneda.Services`, 에디터 어셈블리 `Geuneda.Services.Editor`.
 
 ---
 

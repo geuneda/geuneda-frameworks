@@ -44,15 +44,15 @@ Geuneda UPM 패키지 35개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.webview` | 0.1.0 | 2021.3 | 앱 안 웹뷰와 페이지 명령 브리지(JS 파일 `geuneda.call` 이 요청 ID 로 짝지은 결과를 Promise 로, Unity 이벤트, 허용 출처만 열고 명령 받기·그 밖 이동 막기, 토큰 안 넘김, RectTransform 영역 추적, 뒤로가기, 열기 성공은 브리지 준비, 결과 코드 12000, notice·coupon 이 있으면 공지·쿠폰 명령 asmdef) | `geuneda-webview` |
 | `com.geuneda.webview.gree` | 0.1.0 | 2021.3 | webview 의 gree unity-webview 어댑터(준비 전 값을 준비 뒤 이동 제한 → 여백 → 로드 순서로, 여백은 화면 비율, gree 가 있을 때만 컴파일) | `geuneda-webview` |
 | `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화(NTP·HTTPS `Date`·직접 구현 원천을 순서대로, 왕복 지연 보정, 지수 백오프 재시도, 30분 재동기화, 포그라운드 복귀 재동기화). services 시간 서비스의 기준점을 맞춤 | `geuneda-servertime` |
-| `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 보안 값(`SecureInt` 등), 직렬화 헬퍼 | `geuneda-gamedata` |
-| `com.geuneda.services` | 5.1.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
-| `com.geuneda.uiservice` | 2.0.0 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit, 뒤로가기, 우선순위 팝업 큐, 모달 dim, 입력 차단 | `geuneda-uiservice` |
-| `com.geuneda.statechart` | 0.10.0 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |
+| `com.geuneda.gamedata` | 2.0.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 보안 값(`SecureInt` 등), 직렬화 헬퍼 | `geuneda-gamedata` |
+| `com.geuneda.services` | 5.2.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
+| `com.geuneda.uiservice` | 3.0.0 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit, 뒤로가기, 우선순위 팝업 큐, 모달 dim, 입력 차단 | `geuneda-uiservice` |
+| `com.geuneda.statechart` | 0.11.0 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 포인터 드래그, 스와이프/탭, 게임패드 | `geuneda-inputextensions` |
-| `com.geuneda.nativeui` | 0.2.8 | 2020.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
-| `com.geuneda.notificationservice` | 0.2.0 | 2021.3 | 모바일 로컬 알림 예약/취소/해제, 앱 안 설정과 OS 권한 게이트 | `geuneda-notificationservice` |
+| `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
+| `com.geuneda.notificationservice` | 0.3.0 | 2021.3 | 모바일 로컬 알림 예약/취소/해제, 앱 안 설정과 OS 권한 게이트 | `geuneda-notificationservice` |
 | `com.geuneda.googlesheetimporter` | 0.10.0 | 6000.0 | Google 스프레드시트 -> ScriptableObject 설정 데이터 임포트(에디터 도구) | `geuneda-googlesheetimporter` |
-| `com.geuneda.gamesystems` | 0.3.0 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷) | `geuneda-gamesystems` |
+| `com.geuneda.gamesystems` | 0.3.1 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷) | `geuneda-gamesystems` |
 
 레포 URL 규칙: `com.geuneda.<x>` -> `https://github.com/geuneda/geuneda-<x>.git`.
 
@@ -64,7 +64,6 @@ Geuneda UPM 패키지 35개와 그것을 개발, 테스트, 검증하는 Unity �
 
 ```
 core
-  ├── services (gamedata 에도 의존)
   ├── http
   │     ├── account
   │     │     ├── account.apple
@@ -85,17 +84,18 @@ core
         └── consent.ump (UMP SDK 는 EDM4U), consent.att (iOS ATT)
   └── webview (notice·coupon 은 선택: 있으면 공지·쿠폰 명령 asmdef 가 켜짐)
         └── webview.gree (gree unity-webview 가 있을 때만 컴파일, versionDefines)
-gamedata
-  ├── services
-  │     └── gamesystems
-  └── googlesheetimporter
+  ├── gamedata
+  │     ├── services (core 에도 직접 의존)
+  │     │     └── gamesystems (core 에도 직접 의존)
+  │     └── googlesheetimporter
+  └── uiservice, statechart, nativeui, notificationservice
 
-독립(다른 Geuneda 패키지에 의존하지 않음): uiservice, statechart, inputextensions, nativeui, notificationservice, banword(resource 는 선택: 있으면 로더 asmdef `Geuneda.BanWord.Resource` 가 켜짐)
+독립(다른 Geuneda 패키지에 의존하지 않음): inputextensions, banword(resource 는 선택: 있으면 로더 asmdef `Geuneda.BanWord.Resource` 가 켜짐)
 ```
 
-core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`, `Pcg32`, 단조 시계), http 와 realtime(결과 규약 `Result`), account 와 제공자 패키지(보안 저장소), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처), banword 의 선택 로더(결과 규약, 로거), notice·coupon(결과 규약, 로거), webview(결과 규약, 로거, 메인 스레드 디스패처)가 참조한다. 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
+core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`, `Pcg32`, 단조 시계, 로거), http 와 realtime(결과 규약 `Result`), account 와 제공자 패키지(보안 저장소), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처), banword 의 선택 로더(결과 규약, 로거), notice·coupon(결과 규약, 로거), webview(결과 규약, 로거, 메인 스레드 디스패처), gamedata·statechart·uiservice·notificationservice·gamesystems(로거), nativeui(로거, 메인 스레드 디스패처)가 참조한다. 에디터 전용 코드와 googlesheetimporter 는 `Debug.Log*` 를 그대로 쓴다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
 
-- core API 를 바꾸면 services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads, consent, banword(`Geuneda.BanWord.Resource`), notice, coupon, webview, gamesystems 를 확인한다. resource 의 `IResourceCache`·`ResourceEntry` 를 바꾸면 banword 로더를 확인한다. analytics 의 표준 이벤트(`AnalyticsPurchase`, `AnalyticsAdImpression`)를 바꾸면 iap(`Geuneda.Iap.Analytics`)와 ads(`Geuneda.Ads.Analytics`)를 확인한다. iap 의 `IIapStore` 계약을 바꾸면 iap.unity 를, ads 의 `IAdMediation` 계약을 바꾸면 ads.max 를, webview 의 어댑터 계약(`IWebViewFactory`·`IWebViewNative`·`IWebViewNativeListener`)을 바꾸면 webview.gree 를, notice 의 `INoticeService`·coupon 의 `ICouponService` 를 바꾸면 webview 의 공지·쿠폰 명령을, consent 의 `IAdConsentProvider`·`ITrackingAuthorization` 계약이나 `ConsentResultCodes` 를 바꾸면 consent.ump·consent.att 를 함께 바꾼다. http API 를 바꾸면 account, account.google, appsetting, resource, notice, coupon, servertime, analytics(`Geuneda.Analytics.Collector`)를 확인한다. account 의 `IAppSession` 을 바꾸면 analytics(`Geuneda.Analytics.Account`)를 확인한다. appsetting 의 리소스 이름 규칙(`AppSettingResource`)을 바꾸면 resource 의 `ResourceEntry` 도 함께 바꾼다(두 패키지는 서로 의존하지 않음). account API(`IAuthProvider`, `PlatformCredential`, `AccountResultCodes`)를 바꾸면 account.apple, account.google 을 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems, servertime(시간 서비스 `ITimeManipulator`)을 확인한다.
+- core API 를 바꾸면 services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads, consent, banword(`Geuneda.BanWord.Resource`), notice, coupon, webview, gamesystems, gamedata, statechart, uiservice, nativeui, notificationservice 를 확인한다. resource 의 `IResourceCache`·`ResourceEntry` 를 바꾸면 banword 로더를 확인한다. analytics 의 표준 이벤트(`AnalyticsPurchase`, `AnalyticsAdImpression`)를 바꾸면 iap(`Geuneda.Iap.Analytics`)와 ads(`Geuneda.Ads.Analytics`)를 확인한다. iap 의 `IIapStore` 계약을 바꾸면 iap.unity 를, ads 의 `IAdMediation` 계약을 바꾸면 ads.max 를, webview 의 어댑터 계약(`IWebViewFactory`·`IWebViewNative`·`IWebViewNativeListener`)을 바꾸면 webview.gree 를, notice 의 `INoticeService`·coupon 의 `ICouponService` 를 바꾸면 webview 의 공지·쿠폰 명령을, consent 의 `IAdConsentProvider`·`ITrackingAuthorization` 계약이나 `ConsentResultCodes` 를 바꾸면 consent.ump·consent.att 를 함께 바꾼다. http API 를 바꾸면 account, account.google, appsetting, resource, notice, coupon, servertime, analytics(`Geuneda.Analytics.Collector`)를 확인한다. account 의 `IAppSession` 을 바꾸면 analytics(`Geuneda.Analytics.Account`)를 확인한다. appsetting 의 리소스 이름 규칙(`AppSettingResource`)을 바꾸면 resource 의 `ResourceEntry` 도 함께 바꾼다(두 패키지는 서로 의존하지 않음). account API(`IAuthProvider`, `PlatformCredential`, `AccountResultCodes`)를 바꾸면 account.apple, account.google 을 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems, servertime(시간 서비스 `ITimeManipulator`)을 확인한다.
 - uiservice 는 gamedata/services 에 의존하지 않는다.
 - 패키지 간 순환 의존은 금지한다.
 - 외부 의존성과 버전은 `references/api.md` 의 패키지별 카드를 본다.
@@ -119,10 +119,11 @@ UPM 은 git 전용 의존성을 자동으로 받지 못하므로 직접 함께 �
 
 | 설치하는 패키지 | 같이 넣을 것 |
 |----------------|-------------|
-| gamedata, uiservice, statechart | UniTask |
+| gamedata, uiservice, statechart | core, UniTask |
 | services | UniTask, gamedata, core |
-| googlesheetimporter | gamedata, UniTask |
+| googlesheetimporter | gamedata, core, UniTask |
 | gamesystems | services, gamedata, core, UniTask |
+| nativeui, notificationservice | core |
 | http | core, UniTask |
 | realtime | core, UniTask(MessagePack 을 쓰면 UnityNuGet 의 `org.nuget.messagepack`, `org.nuget.microsoft.net.stringtools`) |
 | account | core, http, UniTask |

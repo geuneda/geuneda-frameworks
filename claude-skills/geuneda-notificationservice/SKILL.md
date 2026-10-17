@@ -9,7 +9,7 @@ Unity Mobile Notifications(`com.unity.mobile.notifications`)를 감싸 Android/i
 
 - 네임스페이스/어셈블리: `Geuneda.NotificationService`
 - 설치: `https://github.com/geuneda/geuneda-notificationservice.git` (고정하려면 `#<태그>`)
-- 의존성: `com.unity.mobile.notifications` 2.4.2 (`package.json` 선언), Unity 2021.3 이상
+- 의존성: `com.geuneda.core` 0.4.0(0.3.0 부터, 로거. manifest 에 git URL 로 직접 추가), `com.unity.mobile.notifications` 2.4.2 (`package.json` 선언), Unity 2021.3 이상
 - 전체 공개 API: [references/api.md](references/api.md)
 
 ## 핵심 API

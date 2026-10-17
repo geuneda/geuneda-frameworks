@@ -2,7 +2,7 @@
 
 ## 네임스페이스: Geuneda.GameSystems.RedDot
 
-어셈블리: `Geuneda.GameSystems.RedDot` (참조: `Geuneda.Services`). 소스: `Runtime/RedDot/`. 기준 버전 0.3.0.
+어셈블리: `Geuneda.GameSystems.RedDot` (참조: `Geuneda.Core`, `Geuneda.Services`). 소스: `Runtime/RedDot/`. 기준 버전 0.3.1. 로그는 core `ModuleLogger` 로 `[Geuneda.GameSystems.RedDot]`(서비스), `[Geuneda.GameSystems.RedDot.View]`(뷰)를 붙인다.
 
 ### interface IRedDotService
 
@@ -13,7 +13,7 @@
 | `IReadOnlyCollection<string> Paths { get; }` | 등록된 모든 노드 경로의 읽기 전용 스냅샷(`ReadOnlyCollection`). 읽은 뒤 변경은 반영 안 됨, 순회 중 등록·제거 가능. 트리가 그대로면 같은 인스턴스 |
 | `void RegisterNode(string path)` | 노드 등록. 없는 조상 자동 생성, 이미 있으면 무시. 경로가 비었거나 '/'로 시작·끝나거나 빈 구간이 있으면 `ArgumentException` |
 | `void UnregisterNode(string path)` | 노드와 하위 노드 제거. 값이 있던 경로 구독자에게 0 알림, 구독 유지. 없는 경로면 무시 |
-| `void SetLeafValue(string path, int value)` | 리프 값 설정. 음수는 0. 미등록 경로나 부모 노드면 `Debug.LogWarning` 후 무시 |
+| `void SetLeafValue(string path, int value)` | 리프 값 설정. 음수는 0. 미등록 경로나 부모 노드면 Warning 로그 후 무시 |
 | `void SetNodeMuted(string path, bool muted)` | 뮤트/해제. 미등록 경로면 경고 후 무시 |
 | `int GetValue(string path)` | 현재 값. 부모는 자식 합(int 범위 초과 시 `int.MaxValue`), 없는 경로는 0 |
 | `void Subscribe(string path, Action<int> callback)` | 경로 구독. null 콜백은 `ArgumentNullException`. 미등록 경로도 가능. 구독 시점 값은 전달하지 않음(그 값이 이 구독자의 기준값). 같은 콜백을 여러 번 구독하면 그만큼 호출 |
@@ -26,9 +26,9 @@
 - 구독자마다 마지막 전달 값을 기억하고, 호출 직전 현재 값과 다를 때만 호출한다.
 - 콜백 안의 변경은 즉시 반영되고 같은 알림 흐름 안에서 이어서 전달된다.
 - 해제된 구독자는 진행 중인 알림에서도 호출되지 않는다.
-- 콜백 예외는 `Debug.LogException` 후 나머지 구독자를 계속 알린다.
+- 콜백 예외는 Error 줄과 예외를 남긴 뒤 나머지 구독자를 계속 알린다.
 - 일괄 범위가 열려 있으면 알리지 않는다. 알림 도중 콜백이 범위를 열면 남은 알림(같은 경로의 남은 구독자 포함)은 그 범위가 끝날 때 보낸다.
-- 한 번의 처리에서 같은 경로를 100번(`MaxNotificationsPerPath`, internal) 넘게 알리면 `Debug.LogError` 한 번 후 그 처리에서 그 경로를 건너뛴다. 횟수는 경로로 세므로 콜백이 해제 후 재구독해도 유지된다.
+- 한 번의 처리에서 같은 경로를 100번(`MaxNotificationsPerPath`, internal) 넘게 알리면 Error 로그 한 번 후 그 처리에서 그 경로를 건너뛴다. 횟수는 경로로 세므로 콜백이 해제 후 재구독해도 유지된다.
 
 ---
 

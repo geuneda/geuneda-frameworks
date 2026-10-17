@@ -484,7 +484,7 @@ IEEE binary32 와 같은 비트 표현을 쓰고 연산을 소프트웨어로 �
 
 | 멤버 | 설명 |
 |------|------|
-| `static event Action<Type> TamperDetected` | 변조를 감지한 읽기마다 발생. 인자는 보안 값 타입(`typeof(SecureInt)` 등). 읽은 스레드에서 동기 호출, 핸들러 예외는 `Debug.LogException` 후 다음 핸들러, 핸들러 안의 감지는 알리지 않음. `SubsystemRegistration` 때 구독 초기화 |
+| `static event Action<Type> TamperDetected` | 변조를 감지한 읽기마다 발생. 인자는 보안 값 타입(`typeof(SecureInt)` 등). 읽은 스레드에서 동기 호출, 핸들러 예외는 `Geuneda.GameData` 로거로 Error 줄과 예외를 남긴 뒤 다음 핸들러, 핸들러 안의 감지는 알리지 않음. `SubsystemRegistration` 때 구독 초기화 |
 
 ### JSON
 

@@ -9,9 +9,9 @@ UI 프레젠터의 로드, 열기, 닫기, 언로드를 `UiService` 한 곳에�
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.uiservice` 2.0.0 (`package.json` 기준). 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이며 기존 프로젝트는 `#v1.3.2` 로 고정한다
-- 설치: `https://github.com/geuneda/geuneda-uiservice.git` (UniTask 는 manifest 에 직접 추가해야 함)
-- 의존성: `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0. 헬퍼 뷰는 uGUI/TextMeshPro 사용. 선택: `com.unity.inputsystem`(있으면 `ReadsBackInput` 이 Input System 사용)
+- 패키지: `com.geuneda.uiservice` 3.0.0 (`package.json` 기준). 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 프로젝트는 `#v2.0.0`, `IUiService` 멤버가 추가되기 전 프로젝트는 `#v1.3.2` 로 고정한다
+- 설치: `https://github.com/geuneda/geuneda-uiservice.git` (core 와 UniTask 는 manifest 에 직접 추가해야 함)
+- 의존성: `com.geuneda.core` 0.4.0(로거 `ModuleLogger`, 로그는 `[Geuneda.UiService]`·`[Geuneda.UiService.<기능>]` 로 시작), `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0. 헬퍼 뷰는 uGUI/TextMeshPro 사용. 선택: `com.unity.inputsystem`(있으면 `ReadsBackInput` 이 Input System 사용)
 - Unity 6000.0+ (`UiToolkitPanelRendererFeature` 는 6000.5+)
 - 소스: geuneda-frameworks 레포의 `Packages/com.geuneda.uiservice/` (`Runtime/`, `Editor/`, `docs/`)
 - 전체 공개 API: [references/api.md](references/api.md)

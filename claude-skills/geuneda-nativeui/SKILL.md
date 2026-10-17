@@ -5,15 +5,15 @@ description: com.geuneda.nativeui 패키지(Geuneda.NativeUi)로 iOS/Android 네
 
 # Geuneda Native UI
 
-iOS/Android 네이티브 알림 다이얼로그(Alert/ActionSheet)와 토스트 메시지를 정적 메서드 두 개로 호출하는 패키지다. 의존성이 없고 MonoBehaviour 없이 어디서든 호출할 수 있다.
+iOS/Android 네이티브 알림 다이얼로그(Alert/ActionSheet)와 토스트 메시지를 정적 메서드 두 개로 호출하는 패키지다. core 에만 의존하고 MonoBehaviour 없이 어디서든 호출할 수 있다.
 
 ## 패키지 정보
 
 - **패키지**: `com.geuneda.nativeui` (버전은 `package.json` 기준)
 - **네임스페이스 / 어셈블리**: `Geuneda.NativeUi` / `Geuneda.NativeUi` (Auto Referenced)
 - **설치**: `https://github.com/geuneda/geuneda-nativeui.git` (`#<태그>` 로 고정 가능)
-- **의존성**: 없음
-- **최소 Unity 버전**: 2020.3
+- **의존성**: `com.geuneda.core` 0.4.0(0.3.0 부터, 로거와 `MainThreadDispatcher`. manifest 에 git URL 로 직접 추가)
+- **최소 Unity 버전**: 2021.3
 - **소스**: `Runtime/NativeUiService.cs`, `Runtime/Plugins/iOS/NativeUi.m`
 
 ## 핵심 API
@@ -37,7 +37,7 @@ public static class NativeUiService
 
 - `ShowAlertPopUp`: `isAlertSheet` 는 iOS 에서만 의미가 있다(ActionSheet). Android 는 무시한다.
 - `ShowToastMessage`: `isLongDuration` 이 `true` 면 약 3.5초, `false` 면 약 2초.
-- 에디터에서는 둘 다 `Debug.Log` 만 출력하고 콜백은 호출하지 않는다. iOS/Android 외 플랫폼 빌드에서는 `SystemException` 을 던진다.
+- 에디터에서는 둘 다 `Geuneda.NativeUi` 로거의 Info 만 출력하고 콜백은 호출하지 않는다. iOS/Android 외 플랫폼 빌드에서는 `SystemException` 을 던진다.
 
 스타일 매핑, 플랫폼별 동작, 내부 구현은 `references/api.md` 참조.
 
@@ -92,8 +92,8 @@ NativeUiService.ShowToastMessage("네트워크 오류가 발생했습니다.", t
 - **iOS 콜백은 버튼 텍스트로 매칭**: 텍스트가 같은 버튼이 있으면 첫 번째 것만 호출된다. `_currentButtons` 정적 필드 하나로 관리하므로 알림이 열린 상태에서 새 알림을 띄우면 이전 알림의 버튼 정보가 덮어써진다. `Text` 가 null 이면 네이티브와 같이 빈 문자열로 보고 매칭한다.
 - **버튼 인자**: `buttons` 가 `null` 이거나 비어 있으면 iOS, Android 모두 `ArgumentException`(v0.2.7). 에디터는 로그만 남긴다.
 - **`Callback` 은 null 허용**: iOS, Android 모두 null 이면 알림만 닫고 아무것도 호출하지 않는다.
-- **스레드**: 버튼 콜백은 Unity 메인 스레드에서 실행되므로 Unity API 를 써도 된다. Android 는 다이얼로그·토스트를 Android UI 스레드에서 만들고(`runOnUiThread`), 클릭은 `ShowAlertPopUp` 을 부른 스레드의 `SynchronizationContext` 로 넘겨 그 컨텍스트가 큐를 처리할 때 실행한다. 그래서 Android 에서는 메서드가 표시 완료를 기다리지 않고 표시 오류는 로그로만 남는다. `ShowAlertPopUp` 은 Unity 메인 스레드에서 부른다(v0.2.8).
-- **에디터에서 콜백 테스트 불가**: 에디터 분기는 `Debug.Log` 만 하고 반환한다.
+- **스레드**: 버튼 콜백은 Unity 메인 스레드에서 실행되므로 Unity API 를 써도 된다. Android 는 다이얼로그·토스트를 Android UI 스레드에서 만들고(`runOnUiThread`), 클릭은 core 의 `MainThreadDispatcher` 로 넘겨 다음 프레임 Update 전에 Unity 메인 스레드에서 실행한다(v0.3.0, 이전에는 부른 스레드의 `SynchronizationContext`). 그래서 Android 에서는 메서드가 표시 완료를 기다리지 않고 표시 오류는 로그로만 남는다. `ShowAlertPopUp` 은 Unity 메인 스레드에서 부른다(v0.2.8).
+- **에디터에서 콜백 테스트 불가**: 에디터 분기는 Info 로그만 남기고 반환한다.
 - **비대상 플랫폼 예외**: Standalone/WebGL 등에서는 `SystemException`. 공용 코드에서는 `#if UNITY_IOS || UNITY_ANDROID` 로 감싼다.
 - **버튼 배치 순서**: 배열 순서대로 추가하지만 실제 배치는 OS 규칙을 따른다.
 
