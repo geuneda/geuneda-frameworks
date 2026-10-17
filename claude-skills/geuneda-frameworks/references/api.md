@@ -137,12 +137,12 @@
 
 ## 10. com.geuneda.core
 
-- **버전 / 최소 Unity**: 0.5.0 / 2021.3
+- **버전 / 최소 Unity**: 0.5.1 / 2021.3
 - **package.json 의존성**: 없음
 - **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads, consent, notice, coupon, webview, gamedata, statechart, uiservice, nativeui, notificationservice, gamesystems(banword 는 선택 로더만)
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드, Android R8 keep 규칙 훅)
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
-- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능), 단조 시계(`IMonotonicClock`/`MonotonicClock`, Android `CLOCK_BOOTTIME`·macOS `CLOCK_MONOTONIC` libc, iOS 플러그인 `GeunedaMonotonicClock.mm`, 그 밖은 `Stopwatch`), 인증 암호화(`AesEncryption`: 버전 1 = AES-256-CBC + HMAC-SHA256 encrypt-then-MAC, HKDF 키 분리, 연관 데이터, 서버는 `Runtime/Cryptography`·`Runtime/Results` 링크), 기기 키(`IDeviceKeyProvider`/`DeviceKeyProvider`, 키체인·키스토어 없는 곳은 실패), 공용 결과 코드 6~9
+- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능), 단조 시계(`IMonotonicClock`/`MonotonicClock`, Android `CLOCK_BOOTTIME`·macOS `CLOCK_MONOTONIC` libc, iOS 플러그인 `GeunedaMonotonicClock.mm`, 그 밖은 `Stopwatch`), 인증 암호화(`AesEncryption`: 버전 1 = AES-256-CBC + HMAC-SHA256 encrypt-then-MAC, HKDF 키 분리, 연관 데이터, 서버는 `Runtime/Cryptography`·`Runtime/Results` 링크), 기기 키(`IDeviceKeyProvider`/`DeviceKeyProvider`, 키체인·키스토어 없는 플레이어는 실패, 에디터는 PlayerPrefs 평문에 둠), 공용 결과 코드 6~9
 - **테스트**: EditMode `Geuneda.Core.Tests.EditMode`, PlayMode `Geuneda.Core.Tests.PlayMode`
 - **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2: `Log`, `MainThreadDispatcher`, gamedata `SecureValueMonitor`, services `MainInstaller`)
 

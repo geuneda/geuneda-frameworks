@@ -75,7 +75,7 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 - `AesEncryption`(static, 상태 없음, 어느 스레드든): `byte[] Encrypt(byte[] key, byte[] plaintext, byte[] associatedData = null)`, `Result<byte[]> Decrypt(byte[] key, byte[] data, byte[] associatedData = null)`, `const int KeySize = 32`.
 - 형식 버전 1: `버전(1) || IV(16) || AES-256-CBC 암호문(PKCS7) || 태그(32)`. 태그는 `HMAC-SHA256(MAC 키, 버전 || IV || 암호문 || 연관 데이터 || 연관 데이터 비트 길이 8바이트 빅엔디언)`, 두 키는 32바이트 키에서 HKDF-SHA256(info `geuneda.core.aes-256-cbc-hmac-sha256.v1`)으로 나눈다. 태그를 상수 시간으로 비교한 뒤에만 복호화한다.
 - `Decrypt` 실패 코드: `UnsupportedVersion`(첫 바이트가 1 이 아님, 암호화하지 않은 옛 파일 포함), `InvalidFormat`(길이), `IntegrityCheckFailed`(변조, 다른 키, 다른 연관 데이터). 로그는 호출자가 남긴다. null·길이가 다른 키, null 평문·데이터는 예외.
-- `IDeviceKeyProvider.GetOrCreate(string name)` → `Result<byte[]>`: `PlatformSecureStore` 의 `geuneda.core.deviceKey.<이름>` 에 Base64 로 둔 32바이트 키, 없으면 만들어 저장. 구현 `new DeviceKeyProvider()`(인자 없음), 부트스트랩에서 `MainInstaller.Bind<IDeviceKeyProvider>(new DeviceKeyProvider())`. 메인 스레드. 실패는 `SecureStoreUnavailable`(키체인·키스토어 없는 곳, 읽기 Failed, 쓰기 실패 — 그 항목을 지움, 쓴 값을 다시 읽지 못함) 또는 `InvalidFormat`(저장된 값이 키가 아님, 덮어쓰지 않음). 에디터도 PlayerPrefs(평문)라 실패.
+- `IDeviceKeyProvider.GetOrCreate(string name)` → `Result<byte[]>`: `PlatformSecureStore` 의 `geuneda.core.deviceKey.<이름>` 에 Base64 로 둔 32바이트 키, 없으면 만들어 저장. 구현 `new DeviceKeyProvider()`(인자 없음), 부트스트랩에서 `MainInstaller.Bind<IDeviceKeyProvider>(new DeviceKeyProvider())`. 메인 스레드. 실패는 `SecureStoreUnavailable`(키체인·키스토어 없는 곳, 읽기 Failed, 쓰기 실패 — 그 항목을 지움, 쓴 값을 다시 읽지 못함) 또는 `InvalidFormat`(저장된 값이 키가 아님, 덮어쓰지 않음). 에디터는 개발용 예외로 PlayerPrefs(평문)에 키를 두고 성공(0.5.1, 플레이어 빌드에는 없음).
 - 서버(.NET)는 `Runtime/Cryptography/*.cs` 와 `Runtime/Results/*.cs` 를 링크해 같은 형식을 읽고 쓴다.
 
 ## 사용 패턴
@@ -172,5 +172,5 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - 같은 키로 여러 파일을 암호화하면 연관 데이터에 용도·파일 이름을 넣는다. 안 넣으면 다른 파일의 암호문을 옮겨 넣어도 풀린다. 같은 파일의 예전 암호문으로 되돌리는 것(롤백)은 연관 데이터로도 막지 못한다.
 - 키 회전은 없다(형식에 키 ID 없음). 키를 바꾸려면 옛 키로 풀어 새 키로 다시 쓴다.
 - 기기 키로 암호화한 파일은 다른 기기로 옮기거나 백업을 새 기기에 복원하면 풀 수 없다(`IntegrityCheckFailed`). Android 는 재설치·키스토어 키 분실 때도 키가 바뀐다. 기기 키로는 잃어도 되거나 서버에서 다시 받을 수 있는 데이터만 암호화한다.
-- `DeviceKeyProvider` 가 실패하면 고정 키나 평문 저장으로 대신하지 않는다. 저장을 미루거나 서버 데이터를 쓴다. 에디터와 Windows·macOS·Linux·WebGL 플레이어처럼 키체인·키스토어가 없는 곳에서는 늘 `SecureStoreUnavailable` 이다. 에디터 시험과 사용하는 쪽 테스트는 개발용 `IDeviceKeyProvider` 가짜를 바인딩하거나 `AesEncryption` 에 직접 키를 넘긴다.
+- `DeviceKeyProvider` 가 실패하면 고정 키나 평문 저장으로 대신하지 않는다. 저장을 미루거나 서버 데이터를 쓴다. Windows·macOS·Linux·WebGL 플레이어처럼 키체인·키스토어가 없는 곳에서는 늘 `SecureStoreUnavailable` 이다(에디터만 예외로 PlayerPrefs 평문에 둠). 사용하는 쪽 테스트는 개발용 `IDeviceKeyProvider` 가짜를 바인딩하거나 `AesEncryption` 에 직접 키를 넘긴다.
 - `AesGcm` 은 Unity Mono 에서 컴파일되지만 실행하면 `PlatformNotSupportedException` 이다. 쓰지 않는다.

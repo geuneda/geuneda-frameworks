@@ -21,7 +21,7 @@ Geuneda UPM 패키지 35개와 그것을 개발, 테스트, 검증하는 Unity �
 
 | 패키지 | 버전 | 최소 Unity | 용도 | 스킬 |
 |--------|------|-----------|------|------|
-| `com.geuneda.core` | 0.5.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소(iOS 키체인, Android 키스토어), 결정론적 난수(`Pcg32`), 단조 시계(`MonotonicClock`, 기기 시계 변경 무관, 잠든 동안에도 흐름), 인증 암호화(`AesEncryption`)·기기 키(`DeviceKeyProvider`) | `geuneda-core` |
+| `com.geuneda.core` | 0.5.1 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소(iOS 키체인, Android 키스토어), 결정론적 난수(`Pcg32`), 단조 시계(`MonotonicClock`, 기기 시계 변경 무관, 잠든 동안에도 흐름), 인증 암호화(`AesEncryption`)·기기 키(`DeviceKeyProvider`) | `geuneda-core` |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트(미들웨어 체인, `Result<HttpResponse>`, JSON, 선택형 타임아웃·재시도) | `geuneda-http` |
 | `com.geuneda.realtime` | 0.2.0 | 2021.3 | WebSocket 실시간 RPC 클라이언트(single-flight 연결, 재로그인, 지수 백오프 재연결, 서버 푸시, JSON/MessagePack 직렬화), `[RpcService]` 계약 소스 생성기, ASP.NET Core 서버(`Server~/`) | `geuneda-realtime` |
 | `com.geuneda.account` | 0.3.0 | 2021.3 | 계정 인증(게스트·제공자 로그인, 자동 로그인, 재발급 single-flight, 토큰 미들웨어, 연동·옮겨오기·해제·삭제)과 앱 세션(다음 세션 ID 예약, 대칭 이벤트), ASP.NET Core 인증 서버(`Server~/`, 애플·구글 id 토큰 검증, 서버 발급 nonce·충돌 티켓 replay 방어) | `geuneda-account` |
