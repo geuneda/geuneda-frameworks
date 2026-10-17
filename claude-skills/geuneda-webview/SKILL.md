@@ -9,7 +9,7 @@ description: com.geuneda.webview 패키지(네임스페이스 Geuneda.WebView, �
 
 ## 패키지 정보
 
-- **버전**: webview 0.2.0, webview.gree 0.2.0
+- **버전**: webview 0.2.1, webview.gree 0.2.0
 - **네임스페이스 / 어셈블리**: `Geuneda.WebView`, 선택 `Geuneda.WebView.Notice`(com.geuneda.notice 가 있을 때), `Geuneda.WebView.Coupon`(com.geuneda.coupon 이 있을 때), 어댑터 `Geuneda.WebView.Gree`(gree 가 있을 때)
 - **설치**: `https://github.com/geuneda/geuneda-webview.git`, `https://github.com/geuneda/geuneda-webview-gree.git`(core, UniTask git URL 도 함께). gree 는 `"net.gree.unity-webview": "https://github.com/gree/unity-webview.git?path=/dist/package-nofragment#20f14061ca4b45e8490c1e89e00684a5d3ed6be0"` 처럼 커밋을 고정해 게임이 넣고 uGUI(`com.unity.ugui`)가 필요. 기본 `dist/package` 는 Android 에 미디어 읽기 권한·FileProvider·androidx core 를 넣으므로 파일 입력이 필요할 때만 쓴다. Unity 2021.3+
 - **페이지 파일**: 패키지의 `Web~/geuneda-webview.js`(Unity 가 가져오지 않는 폴더), 샘플 `Web~/notice.html`, `Web~/coupon.html`. 페이지 서버가 함께 내려준다
@@ -64,13 +64,13 @@ MainInstaller.CleanDispose<IWebViewService>();
 
 - **열기 성공 = 연결**(`ready` → Unity 가 `bind` 로 키를 `EvaluateJS` → 페이지가 키로 `bound`). 로드 끝만으로 성공시키지 않는다(404 도 로드는 끝남). gree Android 는 리소스 HTTP 오류도 알리므로 HTTP 오류만으로 실패시키지 않고, 준비 알림 없이 로드가 끝났고 400 이상이 있었을 때만 `LoadFailed`.
 - **키·문서 ID**: 키는 열기마다 무작위이고 `EvaluateJS`(메인 프레임만)로만 넘기므로 다른 출처 iframe 은 명령을 보낼 수 없다(gree 는 보낸 프레임을 알려 주지 않음). 결과는 명령을 보낸 문서(JS 가 만든 무작위 ID)에만 간다.
-- **실행 순간의 출처 검사**: Unity 가 보내는 스크립트는 실행 순간의 `window.location.origin` 이 허용 출처일 때만 페이지에 넘긴다. 이동 제한을 비껴간 허용 밖 이동이 시작되면(Android POST) 웹뷰를 닫는다. iOS 는 POST·리디렉트·`window.open`·iframe 까지 막고 웹뷰가 그대로 남는다.
+- **실행 순간의 출처 검사**: Unity 가 보내는 스크립트는 실행 순간의 `window.location.origin` 이 허용 출처일 때만 페이지에 넘긴다. 이동 제한을 비껴간 허용 밖 이동이 시작되면(Android POST) 웹뷰를 닫는다. 열기 중이면 `LoadFailed` 이거나 열기 성공 직후 `Closed` 다(POST 시작 알림이 응답 커밋 때 오는 경합). 어느 쪽이든 웹뷰는 남지 않고 키는 허용 문서에만 간다. iOS 는 POST·리디렉트·`window.open`·iframe 까지 막고 웹뷰가 그대로 남는다.
 - **스크립트는 ASCII**(0.2.0): Unity → 페이지 JSON 은 `EscapeNonAscii` 로 쓴다. 날것의 짝 없는 서로게이트는 gree iOS 에서 스크립트를 통째로 없앴다(0.1.0). 값 안의 `JRaw` 도 ASCII 로 바꿔 쓰고 주석 토큰은 버린다. 스크립트 문자열을 손으로 만들지 않는다.
 - **허용 출처 세 겹**: 연 주소 검사, 네이티브 이동 제한(`DenyUrlPattern`), 지금 페이지 주소(메인 프레임 로드 끝)로 명령·결과·이벤트 거르기. 다른 출처 링크는 JS 파일이 외부 브라우저로 연다.
 - **토큰을 페이지에 넘기지 않는다.** 쿠폰 사용은 Unity 의 `ICouponService` 가 인증해 보낸다.
 - **명령 결과**: 성공 `{ok:true, code:0, value}`(camelCase, null 속성 뺌), 실패는 처리기의 code·message 그대로, 모르는 명령 12002, 인자 형식 12003, 처리기가 던진 취소·제한 시간은 `Cancelled`·`Timeout`, 그 밖의 처리기 예외는 `Unknown`(1)+Error 로그, 앱 밖 12004(JS). JS 가 인자를 JSON 으로 만들 수 없으면(순환 참조, BigInt) 12003, 네이티브 전달 경로가 던지면 1 로 그 요청만 끝낸다(0.2.0, 0.1.0 은 reject). 닫힌 웹뷰·떠난 문서·끝나지 않는 처리기의 Promise 는 끝나지 않는다.
 - **닫히면** 처리기 토큰이 취소되고 결과는 버린다. 닫혀도 끝까지 해야 하는 일(지급 요청)은 토큰을 넘기지 않는다(`coupon.redeem` 이 그렇게 함).
-- **영역**은 매 프레임(`LastPostLateUpdate`) 따라가고, 영역이 파괴되면 닫는다. 없으면 `Screen.safeArea`.
+- **영역**은 매 프레임(`LastPostLateUpdate`) 따라가고, 영역이 파괴되면 닫는다. 없으면 `Screen.safeArea`. 화면 공간 캔버스(Overlay, Camera) 아래의 영역은 루트 캔버스 안의 비율로 위치를 구해(0.2.1) `Screen.SetResolution` 직후에도 맞는다. Camera 캔버스는 캔버스 평면 밖의 영역을 카메라 시선으로 평면에 옮겨 원근을 반영한다(Overlay 는 z 를 버림). WorldSpace·캔버스 밖은 월드 모서리를 카메라로 투영한다.
 - 메인 스레드 전용(다른 스레드에서 온 열기 취소만 메인 스레드로 옮김). 웹뷰는 하나만.
 
 ## 함정
@@ -86,5 +86,4 @@ MainInstaller.CleanDispose<IWebViewService>();
 - 처리기 인자(`command.Args`)는 페이지가 보낸 값이다. 형식을 확인하고 쓴다.
 - Android 뒤로가기는 사용자 제스처 없이 스크립트로 옮긴 방문을 건너뛴다. 스크립트로 이동한 페이지에서는 첫 `HandleBack` 이 닫을 수 있으므로 돌아와야 하는 이동은 링크로 만든다.
 - Android 에서 허용 밖 출처로 가는 form POST 는 서비스가 닫기 전에 요청 본문이 그 서버에 도착한다(키는 가지 않음). 허용 출처 페이지에서 다른 출처로 form 을 보내지 않는다.
-- Android 에서 `Screen.SetResolution` 직후 한 프레임 동안 여백이 어긋나 보일 수 있다(다음 프레임에 맞춰짐, iOS 시뮬레이터에서는 재현 안 됨).
 - 시험용 http 페이지는 Android 에서 `UNITYWEBVIEW_ANDROID_USES_CLEARTEXT_TRAFFIC` define 이 필요하다.

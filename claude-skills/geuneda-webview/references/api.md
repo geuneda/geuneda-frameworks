@@ -1,6 +1,6 @@
 # Geuneda WebView API 레퍼런스
 
-네임스페이스 `Geuneda.WebView`(asmdef `Geuneda.WebView`, 참조 `Geuneda.Core`, `UniTask`, Newtonsoft). 선택 어셈블리 `Geuneda.WebView.Notice`(versionDefines `com.geuneda.notice` → `GEUNEDA_WEBVIEW_NOTICE`), `Geuneda.WebView.Coupon`(`com.geuneda.coupon` → `GEUNEDA_WEBVIEW_COUPON`). 어댑터 `Geuneda.WebView.Gree`(`net.gree.unity-webview` → `GEUNEDA_WEBVIEW_GREE`, 참조 `unity-webview`). webview 0.2.0, webview.gree 0.2.0.
+네임스페이스 `Geuneda.WebView`(asmdef `Geuneda.WebView`, 참조 `Geuneda.Core`, `UniTask`, Newtonsoft). 선택 어셈블리 `Geuneda.WebView.Notice`(versionDefines `com.geuneda.notice` → `GEUNEDA_WEBVIEW_NOTICE`), `Geuneda.WebView.Coupon`(`com.geuneda.coupon` → `GEUNEDA_WEBVIEW_COUPON`). 어댑터 `Geuneda.WebView.Gree`(`net.gree.unity-webview` → `GEUNEDA_WEBVIEW_GREE`, 참조 `unity-webview`). webview 0.2.1, webview.gree 0.2.0.
 
 ## interface IWebViewService : IDisposable / sealed class WebViewService
 
@@ -10,7 +10,7 @@
 | `bool IsOpen` | 열고 있거나 열려 있음 |
 | `string PageUrl` | 마지막으로 로드가 끝난 메인 프레임(그 전에는 연 주소), 닫혀 있으면 null |
 | `event Action Closed` | 열려 있던 웹뷰가 닫힘(열기 실패에는 없음). 처리기 예외는 Error 로그 |
-| `UniTask<Result> OpenAsync(string url, RectTransform frame = null, CancellationToken ct = default)` | 허용 출처 주소가 아니면 `ArgumentException`(호출 자리에서), 버린 뒤면 `ObjectDisposedException` |
+| `UniTask<Result> OpenAsync(string url, RectTransform frame = null, CancellationToken ct = default)` | 허용 출처 주소가 아니면 `ArgumentException`(호출 자리에서), 버린 뒤면 `ObjectDisposedException`. `frame` 은 매 프레임 따라가는 영역(없으면 `Screen.safeArea`). 화면 공간 캔버스(Overlay, Camera)면 루트 캔버스 안의 비율 x 카메라 뷰포트 x 화면 크기(0.2.1, `Screen.SetResolution` 직후에도 맞음), WorldSpace·캔버스 밖이면 월드 모서리를 카메라로 투영 |
 | `void Close()` | 열기 중이면 열기를 `Cancelled` 로 끝냄 |
 | `bool HandleBack()` | 기록 있으면 `GoBack`, 없으면(또는 열기 중) 닫기. 열려 있지 않으면 false |
 | `IDisposable AddCommand(string name, WebViewCommandHandler handler)` | 이름 1~64자 ASCII 영숫자·`.`·`_`·`-`. 기본 명령·규칙 위반은 `ArgumentException`, 중복은 `InvalidOperationException`, 처리기 null 은 `ArgumentNullException`. 해제는 등록 객체 기준 |

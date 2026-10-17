@@ -333,7 +333,7 @@
 
 ## 27. com.geuneda.webview / .webview.gree
 
-- **버전 / 최소 Unity**: webview 0.2.0, webview.gree 0.2.0 / 모두 2021.3
+- **버전 / 최소 Unity**: webview 0.2.1, webview.gree 0.2.0 / 모두 2021.3
 - **package.json 의존성**: webview 는 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.ui` 1.0.0. webview.gree 는 `com.geuneda.webview` 0.2.0(gree unity-webview `net.gree.unity-webview` 와 uGUI 는 게임이 설치, `?path=/dist/package-nofragment` 커밋 `20f14061` 으로 확인)
 - **어셈블리 / 네임스페이스**: `Geuneda.WebView`, 선택 `Geuneda.WebView.Notice`(com.geuneda.notice 가 있을 때, `GEUNEDA_WEBVIEW_NOTICE`), `Geuneda.WebView.Coupon`(com.geuneda.coupon 이 있을 때, `GEUNEDA_WEBVIEW_COUPON`), `Geuneda.WebView.Gree`(gree 가 있을 때, `GEUNEDA_WEBVIEW_GREE`, 참조 `unity-webview`)
 - **주요 기능**: `IWebViewService : IDisposable`/`WebViewService`/`WebViewServiceOptions`(`OpenAsync` 브리지 준비로 성공, `Close`·`Closed`, `HandleBack`, `AddCommand`, `Emit`), `WebViewCommandHandler`·`WebViewCommand`, `WebViewResultCodes`(12000 블록), 어댑터 계약 `IWebViewFactory`·`IWebViewNative`·`IWebViewNativeListener`·`WebViewNativeSettings`(이동 제한 정규식)·`WebViewMargins`, `NoticeWebViewCommands`(notice.list·read·refresh, notice.changed), `CouponWebViewCommands`(coupon.redeem), `GreeWebViewFactory`. 페이지 쪽 `Web~/geuneda-webview.js`, 샘플 `Web~/notice.html`·`coupon.html`
