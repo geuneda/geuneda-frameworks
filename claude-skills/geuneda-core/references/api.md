@@ -89,6 +89,10 @@
 | `Timeout` | 3 | 시간 초과 |
 | `NetworkError` | 4 | 네트워크 연결 불가·끊김 |
 | `InProgress` | 5 | 같은 작업이 이미 진행 중이라 거절 |
+| `InvalidFormat` | 6 | 데이터 형식이 맞지 않음(잘림, 길이 오류, 잘못된 인코딩) |
+| `UnsupportedVersion` | 7 | 데이터의 형식 버전을 지원하지 않음 |
+| `IntegrityCheckFailed` | 8 | 무결성 검사 실패(변조, 다른 키, 다른 연관 데이터) |
+| `SecureStoreUnavailable` | 9 | 보안 저장소를 읽거나 쓸 수 없음 |
 
 `static int FromException(Exception exception)`: `OperationCanceledException`(`TaskCanceledException` 포함) → `Cancelled`, `TimeoutException` → `Timeout`, 그 밖 → `Unknown`. null 이면 `ArgumentNullException`.
 
@@ -202,7 +206,7 @@ internal: `IKeyValueStore`(`PlayerPrefsStore`), 테스트용 생성자 `(IKeyVal
 
 네이티브(iOS): `char* GeunedaKeychain_Copy(const char* key, int* status)`(malloc 문자열, 없으면 NULL + OSStatus), `int GeunedaKeychain_Set(const char* key, const char* value)`(갱신, 없으면 추가), `int GeunedaKeychain_Delete(const char* key)`(OSStatus, 없으면 errSecItemNotFound).
 
-네이티브(Android): `com.geuneda.core.GeunedaSecureStore` 의 `static String read(Context, String)`(없거나 복호화 못 하면 null, 그 값은 지움), `static void write(Context, String, String)`, `static void delete(Context, String)`. 실패는 예외 → C# 에서 Failed/false.
+네이티브(Android): `com.geuneda.core.GeunedaSecureStore` 의 `static String read(Context, String)`(없거나 복호화 못 하면 null, 그 값은 지움), `static void write(Context, String, String)`, `static void delete(Context, String)`. 실패는 예외 → C# 에서 Failed/false. 디스크 commit 이 실패하면 그 항목의 메모리 값을 원래대로 되돌린 뒤 예외(같은 실행에서 실패한 값이 읽히지 않음).
 
 에디터: `AndroidProguardRulesHook`(`#if UNITY_ANDROID`, `IPostGenerateGradleAndroidProject`)가 `AndroidProguardRules.Rule`(`-keep class com.geuneda.core.GeunedaSecureStore { public static *; }`)을 `unityLibrary/proguard-unity.txt` 에 넣는다.
 
@@ -248,3 +252,44 @@ internal(테스트용): `static Pcg32 FromSequence(ulong initState, ulong initSe
 플랫폼 분기는 에디터 define(`UNITY_EDITOR_OSX`)을 먼저 본다(에디터에서도 빌드 대상의 `UNITY_ANDROID`/`UNITY_IOS` 가 켜짐). `timespec` 필드는 `IntPtr`(32비트 Android 대응). iOS 만 플러그인을 쓰는 것은 IL2CPP 가 `__Internal` 로 선언한 시스템 함수가 시스템 헤더 선언과 충돌할 수 있어서다.
 
 쓰는 곳: services `TimeService`(현재 시각 진행), servertime `ServerTimeSync`·`IServerTimeSource`(왕복 보정). 테스트는 `Elapsed` 를 직접 정하는 가짜 구현을 넘긴다.
+
+## 암호화 (`Runtime/Cryptography/`, `Runtime/SecureStorage/DeviceKeyProvider.cs`)
+
+### static class AesEncryption
+
+상태 없음, 어느 스레드에서 불러도 됨. UnityEngine 참조 없음(서버는 `Runtime/Cryptography/*.cs` + `Runtime/Results/*.cs` 링크).
+
+| 멤버 | 설명 |
+|------|------|
+| `const int KeySize = 32` | 키 길이(바이트) |
+| `byte[] Encrypt(byte[] key, byte[] plaintext, byte[] associatedData = null)` | 새 무작위 IV(`RandomNumberGenerator.Fill`)로 암호화. key null 이면 `ArgumentNullException`, 길이가 32 가 아니면 `ArgumentException`, plaintext null 이면 `ArgumentNullException`(빈 배열은 됨) |
+| `Result<byte[]> Decrypt(byte[] key, byte[] data, byte[] associatedData = null)` | 빈 데이터·길이 오류 `InvalidFormat`, 첫 바이트가 1 이 아니면 `UnsupportedVersion`, 태그 불일치 `IntegrityCheckFailed`, 태그가 맞는데 패딩 오류 `InvalidFormat`. key·data 오용은 예외 |
+
+| 바이트 | 내용 |
+|--------|------|
+| 0 | 버전 `1` |
+| 1 ~ 16 | IV |
+| 17 ~ 길이-33 | AES-256-CBC 암호문(PKCS7, 16 의 배수, 최소 16) |
+| 끝 32 | `HMAC-SHA256(MAC 키, 버전 ‖ IV ‖ 암호문 ‖ 연관 데이터 ‖ 연관 데이터 비트 길이 8바이트 빅엔디언)` |
+
+키 파생: `PRK = HMAC-SHA256(32바이트 0, key)`, `OKM = HKDF-Expand(PRK, "geuneda.core.aes-256-cbc-hmac-sha256.v1", 64)`, 암호 키 `OKM[0..32)`, MAC 키 `OKM[32..64)`. 태그 비교는 `CryptographicOperations.FixedTimeEquals`. 연관 데이터 null 과 빈 배열은 같음.
+
+internal(테스트용): `Encrypt(key, plaintext, associatedData, iv)`(IV 지정, 골든 벡터용), `HkdfExtract(salt, ikm)`, `HkdfExpand(prk, info, length)`(RFC 5869, length 1 ~ 8160).
+
+### interface IDeviceKeyProvider / sealed class DeviceKeyProvider
+
+| 멤버 | 설명 |
+|------|------|
+| `DeviceKeyProvider()` | `PlatformSecureStore` 를 만들어 씀. internal(테스트용) `DeviceKeyProvider(ISecureStore store, bool isStoreProtected)`(store null 이면 `ArgumentNullException`) |
+| `Result<byte[]> GetOrCreate(string name)` | 보안 저장소 `geuneda.core.deviceKey.<name>` 의 Base64 키(32바이트). NotFound 면 무작위로 만들어 쓰고 다시 읽어 같을 때만 돌려줌. 호출마다 새 배열. name 이 null·빈 문자열이면 `ArgumentException` |
+
+| 저장소 상태 | 결과 |
+|-------------|------|
+| 보호되지 않은 저장소(PlayerPrefs 대체, 에디터 포함, internal `PlatformSecureStore.IsProtected` false) | `SecureStoreUnavailable`, Warning, 읽거나 쓰지 않음 |
+| Found, 32바이트 Base64 | 성공 |
+| Found, 키 형식 아님 | `InvalidFormat`, Error 로그, 덮어쓰지 않음 |
+| Failed | `SecureStoreUnavailable`, Warning, 쓰지 않음 |
+| NotFound → 쓰기 실패 | `SecureStoreUnavailable`, Warning, 그 항목을 `TryDelete`(실패한 쓰기가 메모리 값을 남기는 저장소 대비. Android 플러그인은 실패한 commit 의 메모리 값을 스스로 되돌림) |
+| NotFound → 쓰기 성공 → 다시 읽기가 Found 가 아니거나 값이 다름 | `SecureStoreUnavailable`, Warning(쓴 값이 남아 있으면 다음 호출이 그 값을 돌려줌) |
+
+메인 스레드(보안 저장소 규칙). 로거 모듈 이름 `Geuneda.Core.DeviceKey`.

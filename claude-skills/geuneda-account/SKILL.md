@@ -16,9 +16,9 @@ description: com.geuneda.account 패키지(네임스페이스 Geuneda.Account, �
 - **서버**: `Server~/` 의 .NET 10 솔루션 `Geuneda.Account.Server.slnx`. DTO 와 결과 코드는 `Runtime/Protocol/` 을 링크
 - **기여 가이드**: 패키지 루트의 `AGENTS.md`
 - **제공자 패키지**(D3: 네이티브 코드와 Android Gradle 의존성은 설치한 게임에만):
-  - `com.geuneda.account.apple` 0.1.0(`https://github.com/geuneda/geuneda-account-apple.git`): `Geuneda.Account.Apple.AppleAuthProvider`. iOS 13+ Sign in with Apple, capability 는 빌드 후처리가 넣음. 의존성 account 0.1.0, core 0.2.0, UniTask
-  - `com.geuneda.account.google` 0.1.0(`https://github.com/geuneda/geuneda-account-google.git`): `Geuneda.Account.Google.GoogleAuthProvider(GoogleAuthOptions)`. Android Credential Manager, iOS 는 SDK 없이 ASWebAuthenticationSession + PKCE. 의존성 account 0.1.0, core 0.2.0, http 0.1.0, UniTask, Newtonsoft
-  - 서버 검증기 `AddApple`/`AddGoogle` 은 account 0.2.0 부터
+  - `com.geuneda.account.apple` 0.2.0(`https://github.com/geuneda/geuneda-account-apple.git`): `Geuneda.Account.Apple.AppleAuthProvider`. iOS 13+ Sign in with Apple, capability 는 빌드 후처리가 넣음. 의존성 account 0.3.0, core 0.2.0, UniTask
+  - `com.geuneda.account.google` 0.2.0(`https://github.com/geuneda/geuneda-account-google.git`): `Geuneda.Account.Google.GoogleAuthProvider(GoogleAuthOptions)`. Android Credential Manager, iOS 는 SDK 없이 ASWebAuthenticationSession + PKCE. 의존성 account 0.3.0, core 0.2.0, http 0.1.0, UniTask, Newtonsoft
+  - 서버 검증기 `AddApple`/`AddGoogle` 은 account 0.2.0 부터, id 토큰 replay 방어(서버 발급 nonce, 연동 충돌 티켓)와 `IAuthService`·`IAppSession` 의 `IDisposable` 은 account 0.3.0·제공자 0.2.0 부터(호환성 파괴: 셋을 함께 올리고, 이전 프로젝트는 account 0.2.0·제공자 0.1.0 태그를 고정)
 
 ## 핵심 API
 
@@ -29,10 +29,10 @@ description: com.geuneda.account 패키지(네임스페이스 Geuneda.Account, �
 - `GetAccessTokenAsync()` → `Result<string>`, `InvalidateAccessToken(token)`, `SignOutAsync()`.
 - `GetLinksAsync()`, `LinkAsync(platform)` → `Result<LinkResult>`(`IsConflict`, `ConflictAccountId`, `Credential`, `Links`), `TransferAsync(credential)`, `UnlinkAsync(platform)`, `DeleteAccountAsync()`.
 - `AuthTokenMiddleware(auth)`: 게임 서버 http 클라이언트에 넣는다(order 를 재시도보다 작게, 즉 바깥).
-- `GuestAuthProvider(secureStore)`, `IAuthProvider`(`Platform`, `SignInAsync`, `SignOutAsync`), `AccountPlatforms`(guest, apple, google).
+- `GuestAuthProvider(secureStore)`, `IAuthProvider`(`Platform`, `RequiresNonce`, `SignInAsync(nonce, ct)`, `SignOutAsync`), `PlatformCredential(platform, credential)`, `AccountPlatforms`(guest, apple, google). `RequiresNonce` 인 제공자는 `AuthService` 가 먼저 `POST nonce` 로 받은 원문을 넘긴다(게스트는 false, null).
 - `new AppleAuthProvider()`, `new GoogleAuthProvider(new GoogleAuthOptions { AndroidServerClientId, IosClientId, TokenClient?, IosEphemeralSession })`: 제공자 패키지. 사용자 취소는 `ResultCodes.Cancelled`, 그 밖은 `PlatformSignInFailed`.
 - `AppSession`(`BindApplicationLifecycle`, `Start`, `End`, `SessionId`, `NextSessionId`, 이벤트 `Started`/`Paused`/`Resumed`/`Ended(SessionEndReason)`).
-- `AccountResultCodes`: 서버 3001~3011(`InvalidCredential`, `UnsupportedPlatform`, `InvalidRefreshToken`, `RefreshTokenReused`, `InvalidAccessToken`, `AccountNotFound`, `LoginConflict`, `PlatformAlreadyLinked`, `LastLogin`, `BadRequest`, `RetryLater`(503)), 클라이언트 3100~3104(`NotSignedIn`, `PlatformSignInFailed`, `InvalidResponse`, `StorageFailed`, `SessionChanged`).
+- `AccountResultCodes`: 서버 3001~3015(`InvalidCredential`, `UnsupportedPlatform`, `InvalidRefreshToken`, `RefreshTokenReused`, `InvalidAccessToken`, `AccountNotFound`, `LoginConflict`, `PlatformAlreadyLinked`, `LastLogin`, `BadRequest`, `RetryLater`(503), `NonceMissing`(400), `NonceMismatch`(401), `InvalidNonce`(401), `InvalidConflictTicket`(401)), 클라이언트 3100~3104(`NotSignedIn`, `PlatformSignInFailed`, `InvalidResponse`, `StorageFailed`, `SessionChanged`).
 
 ## 사용 패턴
 
@@ -100,7 +100,8 @@ builder.Services.AddGeunedaAccount(o => { o.Issuer = ...; o.Audience = ...; o.Si
     .AddPlatformVerifier<MyVerifier>();
 builder.Services.AddScoped<IAccountStore, MyDbAccountStore>();
 builder.Services.AddScoped<IRefreshTokenStore, MyDbRefreshTokenStore>();
-app.MapGeunedaAccount("/auth");
+builder.Services.AddSingleton<IOneTimeValueStore, MyRedisOneTimeValueStore>();   // nonce·충돌 티켓. 서버가 여러 대면 공유 저장소(원자적 소비). 한 대면 InMemoryOneTimeValueStore
+app.MapGeunedaAccount("/auth");   // POST nonce 는 인증 없이 열리므로 rate limiter 를 붙인다
 
 // 게임 서버(실시간 RPC 등)
 builder.Services.AddGeunedaAccessTokenValidation(o => { o.Issuer = ...; o.Audience = ...; o.SigningKeys.Add(key); });
@@ -112,7 +113,10 @@ var validation = await validator.ValidateAsync(accessToken);   // AccountId, Ses
 - 메인 스레드에서 쓴다. 공개 메서드는 오용(등록하지 않은 플랫폼, null 자격)을 바로 예외로 던진다.
 - 로그인·로그아웃·연동·옮겨오기·해제·삭제는 동시에 하나만이다. 겹치면 `ResultCodes.InProgress` 이고 기다리지 않는다(버튼 중복 클릭 방지). `GetAccessTokenAsync` 는 잠그지 않는다.
 - 자동 로그인 실패가 `NetworkError` 면 저장된 로그인이 남아 있으니 다시 시도한다. `InvalidRefreshToken`/`RefreshTokenReused` 면 저장된 로그인이 지워졌으니 로그인 화면으로 간다.
-- 연동 충돌은 실패가 아니라 `LinkResult.IsConflict` 다. `Credential` 의 id 토큰은 수명이 짧으니 바로 쓴다.
+- 연동 충돌은 실패가 아니라 `LinkResult.IsConflict` 다. `Credential` 안에 서버가 준 1회용 충돌 티켓이 있어 `SignInAsync(credential)`·`TransferAsync(credential)` 는 id 토큰 대신 티켓을 보낸다. 티켓은 발급부터 5분 안에 한 번만(충돌한 계정 로그인 또는 연동한 이 계정으로 옮겨오기 중 하나) 쓴다. 지나거나 두 번째면 `InvalidConflictTicket` 이라 연동부터 다시 한다.
+- `IAuthService`·`IAppSession` 은 `IDisposable` 이다. 정리는 `MainInstaller.CleanDispose<IAuthService>()`·`CleanDispose<IAppSession>()`. 테스트 대역도 `Dispose` 를 구현한다.
+- 애플·구글 id 토큰은 서버 발급 nonce 에 묶여 한 번만 쓰인다(replay 방어). nonce 를 받지 못하면(`NetworkError`, 5xx `HttpError`) 플랫폼 로그인 화면 없이 실패하고, 서버 거절은 `NonceMissing`(0.2.x 이하 클라이언트), `NonceMismatch`(제공자가 nonce 를 토큰에 안 묶음), `InvalidNonce`(만료·재사용) 이다. 제공자를 직접 만들면 `RequiresNonce` 를 서버 검증기와 같게 두고, 애플은 원문의 SHA-256 16진 소문자를 요청에, 구글·OIDC 는 원문을 그대로 넣는다.
+- 서버 `IPlatformVerifier` 를 직접 만들면 `RequiresNonce` 와 `VerifyAsync(credential, nonce, ct)` 를 구현한다. 토큰이 nonce 에 묶이지 않았으면 `PlatformVerification.NonceMismatch`. nonce 저장소 확인·소비는 서버가 검증 뒤에 한다(검증기에서 하지 않음).
 - 요청 중 로그인이 바뀌면(다른 계정 로그인, 로그아웃) 그 응답은 `NotSignedIn` 으로 끝나고 지금 로그인에 적용되지 않는다. 테스트 대역은 `LinkResult.Linked/Conflict`, 서버 `AccessTokenValidation.Valid/Invalid` 로 결과를 만든다.
 - 로그아웃 결과가 `StorageFailed` 면 이 기기의 저장된 로그인을 지우지 못한 것이다(메모리상 로그아웃은 됨). 로그인 결과의 `IsSaved` 가 false 면 이번 실행만 확실한 로그인 상태다(다음 실행 자동 로그인은 보장 못 함). 저장소 오류로 이전 저장값도 못 지운 채 다른 계정으로 바꾸면 로그인이 `StorageFailed` 로 거절된다.
 - 인증 서버 클라이언트(`AuthClient`)에는 `AuthTokenMiddleware` 를 넣지 않는다. 기본 주소는 접두사까지, 끝에 `/`.

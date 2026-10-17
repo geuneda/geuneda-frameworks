@@ -1,11 +1,11 @@
 ---
 name: geuneda-core
-description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, AppIdentity 로 설치 ID·기기 ID 를 얻을 때, 토큰·비밀 값을 ISecureStore/PlatformSecureStore(iOS 키체인, Android 키스토어)에 보관할 때, Pcg32(PCG32) 결정론적 난수 생성기를 직접 쓰거나 서버에서 같은 난수 수열을 재현할 때, 그리고 기기 시계 변경에 영향받지 않고 기기가 잠든 동안에도 흐르는 경과 시간을 IMonotonicClock/MonotonicClock 단조 시계로 재거나 테스트용 가짜 시계를 만들 때 활성화한다.
+description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코드를 작성하거나 수정할 때 사용하는 스킬. 모듈별 로거 ModuleLogger 로 로그를 남기거나, LogLevel 로 레벨을 켜고 끄거나, throw logger.Fatal(ex) 패턴을 쓰거나, Log.Sink 에 ILogSink 를 넣어 출력 대상을 바꾸거나, Geuneda 패키지에 Debug.Log 대신 로거를 들일 때, 실패를 Result/Result<T> 코드로 돌려주거나 ResultCodes·패키지별 결과 코드 범위를 정할 때, DEV/QA/PROD 빌드 환경(AppEnv, GEUNEDA_ENV_* define)으로 분기하거나 운영 빌드에서 코드를 뺄 때, SDK 콜백 등 다른 스레드의 작업을 MainThreadDispatcher 로 메인 스레드에 넘길 때, 설정 ScriptableObject 를 ConfigAssetLoader 로 읽거나 .user 개인 덮어쓰기·EnvValue 환경별 값을 쓸 때, AppIdentity 로 설치 ID·기기 ID 를 얻을 때, 토큰·비밀 값을 ISecureStore/PlatformSecureStore(iOS 키체인, Android 키스토어)에 보관할 때, Pcg32(PCG32) 결정론적 난수 생성기를 직접 쓰거나 서버에서 같은 난수 수열을 재현할 때, 그리고 기기 시계 변경에 영향받지 않고 기기가 잠든 동안에도 흐르는 경과 시간을 IMonotonicClock/MonotonicClock 단조 시계로 재거나 테스트용 가짜 시계를 만들 때, 세이브 파일·로그 캐시를 AesEncryption(AES-256-CBC + HMAC-SHA256)으로 암호화하고 변조를 검출하거나 서버에서 같은 형식을 읽을 때, IDeviceKeyProvider/DeviceKeyProvider 로 보안 저장소에 기기 키를 만들어 쓸 때 활성화한다.
 ---
 
 # Geuneda Core
 
-다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`), 보안 저장소(`ISecureStore`, `PlatformSecureStore`), 결정론적 난수(`Pcg32`), 단조 시계(`MonotonicClock`)다.
+다른 Geuneda 패키지가 함께 쓰는 바닥 패키지다. 의존성이 없다. 현재 기능은 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`), 설치·기기 ID(`AppIdentity`), 보안 저장소(`ISecureStore`, `PlatformSecureStore`), 결정론적 난수(`Pcg32`), 단조 시계(`MonotonicClock`), 인증 암호화(`AesEncryption`), 기기 키(`DeviceKeyProvider`)다.
 
 ## 패키지 정보
 
@@ -28,7 +28,7 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 
 - `Result`: `Ok()`, `Fail(int code, string message = null)`, `FromException(Exception)`, `IsSuccess`, `Code`, `Message`.
 - `Result<T>`: 위와 같고 `Ok(T value)`, `Value`(실패면 `InvalidOperationException`), `TryGetValue(out T)`. `Result` 로 암시적 변환.
-- `ResultCodes`: `Success` 0, `Unknown` 1, `Cancelled` 2, `Timeout` 3, `NetworkError` 4, `InProgress` 5, `FromException(Exception)`.
+- `ResultCodes`: `Success` 0, `Unknown` 1, `Cancelled` 2, `Timeout` 3, `NetworkError` 4, `InProgress` 5, `InvalidFormat` 6, `UnsupportedVersion` 7, `IntegrityCheckFailed` 8, `SecureStoreUnavailable` 9, `FromException(Exception)`.
 - 규칙: 실행 중 일어날 수 있는 실패(네트워크, 타임아웃, 취소, 서버 거절, 중복 실행)는 결과 코드, 오용(잘못된 인자·상태)은 즉시 예외.
 - 코드 범위: 0 성공, 1~999 core 공용, 패키지별 1000 단위 블록(core `README.md` 표에 등록: 1000 http, 2000 realtime, 3000 account, 4000 appsetting, 5000 resource, 6000 servertime, 7000 iap, 8000 ads, 9000 consent, 10000 notice, 11000 coupon, 12000 webview, 다음 빈 블록 13000), 100000~100999 실시간 RPC 서버 프레임워크(realtime `RpcStatusCodes`), 게임 101000 이상.
 
@@ -69,6 +69,14 @@ description: com.geuneda.core 패키지(네임스페이스 Geuneda.Core)로 코�
 - `IMonotonicClock`: `TimeSpan Elapsed`(기준점 이후 흐른 시간, 어느 스레드에서 읽어도 됨). 기기 시계(`DateTime.UtcNow`)를 바꿔도 영향받지 않고 줄어들지 않는다.
 - `new MonotonicClock()`: 플랫폼 기본 구현. Android `clock_gettime(CLOCK_BOOTTIME)`, macOS 에디터·플레이어 `clock_gettime(CLOCK_MONOTONIC)`(libc), iOS 플러그인 `GeunedaMonotonicClock.mm` 의 `clock_gettime_nsec_np(CLOCK_MONOTONIC)` 로 기기가 잠든 동안에도 흐른다. 그 밖(Windows, Linux, WebGL)과 네이티브 호출 실패는 `Stopwatch`. `bool IncludesSleep` 은 네이티브 시계를 쓰는지(`Stopwatch` 면 false).
 - services 의 `TimeService` 가 이 시계로 현재 시각을 진행하고, servertime 의 `ServerTimeSync` 가 같은 시계로 왕복 지연을 보정한다.
+
+## 암호화 핵심 API
+
+- `AesEncryption`(static, 상태 없음, 어느 스레드든): `byte[] Encrypt(byte[] key, byte[] plaintext, byte[] associatedData = null)`, `Result<byte[]> Decrypt(byte[] key, byte[] data, byte[] associatedData = null)`, `const int KeySize = 32`.
+- 형식 버전 1: `버전(1) || IV(16) || AES-256-CBC 암호문(PKCS7) || 태그(32)`. 태그는 `HMAC-SHA256(MAC 키, 버전 || IV || 암호문 || 연관 데이터 || 연관 데이터 비트 길이 8바이트 빅엔디언)`, 두 키는 32바이트 키에서 HKDF-SHA256(info `geuneda.core.aes-256-cbc-hmac-sha256.v1`)으로 나눈다. 태그를 상수 시간으로 비교한 뒤에만 복호화한다.
+- `Decrypt` 실패 코드: `UnsupportedVersion`(첫 바이트가 1 이 아님, 암호화하지 않은 옛 파일 포함), `InvalidFormat`(길이), `IntegrityCheckFailed`(변조, 다른 키, 다른 연관 데이터). 로그는 호출자가 남긴다. null·길이가 다른 키, null 평문·데이터는 예외.
+- `IDeviceKeyProvider.GetOrCreate(string name)` → `Result<byte[]>`: `PlatformSecureStore` 의 `geuneda.core.deviceKey.<이름>` 에 Base64 로 둔 32바이트 키, 없으면 만들어 저장. 구현 `new DeviceKeyProvider()`(인자 없음), 부트스트랩에서 `MainInstaller.Bind<IDeviceKeyProvider>(new DeviceKeyProvider())`. 메인 스레드. 실패는 `SecureStoreUnavailable`(키체인·키스토어 없는 곳, 읽기 Failed, 쓰기 실패 — 그 항목을 지움, 쓴 값을 다시 읽지 못함) 또는 `InvalidFormat`(저장된 값이 키가 아님, 덮어쓰지 않음). 에디터도 PlayerPrefs(평문)라 실패.
+- 서버(.NET)는 `Runtime/Cryptography/*.cs` 와 `Runtime/Results/*.cs` 를 링크해 같은 형식을 읽고 쓴다.
 
 ## 사용 패턴
 
@@ -160,3 +168,9 @@ public async UniTask<Result<Profile>> LoadAsync(string userId, CancellationToken
 - `IMonotonicClock.Elapsed` 의 기준점은 정해져 있지 않다(보통 기기 부팅). 값 자체를 시각으로 쓰지 말고 두 값의 차이로 경과 시간을 잰다. 같은 기기에서는 인스턴스가 달라도 같은 시계라 값끼리 비교할 수 있다.
 - `Stopwatch` 대체(`IncludesSleep` false)에서 잠든 동안 흐르는지는 플랫폼에 따른다. 네이티브 호출 실패는 생성할 때 한 번만 확인한다.
 - 테스트에서는 `Elapsed` 를 직접 정하는 가짜 `IMonotonicClock` 을 만들어 넘긴다(`TimeService(IMonotonicClock)`, `ServerTimeSync(..., clock)`).
+- `AesEncryption` 은 키 늘이기를 하지 않는다. 32바이트 무작위 키(기기 키, 서버가 내려준 키)를 넘기고 비밀번호 문자열을 키로 쓰지 않는다.
+- 같은 키로 여러 파일을 암호화하면 연관 데이터에 용도·파일 이름을 넣는다. 안 넣으면 다른 파일의 암호문을 옮겨 넣어도 풀린다. 같은 파일의 예전 암호문으로 되돌리는 것(롤백)은 연관 데이터로도 막지 못한다.
+- 키 회전은 없다(형식에 키 ID 없음). 키를 바꾸려면 옛 키로 풀어 새 키로 다시 쓴다.
+- 기기 키로 암호화한 파일은 다른 기기로 옮기거나 백업을 새 기기에 복원하면 풀 수 없다(`IntegrityCheckFailed`). Android 는 재설치·키스토어 키 분실 때도 키가 바뀐다. 기기 키로는 잃어도 되거나 서버에서 다시 받을 수 있는 데이터만 암호화한다.
+- `DeviceKeyProvider` 가 실패하면 고정 키나 평문 저장으로 대신하지 않는다. 저장을 미루거나 서버 데이터를 쓴다. 에디터와 Windows·macOS·Linux·WebGL 플레이어처럼 키체인·키스토어가 없는 곳에서는 늘 `SecureStoreUnavailable` 이다. 에디터 시험과 사용하는 쪽 테스트는 개발용 `IDeviceKeyProvider` 가짜를 바인딩하거나 `AesEncryption` 에 직접 키를 넘긴다.
+- `AesGcm` 은 Unity Mono 에서 컴파일되지만 실행하면 `PlatformNotSupportedException` 이다. 쓰지 않는다.

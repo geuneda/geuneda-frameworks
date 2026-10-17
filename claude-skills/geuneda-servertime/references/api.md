@@ -1,18 +1,18 @@
 # Geuneda Server Time API 레퍼런스
 
-네임스페이스 `Geuneda.ServerTime`. 결과는 core `Result`/`Result<T>`. 버전 0.1.0.
+네임스페이스 `Geuneda.ServerTime`. 결과는 core `Result`/`Result<T>`. 버전 0.2.0.
 
 ## 동기화 (`Runtime/`)
 
-### interface IServerTimeSync / sealed class ServerTimeSync : IServerTimeSync, IDisposable
+### interface IServerTimeSync : IDisposable / sealed class ServerTimeSync : IServerTimeSync
 
 | 멤버 | 설명 |
 |------|------|
 | `ServerTimeSync(ITimeManipulator time, IEnumerable<IServerTimeSource> sources, ServerTimeSyncOptions options = null, IMonotonicClock clock = null)` | `options` 가 null 이면 기본값, `clock` 이 null 이면 core `MonotonicClock`(시간 서비스와 같은 시계여야 함). `time`·`sources` null 은 `ArgumentNullException`, 원천이 없거나 null 원천이 있으면 `ArgumentException`, `ResyncInterval` 이 1초(`MinResyncInterval`) 미만, `RetryDelay` 가 100ms(`MinRetryDelay`) 미만, `MaxRoundTrip` 이 0 이하이거나 `MaxRetryDelay` 가 `RetryDelay` 보다 작으면 `ArgumentOutOfRangeException` |
 | `UniTask<Result<ServerTimeSample>> SyncAsync(CancellationToken ct = default)` | 원천을 순서대로 시도해 처음 성공하고 왕복이 `MaxRoundTrip` 이하인 표본을 적용(`SetServerTime(ServerUtc + (지금 - ReceivedAt))`, Info 로그에 기기 시계와의 차이). 왕복이 길면 `RoundTripTooLong` 으로 보고 다음 원천. 원천이 결과 대신 던진 예외(버그·오용)는 그대로 던지고 다음 원천을 시도하지 않음, 호출자 취소로 난 취소 예외는 `Cancelled`. 모두 실패하면 첫 실패 코드와 `원천 이름: 결과` 목록(Warning 로그). 원천 사이에 취소되면 `Cancelled`. 원천이 다른 스레드에서 끝나도(예외 포함) 메인 스레드로 돌아와 적용 |
 | `void Start()` | 백그라운드 동기화 시작. 이미 돌고 있으면 무시. 플레이 중이면 `OnApplicationPause`·`OnApplicationQuit`·`OnDestroy` 를 받는 숨은 `DontDestroyOnLoad` 오브젝트(`HideInHierarchy`)를 만듦. 앱 종료(에디터는 플레이 정지)·오브젝트 파괴 때 스스로 멈춤. 원천이 예외를 던지면 Error 로그 후 멈춤 |
-| `void Stop()` | 멈춤. 상태를 먼저 비우고 숨은 오브젝트를 끊어 삭제한 뒤 진행 중인 요청을 취소(취소 콜백 안에서 `Start` 해도 새 실행은 남음, 콜백 예외는 `AggregateException`) |
-| `void Dispose()` | `Stop()` |
+| `void Stop()` | `Start` 가 시작한 백그라운드 동기화를 멈춤(직접 부른 `SyncAsync` 는 그 호출의 토큰으로 취소). 상태를 먼저 비우고 숨은 오브젝트를 끊어 삭제한 뒤 진행 중인 요청을 취소(취소 콜백 안에서 `Start` 해도 새 실행은 남음, 콜백 예외는 `AggregateException`) |
+| `void Dispose()` | `Stop()`. 여러 번 불러도 됨. `IServerTimeSync` 가 `IDisposable` 이라(0.2.0) `MainInstaller.CleanDispose<IServerTimeSync>()` 가 부르고 바인딩을 지움 |
 
 백그라운드 루프의 다음 대기:
 
@@ -87,4 +87,4 @@
 
 ## 테스트
 
-EditMode `Geuneda.ServerTime.Tests.EditMode`: `NtpPacketTest`(요청 형식, 왕복·서버 처리 보정, 버전·모드·계층·윤초·Kiss-o'-Death·originate·2024년 이전 거절, 두 시대 변환), `NtpTimeSourceTest`(127.0.0.1 가짜 UDP 서버로 실제 소켓·스레드 풀, 메인 스레드 복귀, 제한 시간·취소·없는 호스트), `HttpDateTimeSourceTest`(가짜 `IHttpClient`, 로컬 `HttpListener` 와 실제 UnityWebRequest 로 `HEAD` 의 `Date`), `ServerTimeSyncTest`(가짜 원천·시계·지연으로 순서·대체·긴 왕복·원천 예외 전파·취소, 재동기화 간격, 지수 백오프와 상한, 최소 설정, 포그라운드 복귀, Stop/Start 와 취소 콜백 재진입). PlayMode `Geuneda.ServerTime.Tests.PlayMode`: `ServerTimeSyncLifecycleTest`(시작 직후 한 번만 동기화, 일시정지·복귀, 오브젝트 파괴·`OnApplicationQuit` 이 멈춤, 옛 오브젝트의 늦은 파괴).
+EditMode `Geuneda.ServerTime.Tests.EditMode`: `NtpPacketTest`(요청 형식, 왕복·서버 처리 보정, 버전·모드·계층·윤초·Kiss-o'-Death·originate·2024년 이전 거절, 두 시대 변환), `NtpTimeSourceTest`(127.0.0.1 가짜 UDP 서버로 실제 소켓·스레드 풀, 메인 스레드 복귀, 제한 시간·취소·없는 호스트), `HttpDateTimeSourceTest`(가짜 `IHttpClient`, 로컬 `HttpListener` 와 실제 UnityWebRequest 로 `HEAD` 의 `Date`), `ServerTimeSyncTest`(가짜 원천·시계·지연으로 순서·대체·긴 왕복·원천 예외 전파·취소, 재동기화 간격, 지수 백오프와 상한, 최소 설정, 포그라운드 복귀, Stop/Start 와 취소 콜백 재진입, `CleanDispose<IServerTimeSync>()`·`Dispose` 두 번). PlayMode `Geuneda.ServerTime.Tests.PlayMode`: `ServerTimeSyncLifecycleTest`(시작 직후 한 번만 동기화, 일시정지·복귀, 오브젝트 파괴·`OnApplicationQuit`·`CleanDispose<IServerTimeSync>()` 가 멈춤, 옛 오브젝트의 늦은 파괴).

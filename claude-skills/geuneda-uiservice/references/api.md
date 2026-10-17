@@ -131,7 +131,7 @@ internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `Intern
 
 | 멤버 | 비고 |
 |------|------|
-| `UiPopupQueue(IUiService uiService)` | null 이면 `ArgumentNullException` |
+| `UiPopupQueue(IUiService uiService)` | null 이면 `ArgumentNullException`. 같은 `UiService` 로 만든 큐끼리는 로드 중 팩토리를 기다림(먼저 시작한 큐가 이김, 3.1.0) |
 | `bool Enqueue(string key, int priority, Func<CancellationToken, UniTask<UiPresenter>> factory)` | 같은 key 대기·표시 중이면 false. 빈 key `ArgumentException`, null 팩토리 `ArgumentNullException`, Dispose 후 `ObjectDisposedException` |
 | `bool Remove(string key)`, `void Clear()` | 대기 항목만 |
 | `UiPopupQueueHold Hold(string reason)` | |

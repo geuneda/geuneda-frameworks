@@ -9,7 +9,7 @@ description: com.geuneda.analytics 패키지(네임스페이스 Geuneda.Analytic
 
 ## 패키지 정보
 
-- **버전**: 0.2.0(어댑터 패키지는 각 0.1.0)
+- **버전**: 0.2.1(어댑터 패키지는 각 0.1.0)
 - **네임스페이스 / 어셈블리**: `Geuneda.Analytics`. 선택 어셈블리 `Geuneda.Analytics.Collector`(http 패키지가 있을 때), `Geuneda.Analytics.Account`(account 패키지가 있을 때)는 `versionDefines` 로 자동으로 켜진다
 - **설치**: `https://github.com/geuneda/geuneda-analytics.git` (core, UniTask git URL 도 함께. 자사 수집은 http, 세션 연동은 account 도)
 - **의존성**: `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1

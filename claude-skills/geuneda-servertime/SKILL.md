@@ -9,7 +9,7 @@ description: com.geuneda.servertime 패키지(네임스페이스 Geuneda.ServerT
 
 ## 패키지 정보
 
-- **버전**: 0.1.0
+- **버전**: 0.2.0
 - **네임스페이스 / 어셈블리**: `Geuneda.ServerTime`
 - **설치**: `https://github.com/geuneda/geuneda-servertime.git` (core, gamedata, services, http, UniTask git URL 도 함께)
 - **의존성**: `com.geuneda.core` 0.4.0(Result, ModuleLogger, `IMonotonicClock`), `com.geuneda.services` 5.0.0(`ITimeManipulator`), `com.geuneda.http` 0.1.0(`HttpDateTimeSource`), `com.cysharp.unitask` 2.5.10. services 와 http 가 서로 의존하지 않도록 동기화를 별도 패키지로 뺐다
@@ -21,9 +21,9 @@ description: com.geuneda.servertime 패키지(네임스페이스 Geuneda.ServerT
 
 전체 시그니처는 `references/api.md`.
 
-- `new ServerTimeSync(ITimeManipulator time, IEnumerable<IServerTimeSource> sources, ServerTimeSyncOptions options = null, IMonotonicClock clock = null)` → `IServerTimeSync`. `MainInstaller.Bind<IServerTimeSync>`.
+- `new ServerTimeSync(ITimeManipulator time, IEnumerable<IServerTimeSource> sources, ServerTimeSyncOptions options = null, IMonotonicClock clock = null)` → `IServerTimeSync`. `MainInstaller.Bind<IServerTimeSync>`, 정리는 `MainInstaller.CleanDispose<IServerTimeSync>()`.
 - `SyncAsync(ct)` → `Result<ServerTimeSample>`. 원천을 순서대로 시도해 처음 성공한 표본으로 맞춘다. 모두 실패하면 첫 실패 코드와 원천별 실패 내용.
-- `Start()` / `Stop()`: 백그라운드 동기화. `Dispose()` 는 `Stop()`.
+- `Start()` / `Stop()`: 백그라운드 동기화. `IServerTimeSync : IDisposable`(0.2.0) 이고 `Dispose()` 는 `Stop()`(여러 번 불러도 됨).
 - `ServerTimeSyncOptions`: `ResyncInterval`(30분), `RetryDelay`(5초), `MaxRetryDelay`(5분), `MaxRoundTrip`(10초).
 - `IServerTimeSource`: `string Name`, `FetchAsync(IMonotonicClock clock, CancellationToken ct)` → `Result<ServerTimeSample>`.
 - `NtpTimeSource(host = "time.google.com", port = 123, timeout = 5초)`, `HttpDateTimeSource(IHttpClient http, string uri, timeout = 5초)`.
@@ -67,6 +67,13 @@ public static async UniTask InitializeAsync(CancellationToken cancellationToken)
     }
 
     sync.Start();
+}
+
+// initialization: InitializeAsync 에 토큰을 넘긴 소스
+public static void Shutdown(CancellationTokenSource initialization)
+{
+    initialization.Cancel();                         // 초기화 중이면 직접 부른 SyncAsync 를 취소하고 Start 하지 않게 함(Dispose 는 이 요청을 취소하지 않음)
+    MainInstaller.CleanDispose<IServerTimeSync>();   // Start 가 시작한 백그라운드 동기화 멈춤(진행 중인 요청 취소), 바인딩 제거
 }
 ```
 
@@ -123,4 +130,4 @@ if (time.IsServerTime && time.DateTimeUtcNow >= nextResetUtc)
 - 기기 시계 조작은 막는다(현재 시각은 서버 기준점 + 단조 시계). 동기화 성공 로그(Info)에 기기 시계와의 차이를 남긴다. NTP 응답 위조와 HTTPS 인증서를 심은 프록시는 막지 못하므로 위조가 문제 되는 값은 서버가 판정한다.
 - `SyncAsync` 가 실패한 뒤 계속 진행할지는 게임이 정한다. 실패해도 `Start` 가 계속 다시 시도한다.
 - `SetServerTime` 을 직접 부르면 왕복 보정·재동기화가 없다. 서버 시각은 이 패키지로 넣는다.
-- static 가변 상태가 없다. 인스턴스로 만들어 `MainInstaller` 에 `IServerTimeSync` 로 바인딩한다.
+- static 가변 상태가 없다. 인스턴스로 만들어 `MainInstaller` 에 `IServerTimeSync` 로 바인딩하고 `MainInstaller.CleanDispose<IServerTimeSync>()` 로 정리한다. 0.1.0 은 구현 클래스만 `IDisposable` 이라 `CleanDispose<IServerTimeSync>` 가 컴파일되지 않는다(0.2.0 부터 됨). `IServerTimeSync` 를 직접 구현한 가짜는 `Dispose()` 도 구현한다. `Stop`·`Dispose` 는 `Start` 가 시작한 백그라운드 동기화만 멈추고 직접 부른 `SyncAsync` 는 취소하지 않으므로, 초기화 중에 종료하면 초기화 토큰을 먼저 취소한다(취소하지 않으면 요청이 끝난 뒤 초기화가 `Start` 해 바인딩에 없는 인스턴스가 돈다).

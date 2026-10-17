@@ -50,7 +50,7 @@
 
 ## 3. com.geuneda.uiservice
 
-- **버전 / 최소 Unity**: 3.0.0 / 6000.0. 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며(core 를 넣지 않을 프로젝트는 `#v2.0.0`), 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이다(그 전 프로젝트는 `#v1.3.2`)
+- **버전 / 최소 Unity**: 3.1.0 / 6000.0. 3.1.0 은 uGUI 같은 레이어 정렬(루트 Canvas `레이어 + 연 순위`)과 여러 팝업 큐의 로드 중 대기를 바꾼 동작 변경(API 동일)이고, 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며(core 를 넣지 않을 프로젝트는 `#v2.0.0`), 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이다(그 전 프로젝트는 `#v1.3.2`)
 - **package.json 의존성**: `com.geuneda.core` 0.4.0(로거), `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
 - **선택 의존성**(asmdef `versionDefines`): `com.unity.inputsystem` 1.0.0 이상 → `GEUNEDA_INPUT_SYSTEM`(`ReadsBackInput` 이 `<Keyboard>/escape` 액션 사용, 없으면 레거시 Input Manager)
 - **이 패키지에 의존하는 패키지**: 없음. gamedata/services 에도 의존하지 않는다.
@@ -137,12 +137,12 @@
 
 ## 10. com.geuneda.core
 
-- **버전 / 최소 Unity**: 0.4.0 / 2021.3
+- **버전 / 최소 Unity**: 0.5.0 / 2021.3
 - **package.json 의존성**: 없음
 - **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads, consent, notice, coupon, webview, gamedata, statechart, uiservice, nativeui, notificationservice, gamesystems(banword 는 선택 로더만)
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드, Android R8 keep 규칙 훅)
 - **네임스페이스**: `Geuneda.Core`, `Geuneda.Core.Editor`
-- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능), 단조 시계(`IMonotonicClock`/`MonotonicClock`, Android `CLOCK_BOOTTIME`·macOS `CLOCK_MONOTONIC` libc, iOS 플러그인 `GeunedaMonotonicClock.mm`, 그 밖은 `Stopwatch`)
+- **주요 기능**: 모듈별 로거(`ModuleLogger`, `LogLevel`, `Log.Sink`/`ILogSink`, `UnityConsoleSink`), 결과 규약(`Result`, `Result<T>`, `ResultCodes`, 패키지별 코드 범위), 빌드 환경(`AppEnv`, `AppEnvironment`, define `GEUNEDA_ENV_DEV`/`QA`/`PROD`, 없으면 에디터·개발 빌드 Dev, 릴리스 빌드 Prod), 메인 스레드 디스패처(`MainThreadDispatcher`), 설정 에셋(`ConfigAssetLoader`, `[ConfigAssetPath]`, `EnvValue<T>`, 에디터 `.user` 빌드 가드), 설치·기기 ID(`IAppIdentity`/`AppIdentity`, iOS 키체인 플러그인), 보안 저장소(`ISecureStore`/`PlatformSecureStore`/`SecureReadResult`, iOS 키체인, Android 키스토어 Java 플러그인), 결정론적 난수(`Pcg32`, PCG32 + SplitMix64 스트림 + Lemire 범위 + O(log n) `Advance`, 서버 링크 가능), 단조 시계(`IMonotonicClock`/`MonotonicClock`, Android `CLOCK_BOOTTIME`·macOS `CLOCK_MONOTONIC` libc, iOS 플러그인 `GeunedaMonotonicClock.mm`, 그 밖은 `Stopwatch`), 인증 암호화(`AesEncryption`: 버전 1 = AES-256-CBC + HMAC-SHA256 encrypt-then-MAC, HKDF 키 분리, 연관 데이터, 서버는 `Runtime/Cryptography`·`Runtime/Results` 링크), 기기 키(`IDeviceKeyProvider`/`DeviceKeyProvider`, 키체인·키스토어 없는 곳은 실패), 공용 결과 코드 6~9
 - **테스트**: EditMode `Geuneda.Core.Tests.EditMode`, PlayMode `Geuneda.Core.Tests.PlayMode`
 - **문서**: `README.md`, `AGENTS.md`(static 허용 목록 D2: `Log`, `MainThreadDispatcher`, gamedata `SecureValueMonitor`, services `MainInstaller`)
 
@@ -176,11 +176,11 @@
 
 ## 13. com.geuneda.account
 
-- **버전 / 최소 Unity**: 0.2.0 / 2021.3
+- **버전 / 최소 Unity**: 0.3.0 / 2021.3
 - **package.json 의존성**: `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
 - **어셈블리 / 네임스페이스**: `Geuneda.Account`
-- **주요 기능**: `IAuthService`/`AuthService`(게스트·제공자 로그인, `SignInSilentlyAsync`, `GetAccessTokenAsync` 재발급 single-flight, 로그아웃, 연동·충돌·옮겨오기·해제·계정 삭제, 계정 작업 동시 하나 `InProgress`), `AuthTokenMiddleware`(Bearer, 401 재발급 후 한 번 재전송, `RetryMiddleware` 바깥), `IAuthProvider`/`GuestAuthProvider`, `IAppSession`/`AppSession`(다음 세션 ID 예약, 백그라운드 10분 시간 초과, 대칭 이벤트), `AccountResultCodes`(3000 블록)
-- **서버**: `Server~/` 의 ASP.NET Core 인증 서버 `Geuneda.Account.Server`(`AddGeunedaAccount`/`MapGeunedaAccount`, JWT, refresh 회전·재사용 감지, `IAccountStore`·`IRefreshTokenStore`·`IPlatformVerifier`(`AddGuest`, `AddApple`, `AddGoogle`, 공개 키 캐시 `OpenIdConnectKeyCache`), 게임 서버용 `AddGeunedaAccessTokenValidation`), 샘플 서버, xUnit 테스트(.NET 10)
+- **주요 기능**: `IAuthService`/`AuthService`(게스트·제공자 로그인, `SignInSilentlyAsync`, `GetAccessTokenAsync` 재발급 single-flight, 로그아웃, 연동·충돌·옮겨오기·해제·계정 삭제, 계정 작업 동시 하나 `InProgress`), `AuthTokenMiddleware`(Bearer, 401 재발급 후 한 번 재전송, `RetryMiddleware` 바깥), `IAuthProvider`/`GuestAuthProvider`, `IAppSession`/`AppSession`(다음 세션 ID 예약, 백그라운드 10분 시간 초과, 대칭 이벤트), `IAuthService`·`IAppSession` 은 `IDisposable`, `AccountResultCodes`(3000 블록)
+- **서버**: `Server~/` 의 ASP.NET Core 인증 서버 `Geuneda.Account.Server`(`AddGeunedaAccount`/`MapGeunedaAccount`, JWT, refresh 회전·재사용 감지, `IAccountStore`·`IRefreshTokenStore`·`IPlatformVerifier`(`AddGuest`, `AddApple`, `AddGoogle`, 공개 키 캐시 `OpenIdConnectKeyCache`), 게임 서버용 `AddGeunedaAccessTokenValidation`, `IOneTimeValueStore`(nonce·충돌 티켓), `POST nonce`, 409 `conflictTicket`), 샘플 서버, xUnit 테스트(.NET 10)
 - **테스트**: EditMode `Geuneda.Account.Tests.EditMode`(가짜 인증 서버 전송, `[Explicit]` 샘플 서버 상호 운용), `dotnet test Server~/Geuneda.Account.Server.slnx`
 - **문서**: `README.md`(서버 경로 표 포함), `AGENTS.md`
 
@@ -188,10 +188,10 @@
 
 ## 14. com.geuneda.account.apple
 
-- **버전 / 최소 Unity**: 0.1.0 / 2021.3(iOS 13+)
-- **package.json 의존성**: `com.geuneda.account` 0.1.0, `com.geuneda.core` 0.2.0, `com.cysharp.unitask` 2.5.10
+- **버전 / 최소 Unity**: 0.2.0 / 2021.3(iOS 13+)
+- **package.json 의존성**: `com.geuneda.account` 0.3.0, `com.geuneda.core` 0.2.0, `com.cysharp.unitask` 2.5.10
 - **어셈블리 / 네임스페이스**: `Geuneda.Account.Apple`, 에디터 `Geuneda.Account.Apple.Editor`
-- **주요 기능**: `AppleAuthProvider`(ASAuthorizationController 네이티브 플러그인 `Runtime/Plugins/iOS/GeunedaAppleSignIn.mm`), 빌드 후처리 `AppleSignInCapability`(Sign in with Apple entitlement)
+- **주요 기능**: `AppleAuthProvider`(ASAuthorizationController 네이티브 플러그인 `Runtime/Plugins/iOS/GeunedaAppleSignIn.mm`, 서버 nonce 의 SHA-256 을 `ASAuthorizationAppleIDRequest.nonce` 에), 빌드 후처리 `AppleSignInCapability`(Sign in with Apple entitlement)
 - **테스트**: EditMode `Geuneda.Account.Apple.Tests.EditMode`. 실기 확인은 iOS 빌드
 - **문서**: `README.md`(설정), `AGENTS.md`
 
@@ -199,10 +199,10 @@
 
 ## 15. com.geuneda.account.google
 
-- **버전 / 최소 Unity**: 0.1.0 / 2021.3(Android API 23+, compileSdk 34+, iOS 13+)
-- **package.json 의존성**: `com.geuneda.account` 0.1.0, `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
+- **버전 / 최소 Unity**: 0.2.0 / 2021.3(Android API 23+, compileSdk 34+, iOS 13+)
+- **package.json 의존성**: `com.geuneda.account` 0.3.0, `com.geuneda.core` 0.2.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
 - **어셈블리 / 네임스페이스**: `Geuneda.Account.Google`
-- **주요 기능**: `GoogleAuthProvider(GoogleAuthOptions)`. Android 는 Credential Manager Android 라이브러리 플러그인(`GeunedaGoogleSignIn.androidlib`: Gradle 의존성 `androidx.credentials` 1.3.0, `googleid` 1.1.1, `androidx.core` 1.8.0, `androidx.loader` 1.0.0, R8 consumer 규칙), iOS 는 SDK 없이 ASWebAuthenticationSession + OAuth PKCE 와 토큰 엔드포인트 교환
+- **주요 기능**: `GoogleAuthProvider(GoogleAuthOptions)`. Android 는 Credential Manager Android 라이브러리 플러그인(`GeunedaGoogleSignIn.androidlib`: Gradle 의존성 `androidx.credentials` 1.3.0, `googleid` 1.1.1, `androidx.core` 1.8.0, `androidx.loader` 1.0.0, R8 consumer 규칙), iOS 는 SDK 없이 ASWebAuthenticationSession + OAuth PKCE 와 토큰 엔드포인트 교환, nonce 는 `setNonce`·인가 요청 `nonce`
 - **테스트**: EditMode `Geuneda.Account.Google.Tests.EditMode`(PKCE RFC 7636 예시, 토큰 교환 가짜 전송, 설정 검사). 실기 확인은 Android·iOS 빌드
 - **문서**: `README.md`(Google Cloud 콘솔 설정), `AGENTS.md`
 
@@ -234,10 +234,10 @@
 
 ## 18. com.geuneda.servertime
 
-- **버전 / 최소 Unity**: 0.1.0 / 6000.3
+- **버전 / 최소 Unity**: 0.2.0 / 6000.3
 - **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.geuneda.services` 5.0.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10
 - **어셈블리 / 네임스페이스**: `Geuneda.ServerTime`
-- **주요 기능**: `IServerTimeSync`/`ServerTimeSync`/`ServerTimeSyncOptions`(`SyncAsync` 원천을 순서대로 시도해 처음 성공한 표본에 받은 뒤 흐른 시간을 더해 `ITimeManipulator.SetServerTime`, `MaxRoundTrip`(10초)보다 긴 표본은 버림, `Start`/`Stop` 백그라운드 동기화: 실패하면 `RetryDelay`(5초)부터 두 배씩 `MaxRetryDelay`(5분)까지, 성공하면 `ResyncInterval`(30분)마다, 포그라운드 복귀 때 바로), `IServerTimeSource`, `NtpTimeSource`(기본 `time.google.com`, UDP 123, 제한 시간 5초, originate·모드·계층·윤초 표시 검증), `HttpDateTimeSource`(`IHttpClient` 로 `HEAD`, `Date` 헤더, 정확도 1~2초), `ServerTimeSample`(받은 순간의 서버 시각, 그 순간의 단조 시계 값, 왕복), `ServerTimeResultCodes`(6000 블록)
+- **주요 기능**: `IServerTimeSync`/`ServerTimeSync`/`ServerTimeSyncOptions`(`SyncAsync` 원천을 순서대로 시도해 처음 성공한 표본에 받은 뒤 흐른 시간을 더해 `ITimeManipulator.SetServerTime`, `MaxRoundTrip`(10초)보다 긴 표본은 버림, `Start`/`Stop` 백그라운드 동기화: 실패하면 `RetryDelay`(5초)부터 두 배씩 `MaxRetryDelay`(5분)까지, 성공하면 `ResyncInterval`(30분)마다, 포그라운드 복귀 때 바로), `IServerTimeSource`, `NtpTimeSource`(기본 `time.google.com`, UDP 123, 제한 시간 5초, originate·모드·계층·윤초 표시 검증), `HttpDateTimeSource`(`IHttpClient` 로 `HEAD`, `Date` 헤더, 정확도 1~2초), `ServerTimeSample`(받은 순간의 서버 시각, 그 순간의 단조 시계 값, 왕복), `ServerTimeResultCodes`(6000 블록). `IServerTimeSync` 는 `IDisposable`(0.2.0, `MainInstaller.CleanDispose<IServerTimeSync>()`)
 - **시계**: 시간 서비스와 같은 `IMonotonicClock` 을 써야 한다(둘 다 기본 생성자면 core `MonotonicClock`)
 - **테스트**: EditMode `Geuneda.ServerTime.Tests.EditMode`(NTP 패킷 검증·왕복 보정, 127.0.0.1 가짜 UDP 서버, 가짜 `IHttpClient`·로컬 HttpListener 와 실제 UnityWebRequest, 가짜 원천·시계·지연으로 백오프·재동기화·포그라운드 복귀)
 - **문서**: `README.md`, `AGENTS.md`
@@ -246,7 +246,7 @@
 
 ## 19. com.geuneda.analytics
 
-- **버전 / 최소 Unity**: 0.2.0 / 2021.3
+- **버전 / 최소 Unity**: 0.2.1 / 2021.3
 - **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
 - **선택 의존성**(asmdef `versionDefines`): `com.geuneda.http` 0.1.0 이상 → `Geuneda.Analytics.Collector`, `com.geuneda.account` 0.1.0 이상 → `Geuneda.Analytics.Account`
 - **어셈블리 / 네임스페이스**: `Geuneda.Analytics`, `Geuneda.Analytics.Collector`, `Geuneda.Analytics.Account`

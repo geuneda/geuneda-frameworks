@@ -1,6 +1,6 @@
 # Geuneda Analytics API 레퍼런스
 
-네임스페이스 `Geuneda.Analytics`(선택 어셈블리는 `Geuneda.Analytics.Collector`, `Geuneda.Analytics.Account`, 서버는 `Geuneda.Analytics.Server`, 어댑터는 `Geuneda.Analytics.Firebase`·`Airbridge`·`AppsFlyer`·`Facebook`). analytics 0.2.0, 어댑터 각 0.1.0.
+네임스페이스 `Geuneda.Analytics`(선택 어셈블리는 `Geuneda.Analytics.Collector`, `Geuneda.Analytics.Account`, 서버는 `Geuneda.Analytics.Server`, 어댑터는 `Geuneda.Analytics.Firebase`·`Airbridge`·`AppsFlyer`·`Facebook`). analytics 0.2.1, 어댑터 각 0.1.0.
 
 ## 서비스 (`Runtime/`)
 

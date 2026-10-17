@@ -21,15 +21,15 @@ Geuneda UPM 패키지 35개와 그것을 개발, 테스트, 검증하는 Unity �
 
 | 패키지 | 버전 | 최소 Unity | 용도 | 스킬 |
 |--------|------|-----------|------|------|
-| `com.geuneda.core` | 0.4.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소(iOS 키체인, Android 키스토어), 결정론적 난수(`Pcg32`), 단조 시계(`MonotonicClock`, 기기 시계 변경 무관, 잠든 동안에도 흐름) | `geuneda-core` |
+| `com.geuneda.core` | 0.5.0 | 2021.3 | 바닥 패키지(의존성 없음). 모듈별 로거, 결과 규약(`Result`), 빌드 환경(`AppEnv`), 메인 스레드 디스패처, 설정 에셋 로더, 설치·기기 ID, 보안 저장소(iOS 키체인, Android 키스토어), 결정론적 난수(`Pcg32`), 단조 시계(`MonotonicClock`, 기기 시계 변경 무관, 잠든 동안에도 흐름), 인증 암호화(`AesEncryption`)·기기 키(`DeviceKeyProvider`) | `geuneda-core` |
 | `com.geuneda.http` | 0.1.0 | 2021.3 | UnityWebRequest HTTP 클라이언트(미들웨어 체인, `Result<HttpResponse>`, JSON, 선택형 타임아웃·재시도) | `geuneda-http` |
 | `com.geuneda.realtime` | 0.2.0 | 2021.3 | WebSocket 실시간 RPC 클라이언트(single-flight 연결, 재로그인, 지수 백오프 재연결, 서버 푸시, JSON/MessagePack 직렬화), `[RpcService]` 계약 소스 생성기, ASP.NET Core 서버(`Server~/`) | `geuneda-realtime` |
-| `com.geuneda.account` | 0.2.0 | 2021.3 | 계정 인증(게스트·제공자 로그인, 자동 로그인, 재발급 single-flight, 토큰 미들웨어, 연동·옮겨오기·해제·삭제)과 앱 세션(다음 세션 ID 예약, 대칭 이벤트), ASP.NET Core 인증 서버(`Server~/`, 애플·구글 id 토큰 검증) | `geuneda-account` |
-| `com.geuneda.account.apple` | 0.1.0 | 2021.3 | account 의 Sign in with Apple 제공자(iOS 네이티브 플러그인, capability 빌드 후처리) | `geuneda-account` |
-| `com.geuneda.account.google` | 0.1.0 | 2021.3 | account 의 Google 로그인 제공자(Android Credential Manager 라이브러리 플러그인, iOS PKCE) | `geuneda-account` |
+| `com.geuneda.account` | 0.3.0 | 2021.3 | 계정 인증(게스트·제공자 로그인, 자동 로그인, 재발급 single-flight, 토큰 미들웨어, 연동·옮겨오기·해제·삭제)과 앱 세션(다음 세션 ID 예약, 대칭 이벤트), ASP.NET Core 인증 서버(`Server~/`, 애플·구글 id 토큰 검증, 서버 발급 nonce·충돌 티켓 replay 방어) | `geuneda-account` |
+| `com.geuneda.account.apple` | 0.2.0 | 2021.3 | account 의 Sign in with Apple 제공자(iOS 네이티브 플러그인, nonce, capability 빌드 후처리) | `geuneda-account` |
+| `com.geuneda.account.google` | 0.2.0 | 2021.3 | account 의 Google 로그인 제공자(Android Credential Manager 라이브러리 플러그인, iOS PKCE, nonce) | `geuneda-account` |
 | `com.geuneda.appsetting` | 0.2.0 | 2021.3 | 원격 앱 설정(서명된 설정 문서 검증, 앱 버전별 노드의 플랫폼 상태·점검 공지·서버 주소·기능 플래그로 접속 판정, 리소스 매니페스트, ETag 조건부 요청), 서명 CLI 와 ASP.NET Core 배포 헬퍼(`Server~/`) | `geuneda-appsetting` |
 | `com.geuneda.resource` | 0.1.0 | 2021.3 | 원격 리소스(테이블 등 데이터 파일) 캐시(매니페스트 항목의 크기·SHA-256 판정, 검증 후 원자적 저장, 옛 버전 정리, 동시 다운로드 제한, 받기 전 용량 확인, 진행률) | `geuneda-resource` |
-| `com.geuneda.analytics` | 0.2.0 | 2021.3 | 분석 이벤트 로깅(기록 시점 맥락 스냅샷, sink 비트 팬아웃, 실패 sink 만 저장·재전송, 자사 수집 배치 sink 와 ASP.NET Core 수집 서버, account 세션 연동, 구매·광고 노출 수익 표준 이벤트) | `geuneda-analytics` |
+| `com.geuneda.analytics` | 0.2.1 | 2021.3 | 분석 이벤트 로깅(기록 시점 맥락 스냅샷, sink 비트 팬아웃, 실패 sink 만 저장·재전송, 자사 수집 배치 sink 와 ASP.NET Core 수집 서버, account 세션 연동, 구매·광고 노출 수익 표준 이벤트) | `geuneda-analytics` |
 | `com.geuneda.analytics.firebase`·`.airbridge`·`.appsflyer`·`.facebook` | 0.1.0 | 2021.3(AppsFlyer 2023.1) | analytics 의 벤더 SDK sink(표준 이벤트를 벤더 표준으로 변환). 그 SDK 가 있는 게임만 설치 | `geuneda-analytics` |
 | `com.geuneda.iap` | 0.3.0 | 2021.3 | 인앱 결제(지급자 확인 뒤에만 스토어 확정, 지급 재시도 백오프, 재조회 복구, 늦은 결제 지급, 중복 거래·미확정 주문 먼저, 확정만 재시도, 결과 코드 7000, analytics 매출 기록 선택, http 지급자 선택), .NET 결제 서버 `Server~`(Google Play·App Store 영수증 검증, 영수증 원장, 지급 엔드포인트, 서버 알림의 환불 회수·구독 상태) | `geuneda-iap` |
 | `com.geuneda.iap.unity` | 0.1.0 | 2022.3 | iap 의 Unity IAP 5.4.4 어댑터 | `geuneda-iap` |
@@ -43,10 +43,10 @@ Geuneda UPM 패키지 35개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.coupon` | 0.1.0 | 2021.3 | 쿠폰 사용(코드 다듬어 보내기, 지급 결과 `CouponRedemption<TGrant>`, 이미 쓴 캠페인은 처음 결과와 함께 성공, 결과 코드 11000, `Server~` ASP.NET Core 라이브러리: 공용·개별 일회용 코드, 기간, 대상 조건, 계정별 실패 제한, 사용 기록·지급 한 트랜잭션) | `geuneda-coupon` |
 | `com.geuneda.webview` | 0.1.0 | 2021.3 | 앱 안 웹뷰와 페이지 명령 브리지(JS 파일 `geuneda.call` 이 요청 ID 로 짝지은 결과를 Promise 로, Unity 이벤트, 허용 출처만 열고 명령 받기·그 밖 이동 막기, 토큰 안 넘김, RectTransform 영역 추적, 뒤로가기, 열기 성공은 브리지 준비, 결과 코드 12000, notice·coupon 이 있으면 공지·쿠폰 명령 asmdef) | `geuneda-webview` |
 | `com.geuneda.webview.gree` | 0.1.0 | 2021.3 | webview 의 gree unity-webview 어댑터(준비 전 값을 준비 뒤 이동 제한 → 여백 → 로드 순서로, 여백은 화면 비율, gree 가 있을 때만 컴파일) | `geuneda-webview` |
-| `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화(NTP·HTTPS `Date`·직접 구현 원천을 순서대로, 왕복 지연 보정, 지수 백오프 재시도, 30분 재동기화, 포그라운드 복귀 재동기화). services 시간 서비스의 기준점을 맞춤 | `geuneda-servertime` |
+| `com.geuneda.servertime` | 0.2.0 | 6000.3 | 서버 시간 동기화(NTP·HTTPS `Date`·직접 구현 원천을 순서대로, 왕복 지연 보정, 지수 백오프 재시도, 30분 재동기화, 포그라운드 복귀 재동기화). services 시간 서비스의 기준점을 맞춤 | `geuneda-servertime` |
 | `com.geuneda.gamedata` | 2.0.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 보안 값(`SecureInt` 등), 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 5.2.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
-| `com.geuneda.uiservice` | 3.0.0 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit, 뒤로가기, 우선순위 팝업 큐, 모달 dim, 입력 차단 | `geuneda-uiservice` |
+| `com.geuneda.uiservice` | 3.1.0 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit, 뒤로가기, 우선순위 팝업 큐, 모달 dim, 입력 차단 | `geuneda-uiservice` |
 | `com.geuneda.statechart` | 0.11.0 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 포인터 드래그, 스와이프/탭, 게임패드 | `geuneda-inputextensions` |
 | `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
@@ -237,6 +237,7 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 설정 ScriptableObject 읽기(.user 덮어쓰기, 환경별 값) | core |
 | 설치 ID, 재설치해도 유지되는 기기 ID(iOS 키체인) | core |
 | 토큰·비밀 값 보관(iOS 키체인, Android 키스토어) | core |
+| 세이브 파일·로그 캐시 암호화와 변조 검출, 기기에만 두는 암호 키 | core |
 | REST API 호출(미들웨어, 타임아웃·재시도, JSON) | http |
 | 실시간 서버 연결(WebSocket RPC, 서버 푸시, 자동 재연결), 서버·클라이언트 공유 RPC 계약과 ASP.NET Core 서버 | realtime |
 | 로그인(게스트·플랫폼), 토큰 재발급·보관, 계정 연동, 앱 세션 ID, 인증 서버 | account |
