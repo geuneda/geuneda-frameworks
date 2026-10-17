@@ -1,6 +1,6 @@
 # Geuneda Coupon API 레퍼런스
 
-네임스페이스 `Geuneda.Coupon`(Unity asmdef `Geuneda.Coupon`, 참조 `Geuneda.Core`, `Geuneda.Http`, `UniTask`), 서버 `Geuneda.Coupon.Server`(`Server~/src/Geuneda.Coupon.Server`, net10.0). coupon 0.1.0.
+네임스페이스 `Geuneda.Coupon`(Unity asmdef `Geuneda.Coupon`, 참조 `Geuneda.Core`, `Geuneda.Http`, `UniTask`), 서버 `Geuneda.Coupon.Server`(`Server~/src/Geuneda.Coupon.Server`, net10.0). coupon 0.1.1.
 
 ## 클라이언트
 
@@ -71,6 +71,7 @@
 
 ### 저장소·실패 기록·지급
 
+- 실제 DB 구현(Postgres 표·요청 범위 세션·전체 `ICouponStore` 구현, 실패 기록 Postgres 권고 잠금·Redis Lua): 패키지 `docs/db-store.md`. 권장 순서는 사용 기록 자리 먼저(`INSERT ... ON CONFLICT DO NOTHING`).
 - `ICouponStore`: `AddCampaignAsync`, `UpdateCampaignAsync`, `GetCampaignAsync`, `AddCodesAsync`, `FindCodeAsync` → `CouponCodeMatch { Campaign, Code }`, `FindRedemptionAsync` → `CouponRedemptionRecord { CampaignId, AccountId, Code, RedeemedAt, GrantJson }`, `RedeemAsync(CouponRedeemAttempt, Func<CancellationToken, Task<CouponStoreGrant>>, ct)` → `CouponStoreRedeemResult { Outcome(Recorded, Duplicate, CodeUsed, SoldOut, NotGranted), Record }`. 메모리 구현 `InMemoryCouponStore`(`GetRedemptionCount`).
 - `ICouponAttemptStore`: `TryReserveAsync(accountId, at, since, limit, ct)` → `CouponAttemptReservation { ReservationId, IsReserved, Entries }`, `ReleaseAsync(accountId, reservationId, ct)`. 메모리 구현 `InMemoryCouponAttemptStore`.
 - `ICouponGrantor.GrantAsync(CouponGrant, ct)` → `CouponGrantResult`(`Granted(object response = null)`, `Rejected(string)`, `RetryLater(string)`, `Status`, `Response`, `Message`; default 는 500).

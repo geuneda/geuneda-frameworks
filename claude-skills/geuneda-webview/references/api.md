@@ -1,8 +1,8 @@
 # Geuneda WebView API 레퍼런스
 
-네임스페이스 `Geuneda.WebView`(asmdef `Geuneda.WebView`, 참조 `Geuneda.Core`, `UniTask`, Newtonsoft). 선택 어셈블리 `Geuneda.WebView.Notice`(versionDefines `com.geuneda.notice` → `GEUNEDA_WEBVIEW_NOTICE`), `Geuneda.WebView.Coupon`(`com.geuneda.coupon` → `GEUNEDA_WEBVIEW_COUPON`). 어댑터 `Geuneda.WebView.Gree`(`net.gree.unity-webview` → `GEUNEDA_WEBVIEW_GREE`, 참조 `unity-webview`). webview 0.1.0, webview.gree 0.1.0.
+네임스페이스 `Geuneda.WebView`(asmdef `Geuneda.WebView`, 참조 `Geuneda.Core`, `UniTask`, Newtonsoft). 선택 어셈블리 `Geuneda.WebView.Notice`(versionDefines `com.geuneda.notice` → `GEUNEDA_WEBVIEW_NOTICE`), `Geuneda.WebView.Coupon`(`com.geuneda.coupon` → `GEUNEDA_WEBVIEW_COUPON`). 어댑터 `Geuneda.WebView.Gree`(`net.gree.unity-webview` → `GEUNEDA_WEBVIEW_GREE`, 참조 `unity-webview`). webview 0.2.0, webview.gree 0.2.0.
 
-## interface IWebViewService / sealed class WebViewService : IDisposable
+## interface IWebViewService : IDisposable / sealed class WebViewService
 
 | 멤버 | 설명 |
 |------|------|
@@ -15,7 +15,7 @@
 | `bool HandleBack()` | 기록 있으면 `GoBack`, 없으면(또는 열기 중) 닫기. 열려 있지 않으면 false |
 | `IDisposable AddCommand(string name, WebViewCommandHandler handler)` | 이름 1~64자 ASCII 영숫자·`.`·`_`·`-`. 기본 명령·규칙 위반은 `ArgumentException`, 중복은 `InvalidOperationException`, 처리기 null 은 `ArgumentNullException`. 해제는 등록 객체 기준 |
 | `void Emit(string name, object value = null)` | 이름 규칙 위반은 `ArgumentException`. 보이는 페이지가 없거나 허용 밖 페이지면 버림 |
-| `void Dispose()` | 닫기(열려 있었으면 `Closed`) |
+| `void Dispose()` | `IWebViewService` 의 멤버(0.2.0, `MainInstaller.CleanDispose<IWebViewService>()`). 닫기(열려 있었으면 `Closed`, 열기 중이면 그 열기는 `Cancelled`), 그 뒤 `OpenAsync` 는 `ObjectDisposedException`. 여러 번 불러도 됨 |
 
 ### sealed class WebViewServiceOptions
 
@@ -52,8 +52,8 @@
 ## 메시지 규약(JS 파일과 짝)
 
 - 페이지 → Unity: `{"type":"ready","doc"}`, `{"type":"bound","doc","key"}`, `{"type":"call","doc","key","id":"1"|1,"command":"notice.list","args":{...}}`(doc 은 1~64자 영숫자·`.`·`_`·`-`, id 는 1~64자 문자열 또는 정수). `bound`·`call` 은 키가 맞을 때만 받음(아니면 Warning).
-- Unity → 페이지(메인 프레임에서만 실행, `(function(o){if(o==="허용 출처"||...){...}})(window.location.origin)` 로 감싸 실행 순간 출처가 허용 출처일 때만): `window.geuneda&&window.geuneda.__receive({"type":"bind","doc","key"})`(준비 알림에 답함), `{"type":"result","doc","id","ok","code","message"?,"value"?}`, `{"type":"event","name","value"?}`. U+2028·U+2029 는 이스케이프. JS 는 자기 doc 의 bind·result 만 받고, 키를 받기 전 명령은 대기열에 둔다.
-- 전달: iOS·macOS 는 `window.webkit.messageHandlers.unityControl.postMessage(encodeURIComponent(json))`(gree 가 `UnEscapeURL`), Android 는 `window.Unity.call(json)`.
+- Unity → 페이지(메인 프레임에서만 실행, `(function(o){if(o==="허용 출처"||...){...}})(window.location.origin)` 로 감싸 실행 순간 출처가 허용 출처일 때만): `window.geuneda&&window.geuneda.__receive({"type":"bind","doc","key"})`(준비 알림에 답함), `{"type":"result","doc","id","ok","code","message"?,"value"?}`, `{"type":"event","name","value"?}`. JSON 은 ASCII 로만 쓴다(`StringEscapeHandling.EscapeNonAscii`, ASCII 가 아닌 글자는 `\uXXXX`, 값 안의 `JRaw` 도 같은 방식으로 바꾸고 주석은 쓰지 않음, 0.2.0). 그래서 짝 없는 서로게이트·이모지·U+2028·U+2029 도 코드 단위 그대로 JS 문자열이 된다(0.1.0 은 날것이라 짝 없는 서로게이트가 든 스크립트가 gree iOS 에서 사라짐). 페이지 → Unity 의 짝 없는 서로게이트는 Newtonsoft 가 U+FFFD 로 읽는다. JS 는 자기 doc 의 bind·result 만 받고, 키를 받기 전 명령은 대기열에 둔다.
+- 전달: iOS·macOS 는 `window.webkit.messageHandlers.unityControl.postMessage(encodeURIComponent(json))`(gree 가 `UnEscapeURL`), Android 는 `window.Unity.call(json)`. 명령은 `deliver` 로 하나씩 보내고, 직렬화 실패는 `{ok:false, code:12003}`, 전달 경로 예외는 `{ok:false, code:1}` 로 그 요청만 끝낸다(대기열의 뒤 요청은 계속, 0.2.0).
 
 ## 공지 명령 `NoticeWebViewCommands`(Geuneda.WebView.Notice)
 
@@ -81,10 +81,10 @@
 - 열 때마다 `GeunedaWebView-<GUID>` 게임 오브젝트(`DontDestroyOnLoad`) + `WebViewObject`. `Init(cb, err, httpErr, ld, started, androidForceDarkMode: 1)`.
 - 준비(`IsInitialized`) 전 값은 `Update` 에서 `SetURLPattern("", deny, "")` → `SetMargins(..., relative: true)` → `SetVisibility` → `LoadURL` 순서로 적용. 이동 제한을 걸 수 없으면 로드하지 않고 `OnLoadError`(열기 `LoadFailed`). 데스크톱(macOS·Windows)은 화면 크기만 바뀌면 여백을 한 번 바꿔 넘겨 gree 가 뷰 크기를 다시 계산하게 함.
 - `WebViewObject.IsWebViewAvailable()` 가 false 면 첫 `Update` 에서 `OnLoadError` 한 번.
-- 네임스페이스 `Gree.UnityWebView`, 어셈블리 `unity-webview`. 확인한 커밋 `20f14061ca4b45e8490c1e89e00684a5d3ed6be0`.
+- 네임스페이스 `Gree.UnityWebView`, 어셈블리 `unity-webview`. 확인한 커밋 `20f14061ca4b45e8490c1e89e00684a5d3ed6be0`. 설치 경로는 `?path=/dist/package-nofragment`(기본 `dist/package` 는 READ_MEDIA_IMAGES/VIDEO/AUDIO 권한·FileProvider·androidx core 를 넣어 Google Play 정책에 걸릴 수 있음. 파일 입력(`<input type=file>`)이 필요할 때만 기본 package). 시험용 http 페이지는 Android 에서 `UNITYWEBVIEW_ANDROID_USES_CLEARTEXT_TRAFFIC` define 이 필요(`insecureHttpOption` 만으로는 안 됨).
 
 ## 테스트
 
-- EditMode `Geuneda.WebView.Tests.EditMode`(`FakeWebViewFactory`), `Geuneda.WebView.Notice.Tests.EditMode`, `Geuneda.WebView.Coupon.Tests.EditMode`.
+- EditMode `Geuneda.WebView.Tests.EditMode`(`FakeWebViewFactory`, `RawScripts` 로 키 전달 포함 모든 스크립트), `Geuneda.WebView.Notice.Tests.EditMode`, `Geuneda.WebView.Coupon.Tests.EditMode`, `Geuneda.WebView.Services.Tests.EditMode`(services 가 있을 때, `CleanDispose`).
 - JS: `node --test "Web~/tests/*.test.mjs"`(Node 21+).
 - PlayMode `Geuneda.WebView.Gree.Tests.PlayMode` 의 `GreeWebViewInteropTest`(명시 실행, macOS 에디터 그래픽 장치, `Web~` 정적 서버, `GEUNEDA_WEBVIEW_INTEROP_URL`).

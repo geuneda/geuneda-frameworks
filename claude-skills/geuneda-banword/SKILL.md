@@ -9,7 +9,7 @@ description: com.geuneda.banword 패키지(네임스페이스 Geuneda.BanWord)�
 
 ## 패키지 정보
 
-- **버전**: 0.1.0
+- **버전**: 0.1.1
 - **네임스페이스 / 어셈블리**: `Geuneda.BanWord`(Unity, 서버 모두)
 - **설치**: `https://github.com/geuneda/geuneda-banword.git`. 검사만 쓰면 다른 패키지가 필요 없다(Unity 2021.3+). 로더 어셈블리 `Geuneda.BanWord.Resource` 는 `com.geuneda.resource` 가 있을 때만 컴파일된다(resource 와 core, http, UniTask 를 함께 넣음)
 - **서버**: `Server~/src/Geuneda.BanWord/Geuneda.BanWord.csproj`(net10.0, Runtime 소스 링크)를 ProjectReference 로 참조
@@ -75,7 +75,7 @@ UTF-8, 줄 단위. `[denied]` 아래 금칙어, `[allowed]` 아래 허용어, �
 
 ## 함정
 
-- `char.ToUpperInvariant`·`StringComparer.OrdinalIgnoreCase`·`Normalize` 로 단어를 미리 바꾸지 않는다. Mono(IL2CPP 포함)와 .NET 10 의 표가 달라(ToUpperInvariant 224자 차이) 클라이언트와 서버 판정이 갈린다. 패키지가 고정 표로 접는다.
+- `char.ToUpperInvariant`·`StringComparer.OrdinalIgnoreCase`·`Normalize` 로 단어를 미리 바꾸지 않는다. Mono(IL2CPP 포함)와 .NET 10 의 표가 달라(ToUpperInvariant 가 바꾸는 BMP 글자: Unity 6000.3.11f1 Mono·IL2CPP 973자, .NET 10.0.5 1197자(시스템 ICU)·1193자(invariant 모드)) 클라이언트와 서버 판정이 갈리고, .NET 끼리도 ICU 버전·모드에 따라 달라진다. 패키지가 고정 표로 접는다.
 - 큰 단어장(5만 단어)은 만드는 데 에디터 Mono 66ms, Android IL2CPP 에뮬레이터 38ms 가 걸린다. 부팅 중이면 `UniTask.RunOnThreadPool` 로 만든다(WebGL 은 스레드 풀 없음).
 - 내장 스냅샷의 형식 오류는 빌드 전에 고칠 버그다(로더가 예외). 테스트로 `TryParse` 를 확인한다.
 - resource 는 새 파일을 저장하면 같은 카테고리의 옛 파일을 지운다. 받기에 성공한 형식 오류 단어장을 올리면 마지막 항목도 못 읽고 내장으로 내려가므로, 올리기 전에 서버·CI 에서 `TryParse` 로 확인한다.

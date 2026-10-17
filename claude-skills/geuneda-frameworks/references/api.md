@@ -306,7 +306,7 @@
 
 ## 24. com.geuneda.banword
 
-- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **버전 / 최소 Unity**: 0.1.1 / 2021.3
 - **package.json 의존성**: 없음
 - **어셈블리 / 네임스페이스**: `Geuneda.BanWord`(`noEngineReferences: true`), 선택 `Geuneda.BanWord.Resource`(com.geuneda.resource 가 있을 때만, `versionDefines` → `GEUNEDA_BANWORD_RESOURCE`, 네임스페이스는 `Geuneda.BanWord`). 서버는 `Server~/src/Geuneda.BanWord`(net10.0, `Runtime/*.cs` 링크)
 - **주요 기능**: `IBanWordFilter`/`BanWordFilter`(`Contains`, `Find`, `Mask`, 금칙·허용 표시를 가진 Aho-Corasick 오토마톤 하나, 허용어 하나가 완전히 덮으면 뺌, 불변·스레드 안전), `BanWordMatch`, `BanWordList.TryParse`(`[denied]`/`[allowed]` 단어장 파일), 대소문자 접기 표(유니코드 17.0 C·S, BMP, `Tools~/generate_case_folding.py` 로 생성). `BanWordResourceLoader`(resource 캐시에서 지금 항목 → 마지막 항목(PlayerPrefs) → 내장 단어장, 실패는 취소뿐)
@@ -324,7 +324,7 @@
 
 ## 26. com.geuneda.coupon
 
-- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **버전 / 최소 Unity**: 0.1.1 / 2021.3(실제 DB 저장소 안내 `docs/db-store.md`)
 - **package.json 의존성**: `com.geuneda.core` 0.4.0, `com.geuneda.http` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1
 - **어셈블리 / 네임스페이스**: `Geuneda.Coupon`. 서버는 `Server~/src/Geuneda.Coupon.Server`(net10.0, ASP.NET Core, `Runtime/Protocol/*.cs` 링크, 네임스페이스 `Geuneda.Coupon.Server`)
 - **주요 기능**: `ICouponService`/`CouponService`/`CouponServiceOptions`(`RedeemAsync<TGrant>`), `CouponRedemption<TGrant>`(`AlreadyRedeemed`), 공유 `CouponRedeemRequest`·`CouponRedeemResponse<TGrant>`·`CouponResultCodes`(11000 블록)·`CouponCodes`·`CouponPlatforms`·`CouponRoutes`. 서버 `AddGeunedaCoupon`·`MapGeunedaCoupon`·`CouponServerBuilder`, `CouponCampaign`(Shared·Unique)·`CouponConditions`·`CouponAdmin`, `ICouponStore`·`InMemoryCouponStore`, `ICouponAttemptStore`(원자 예약)·`InMemoryCouponAttemptStore`, `ICouponGrantor`·`CouponGrantResult`, `ICouponContextResolver`, `ICouponRedeemer`
@@ -333,11 +333,11 @@
 
 ## 27. com.geuneda.webview / .webview.gree
 
-- **버전 / 최소 Unity**: webview 0.1.0, webview.gree 0.1.0 / 모두 2021.3
-- **package.json 의존성**: webview 는 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.ui` 1.0.0. webview.gree 는 `com.geuneda.webview` 0.1.0(gree unity-webview `net.gree.unity-webview` 와 uGUI 는 게임이 설치, 커밋 `20f14061` 으로 확인)
+- **버전 / 최소 Unity**: webview 0.2.0, webview.gree 0.2.0 / 모두 2021.3
+- **package.json 의존성**: webview 는 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.ui` 1.0.0. webview.gree 는 `com.geuneda.webview` 0.2.0(gree unity-webview `net.gree.unity-webview` 와 uGUI 는 게임이 설치, `?path=/dist/package-nofragment` 커밋 `20f14061` 으로 확인)
 - **어셈블리 / 네임스페이스**: `Geuneda.WebView`, 선택 `Geuneda.WebView.Notice`(com.geuneda.notice 가 있을 때, `GEUNEDA_WEBVIEW_NOTICE`), `Geuneda.WebView.Coupon`(com.geuneda.coupon 이 있을 때, `GEUNEDA_WEBVIEW_COUPON`), `Geuneda.WebView.Gree`(gree 가 있을 때, `GEUNEDA_WEBVIEW_GREE`, 참조 `unity-webview`)
-- **주요 기능**: `IWebViewService`/`WebViewService`/`WebViewServiceOptions`(`OpenAsync` 브리지 준비로 성공, `Close`·`Closed`, `HandleBack`, `AddCommand`, `Emit`), `WebViewCommandHandler`·`WebViewCommand`, `WebViewResultCodes`(12000 블록), 어댑터 계약 `IWebViewFactory`·`IWebViewNative`·`IWebViewNativeListener`·`WebViewNativeSettings`(이동 제한 정규식)·`WebViewMargins`, `NoticeWebViewCommands`(notice.list·read·refresh, notice.changed), `CouponWebViewCommands`(coupon.redeem), `GreeWebViewFactory`. 페이지 쪽 `Web~/geuneda-webview.js`, 샘플 `Web~/notice.html`·`coupon.html`
-- **테스트**: EditMode `Geuneda.WebView.Tests.EditMode`, `Geuneda.WebView.Notice.Tests.EditMode`, `Geuneda.WebView.Coupon.Tests.EditMode`(호스트에서 실행됨). JS `node --test "Web~/tests/*.test.mjs"`. PlayMode `Geuneda.WebView.Gree.Tests.PlayMode`(gree 가 있을 때만 컴파일, 호스트에는 gree 가 없음, `GreeWebViewInteropTest` 는 명시 실행)
+- **주요 기능**: `IWebViewService : IDisposable`/`WebViewService`/`WebViewServiceOptions`(`OpenAsync` 브리지 준비로 성공, `Close`·`Closed`, `HandleBack`, `AddCommand`, `Emit`), `WebViewCommandHandler`·`WebViewCommand`, `WebViewResultCodes`(12000 블록), 어댑터 계약 `IWebViewFactory`·`IWebViewNative`·`IWebViewNativeListener`·`WebViewNativeSettings`(이동 제한 정규식)·`WebViewMargins`, `NoticeWebViewCommands`(notice.list·read·refresh, notice.changed), `CouponWebViewCommands`(coupon.redeem), `GreeWebViewFactory`. 페이지 쪽 `Web~/geuneda-webview.js`, 샘플 `Web~/notice.html`·`coupon.html`
+- **테스트**: EditMode `Geuneda.WebView.Tests.EditMode`, `Geuneda.WebView.Notice.Tests.EditMode`, `Geuneda.WebView.Coupon.Tests.EditMode`(호스트에서 실행됨), `Geuneda.WebView.Services.Tests.EditMode`(services 가 있을 때). JS `node --test "Web~/tests/*.test.mjs"`. PlayMode `Geuneda.WebView.Gree.Tests.PlayMode`(gree 가 있을 때만 컴파일, 호스트에는 gree 가 없음, `GreeWebViewInteropTest` 는 명시 실행)
 - **문서**: 각 `README.md`, `AGENTS.md`
 
 ---

@@ -1,6 +1,6 @@
 # Geuneda BanWord API 레퍼런스
 
-네임스페이스 `Geuneda.BanWord`. banword 0.1.0. Unity asmdef `Geuneda.BanWord`(`noEngineReferences`), 서버 프로젝트 `Server~/src/Geuneda.BanWord`(net10.0, 같은 소스).
+네임스페이스 `Geuneda.BanWord`. banword 0.1.1. Unity asmdef `Geuneda.BanWord`(`noEngineReferences`), 서버 프로젝트 `Server~/src/Geuneda.BanWord`(net10.0, 같은 소스).
 
 ## 검사
 

@@ -9,11 +9,11 @@ description: com.geuneda.coupon 패키지(네임스페이스 Geuneda.Coupon, 서
 
 ## 패키지 정보
 
-- **버전**: 0.1.0
+- **버전**: 0.1.1
 - **네임스페이스 / 어셈블리**: `Geuneda.Coupon`(Unity), 서버 `Geuneda.Coupon.Server`
 - **설치**: `https://github.com/geuneda/geuneda-coupon.git`(core, http, UniTask git URL 도 함께). Unity 2021.3+
 - **서버**: `Server~/src/Geuneda.Coupon.Server/Geuneda.Coupon.Server.csproj`(net10.0, ASP.NET Core)를 ProjectReference 로 참조. `Runtime/Protocol` 을 링크해 같은 DTO·결과 코드·코드 규칙
-- **기여 가이드**: 패키지 루트의 `AGENTS.md`
+- **기여 가이드**: 패키지 루트의 `AGENTS.md`. 실제 DB 저장소 구현 예시(Postgres·Redis, 실제 DB 동시 요청 시험 결과)는 패키지의 `docs/db-store.md`
 - **출처**: Lucky Defense Percent `Marketings.Coupon`(서버 지급, 이유 코드), SpellDefense 쿠폰(성공 판정 혼란)의 보완(로드맵 5-2 2단위)
 
 ## 핵심 API
@@ -78,7 +78,13 @@ await admin.AddCodesAsync("collab", partnerCodes);
 ## 함정
 
 - `InMemoryCouponStore` 는 지급을 롤백하지 않는다(기록 미커밋만 보장). 운영은 게임 DB 저장소로 구현한다.
-- DB 저장소의 유일 제약은 같은 계정 중복만 막는다. 전체 한도는 캠페인 행 잠금이나 `used < max` 조건부 증가, 개별 코드는 행 잠금이나 `used_by IS NULL` 조건부 갱신이 필요하다(`ICouponStore` remarks).
+- DB 저장소의 유일 제약은 같은 계정 중복만 막는다. 전체 한도는 `used < max` 조건부 증가나 캠페인 행 잠금, 개별 코드는 `used_by IS NULL` 조건부 갱신이나 행 잠금이 필요하다(`ICouponStore` remarks).
+- DB 저장소 순서는 사용 기록 자리를 먼저 차지한다(`INSERT ... ON CONFLICT DO NOTHING` → 개별 코드 → 사용 수 → 지급 → 지급 결과 → 커밋). 기록을 맨 뒤에 넣으면서 조건부 갱신 0행을 바로 `CodeUsed`·`SoldOut` 으로 끝내면 같은 계정의 동시 요청이 처음 결과 대신 코드 실패를 받고 실패 제한에도 센다(실제 Postgres 에서 재현). 그 순서면 0행일 때 기록을 다시 읽는다. 전체 구현은 `docs/db-store.md`.
+- 지급자는 저장소와 같은 요청 범위 DB 세션에서 저장소가 연 트랜잭션으로만 쓴다(지급 콜백은 트랜잭션을 넘기지 않음). 지급 호출은 롤백될 수 있어 트랜잭션 밖 부작용(외부 API, 메모리 상태)은 커밋 뒤로 미룬다.
+- Postgres 에서 사용 기록이 캠페인 행을 외래 키로 참조하면 사용 수 갱신과 지급 실패 롤백이 겹칠 때 `new multixact has more than one updating member`(500)가 날 수 있다. 예시 표는 외래 키를 두지 않는다. 지급 시각은 `RETURNING` 으로 저장한 값을, 지급 결과는 `text` 열(jsonb 는 키 순서가 바뀜).
+- 공용·개별 코드 한 이름 공간은 두 표의 유일 제약으로 지켜지지 않는다. 등록을 잠금으로 줄 세우거나 코드 하나를 키로 하는 표를 둔다.
+- 범위는 `await using var scope = app.Services.CreateAsyncScope()` 로 연다. 동기 `using ... CreateScope()` 는 `IAsyncDisposable` 만 구현한 요청 범위 서비스에서 예외다.
+- 진행 중 요청도 실패 한도에 들어가 한 계정이 `MaxFailures` 보다 많은 요청을 동시에 보내면 일부는 429 다. 켜짐·기간·조건은 트랜잭션 밖에서 판정하므로 끈 직후에도 판정을 지난 요청은 지급된다.
 - `InMemoryCouponAttemptStore` 는 서버 한 대 기준이다. 여러 대면 공유 저장소(계정별 배타 세기·넣기)를 붙인다.
 - 국가는 기본으로 보내지 않는다(기기 지역을 믿기 어려움). 국가 조건이 있는 캠페인은 `Country` 를 넣거나 서버 해석기를 쓴다.
 - 개별 코드는 이 패키지가 만들지 않는다. 혼동 글자를 뺀 12자 이상 무작위로 만든다.
