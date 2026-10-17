@@ -131,6 +131,7 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 | `Geuneda.Analytics`, `Geuneda.Analytics.Collector`, `Geuneda.Analytics.Account`, `Geuneda.Analytics.Server`, `Geuneda.Analytics.Firebase`, `Geuneda.Analytics.Airbridge`, `Geuneda.Analytics.AppsFlyer`, `Geuneda.Analytics.Facebook` | `/geuneda-analytics` |
 | `Geuneda.Iap`, `Geuneda.Iap.Analytics`, `Geuneda.Iap.Unity` | `/geuneda-iap` |
 | `Geuneda.Ads`, `Geuneda.Ads.Analytics`, `Geuneda.Ads.Max` | `/geuneda-ads` |
+| `Geuneda.Consent`, `Geuneda.Consent.Ump`, `Geuneda.Consent.Att` | `/geuneda-consent` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|

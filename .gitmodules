@@ -79,3 +79,12 @@
 [submodule "Packages/com.geuneda.ads.max"]
 	path = Packages/com.geuneda.ads.max
 	url = https://github.com/geuneda/geuneda-ads-max.git
+[submodule "Packages/com.geuneda.consent"]
+	path = Packages/com.geuneda.consent
+	url = https://github.com/geuneda/geuneda-consent.git
+[submodule "Packages/com.geuneda.consent.ump"]
+	path = Packages/com.geuneda.consent.ump
+	url = https://github.com/geuneda/geuneda-consent-ump.git
+[submodule "Packages/com.geuneda.consent.att"]
+	path = Packages/com.geuneda.consent.att
+	url = https://github.com/geuneda/geuneda-consent-att.git

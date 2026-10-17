@@ -294,6 +294,18 @@
 
 ---
 
+## 23. com.geuneda.consent / .consent.ump / .consent.att
+
+- **버전 / 최소 Unity**: consent 0.1.0, consent.ump 0.1.0, consent.att 0.1.0 / 모두 2021.3
+- **package.json 의존성**: consent 는 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.modules.jsonserialize`. consent.ump·consent.att 는 `com.geuneda.consent` 0.1.0, `com.geuneda.core` 0.4.0, UniTask 2.5.10. consent.ump 는 EDM4U 가 있어야 함(`Editor/GeunedaConsentUmpDependencies.xml`: Android `com.google.android.ump:user-messaging-platform` 3.2.0, iOS 파드 `GoogleUserMessagingPlatform` ~> 3.0)
+- **어셈블리 / 네임스페이스**: `Geuneda.Consent`, `Geuneda.Consent.Ump`, `Geuneda.Consent.Att`, `Geuneda.Consent.Att.Editor`
+- **네이티브**: consent.ump 는 `Runtime/Plugins/Android/GeunedaUmp.androidlib`(UMP `compileOnly`, INTERNET 권한, R8 keep)와 `Runtime/Plugins/iOS/GeunedaUmp.mm`. consent.att 는 `Runtime/Plugins/iOS/GeunedaAtt.mm` 과 iOS 빌드 후처리(추적 설명 문구, AppTrackingTransparency 약한 링크)
+- **주요 기능**: `IConsentService`/`ConsentService`/`ConsentServiceOptions`(`RunAsync`, `ShowPrivacyOptionsAsync`, `Snapshot`), `ConsentSnapshot`·`AdConsentState`·`TrackingStatus`, `TermsConsent`(`TermsItem`, `ITermsPrompt`, `ITermsStore`, `PlayerPrefsTermsStore`), `ConsentResultCodes`(9000 블록), 공급자 계약 `IAdConsentProvider`·`ITrackingAuthorization`, `UmpAdConsent`·`UmpOptions`, `AttTrackingAuthorization`, 에디터 설정 `AttUsageDescription`
+- **테스트**: EditMode `Geuneda.Consent.Tests.EditMode`, `Geuneda.Consent.Ump.Tests.EditMode`, `Geuneda.Consent.Att.Tests.EditMode`(호스트에서 실행됨). 네이티브는 EDM4U 를 넣은 별도 프로젝트에서 Android 에뮬레이터·iOS 시뮬레이터로 확인
+- **문서**: 각 `README.md`, `AGENTS.md`
+
+---
+
 ## 호스트 프로젝트 manifest.json
 
 호스트 레포 `Packages/manifest.json` 의 주요 항목(Unity 모듈과 IDE 패키지는 생략). 호스트에서는 같은 이름의 서브모듈 폴더가 우선 사용된다.
@@ -319,6 +331,9 @@
     "com.geuneda.iap.unity": "https://github.com/geuneda/geuneda-iap-unity.git",
     "com.geuneda.ads": "https://github.com/geuneda/geuneda-ads.git",
     "com.geuneda.ads.max": "https://github.com/geuneda/geuneda-ads-max.git",
+    "com.geuneda.consent": "https://github.com/geuneda/geuneda-consent.git",
+    "com.geuneda.consent.ump": "https://github.com/geuneda/geuneda-consent-ump.git",
+    "com.geuneda.consent.att": "https://github.com/geuneda/geuneda-consent-att.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

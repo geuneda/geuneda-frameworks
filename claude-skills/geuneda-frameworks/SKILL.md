@@ -5,7 +5,7 @@ description: Geuneda Unity 패키지 프레임워크 전체의 구조, 의존성
 
 # Geuneda Frameworks
 
-Geuneda UPM 패키지 27개와 그것을 개발, 테스트, 검증하는 Unity 호스트 레포(`https://github.com/geuneda/geuneda-frameworks.git`). 각 패키지는 독립 git 레포이고 호스트 레포의 `Packages/com.geuneda.<패키지>/` 에 서브모듈로 들어 있다. 원본은 GameLovers Frameworks by Miguel Tomas, 라이선스는 MIT.
+Geuneda UPM 패키지 30개와 그것을 개발, 테스트, 검증하는 Unity 호스트 레포(`https://github.com/geuneda/geuneda-frameworks.git`). 각 패키지는 독립 git 레포이고 호스트 레포의 `Packages/com.geuneda.<패키지>/` 에 서브모듈로 들어 있다. 원본은 GameLovers Frameworks by Miguel Tomas, 라이선스는 MIT.
 
 ## 활성화 시점
 
@@ -15,7 +15,7 @@ Geuneda UPM 패키지 27개와 그것을 개발, 테스트, 검증하는 Unity �
 - 새 패키지를 프레임워크에 추가할 때
 - Unity 버전 변경처럼 여러 패키지에 영향을 주는 변경을 할 때
 
-## 패키지 (23개)
+## 패키지 (30개)
 
 버전과 최소 Unity 는 2026-10-14 시점 `package.json` 값이다. 작업 전에 `package.json` 으로 다시 확인한다.
 
@@ -35,6 +35,9 @@ Geuneda UPM 패키지 27개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.iap.unity` | 0.1.0 | 2022.3 | iap 의 Unity IAP 5.4.4 어댑터 | `geuneda-iap` |
 | `com.geuneda.ads` | 0.1.0 | 2021.3 | 보상형·전면 광고(표시마다 결과 하나, 닫힘 콜백 없으면 앱이 앞에 있는 시간으로 시간 초과, 늦은 보상 이벤트, 앞 광고 늦은 콜백 거르기, 로드 2초→30초 백오프, 결과 코드 8000, analytics 노출 수익 기록 선택) | `geuneda-ads` |
 | `com.geuneda.ads.max` | 0.1.0 | 2021.3 | ads 의 AppLovin MAX 8.6.3+ 어댑터(MAX 가 있을 때만 컴파일) | `geuneda-ads` |
+| `com.geuneda.consent` | 0.1.0 | 2021.3 | 앱 시작 동의(자사 약관 → UMP → ATT 순서 실행, 취소·필수 거절·진행 중만 멈춤, 결과 코드 9000, 광고 요청·개인화·추적 스냅샷, 약관 항목별 버전) | `geuneda-consent` |
+| `com.geuneda.consent.ump` | 0.1.0 | 2021.3 | consent 의 Google UMP 공급자(Android·iOS 네이티브, 10초 시간 제한, 동의 폼·개인정보 옵션 폼, EDM4U 필요) | `geuneda-consent` |
+| `com.geuneda.consent.att` | 0.1.0 | 2021.3 | consent 의 iOS ATT 공급자(completion 콜백, 앱 활성 대기, 추적 설명 문구 후처리, 약한 링크) | `geuneda-consent` |
 | `com.geuneda.servertime` | 0.1.0 | 6000.3 | 서버 시간 동기화(NTP·HTTPS `Date`·직접 구현 원천을 순서대로, 왕복 지연 보정, 지수 백오프 재시도, 30분 재동기화, 포그라운드 복귀 재동기화). services 시간 서비스의 기준점을 맞춤 | `geuneda-servertime` |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 보안 값(`SecureInt` 등), 직렬화 헬퍼 | `geuneda-gamedata` |
 | `com.geuneda.services` | 5.1.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
@@ -71,6 +74,8 @@ core
         └── iap.unity (Unity IAP 5.4.4)
   └── ads (analytics 는 선택: 있으면 노출 수익 기록 asmdef 가 켜짐)
         └── ads.max (AppLovin MAX 가 있을 때만 컴파일, versionDefines)
+  └── consent
+        └── consent.ump (UMP SDK 는 EDM4U), consent.att (iOS ATT)
 gamedata
   ├── services
   │     └── gamesystems
@@ -79,9 +84,9 @@ gamedata
 독립(다른 Geuneda 패키지에 의존하지 않음): uiservice, statechart, inputextensions, nativeui, notificationservice
 ```
 
-core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`, `Pcg32`, 단조 시계), http 와 realtime(결과 규약 `Result`), account 와 제공자 패키지(보안 저장소), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처)가 참조한다. 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
+core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`, `Pcg32`, 단조 시계), http 와 realtime(결과 규약 `Result`), account 와 제공자 패키지(보안 저장소), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처)가 참조한다. 기존 패키지가 core 를 쓰게 되면 그 패키지에 의존성을 추가한다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
 
-- core API 를 바꾸면 services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads, gamesystems 를 확인한다. analytics 의 표준 이벤트(`AnalyticsPurchase`, `AnalyticsAdImpression`)를 바꾸면 iap(`Geuneda.Iap.Analytics`)와 ads(`Geuneda.Ads.Analytics`)를 확인한다. iap 의 `IIapStore` 계약을 바꾸면 iap.unity 를, ads 의 `IAdMediation` 계약을 바꾸면 ads.max 를 함께 바꾼다. http API 를 바꾸면 account, account.google, appsetting, resource, servertime, analytics(`Geuneda.Analytics.Collector`)를 확인한다. account 의 `IAppSession` 을 바꾸면 analytics(`Geuneda.Analytics.Account`)를 확인한다. appsetting 의 리소스 이름 규칙(`AppSettingResource`)을 바꾸면 resource 의 `ResourceEntry` 도 함께 바꾼다(두 패키지는 서로 의존하지 않음). account API(`IAuthProvider`, `PlatformCredential`, `AccountResultCodes`)를 바꾸면 account.apple, account.google 을 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems, servertime(시간 서비스 `ITimeManipulator`)을 확인한다.
+- core API 를 바꾸면 services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads, consent, gamesystems 를 확인한다. analytics 의 표준 이벤트(`AnalyticsPurchase`, `AnalyticsAdImpression`)를 바꾸면 iap(`Geuneda.Iap.Analytics`)와 ads(`Geuneda.Ads.Analytics`)를 확인한다. iap 의 `IIapStore` 계약을 바꾸면 iap.unity 를, ads 의 `IAdMediation` 계약을 바꾸면 ads.max 를, consent 의 `IAdConsentProvider`·`ITrackingAuthorization` 계약이나 `ConsentResultCodes` 를 바꾸면 consent.ump·consent.att 를 함께 바꾼다. http API 를 바꾸면 account, account.google, appsetting, resource, servertime, analytics(`Geuneda.Analytics.Collector`)를 확인한다. account 의 `IAppSession` 을 바꾸면 analytics(`Geuneda.Analytics.Account`)를 확인한다. appsetting 의 리소스 이름 규칙(`AppSettingResource`)을 바꾸면 resource 의 `ResourceEntry` 도 함께 바꾼다(두 패키지는 서로 의존하지 않음). account API(`IAuthProvider`, `PlatformCredential`, `AccountResultCodes`)를 바꾸면 account.apple, account.google 을 확인한다. gamedata API 를 바꾸면 services, googlesheetimporter, gamesystems 를 확인한다. services API 를 바꾸면 gamesystems, servertime(시간 서비스 `ITimeManipulator`)을 확인한다.
 - uiservice 는 gamedata/services 에 의존하지 않는다.
 - 패키지 간 순환 의존은 금지한다.
 - 외부 의존성과 버전은 `references/api.md` 의 패키지별 카드를 본다.
@@ -122,6 +127,9 @@ UPM 은 git 전용 의존성을 자동으로 받지 못하므로 직접 함께 �
 | iap.unity | iap, core, UniTask(Unity IAP 는 레지스트리에서 자동 설치) |
 | ads | core, UniTask(노출 수익 기록은 analytics) |
 | ads.max | ads, core, UniTask, AppLovin MAX(게임이 AppLovin 레지스트리로 설치) |
+| consent | core, UniTask |
+| consent.ump | consent, core, UniTask, EDM4U(UMP SDK) |
+| consent.att | consent, core, UniTask |
 
 ## 호스트 레포 구조
 
@@ -130,14 +138,14 @@ geuneda-frameworks/
   Assets/                 # 호스트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
   Packages/
     manifest.json         # 호스트 의존성 (Geuneda 패키지는 git URL 로 선언)
-    com.geuneda.*/        # 패키지 25개, 각각 서브모듈
+    com.geuneda.*/        # 패키지 30개, 각각 서브모듈
   ProjectSettings/        # ProjectVersion.txt: 6000.3.2f1
   UserSettings/
   claude-skills/
     install.sh            # ~/.claude/skills/ 로 스킬 복사
     uninstall.sh          # ~/.claude/skills/<스킬> 삭제
     geuneda-frameworks/   # 이 스킬
-    geuneda-<패키지>/     # 패키지별 스킬 19개(애플·구글 제공자는 geuneda-account, 분석 어댑터는 geuneda-analytics, Unity IAP 어댑터는 geuneda-iap, MAX 어댑터는 geuneda-ads 가 함께 다룸)
+    geuneda-<패키지>/     # 패키지별 스킬 20개(애플·구글 제공자는 geuneda-account, 분석 어댑터는 geuneda-analytics, Unity IAP 어댑터는 geuneda-iap, MAX 어댑터는 geuneda-ads, UMP·ATT 어댑터는 geuneda-consent 가 함께 다룸)
   .gitmodules
   AGENTS.md               # 에이전트용 레포 가이드
   CLAUDE.md               # 프레임워크를 쓰는 프로젝트의 공용 규칙, 네임스페이스 -> 스킬 표
@@ -156,7 +164,7 @@ git clone --recurse-submodules https://github.com/geuneda/geuneda-frameworks.git
 git submodule update --init --recursive
 ```
 
-서브모듈은 호스트가 기록한 커밋에 detached HEAD 로 체크아웃된다. 고치기 전에 기본 브랜치로 전환한다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, gamesystems 가 `main`, 나머지 8개는 `master` 다. 호스트 ProjectSettings 의 `GEUNEDA_SKIP_VENDOR_ADAPTERS` define 은 벤더 SDK 가 필요한 analytics 어댑터를 호스트에서 컴파일하지 않게 한다(지우지 않음).
+서브모듈은 호스트가 기록한 커밋에 detached HEAD 로 체크아웃된다. 고치기 전에 기본 브랜치로 전환한다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, gamesystems 가 `main`, 나머지 8개는 `master` 다. 호스트 ProjectSettings 의 `GEUNEDA_SKIP_VENDOR_ADAPTERS` define 은 벤더 SDK 가 필요한 analytics 어댑터를 호스트에서 컴파일하지 않게 한다(지우지 않음).
 
 ```bash
 cd Packages/com.geuneda.services
@@ -177,11 +185,11 @@ git commit -m "chore: services 포인터 갱신"
 - 새 의존성은 `package.json` `dependencies` 와 asmdef `references` 양쪽에 반영한다
 - `Packages/` 안에 새 파일을 만들면 `.meta` 도 필요하다
 - 서드파티 API 는 `Library/PackageCache/` 의 로컬 소스를 우선 참조한다(Unity 가 프로젝트를 연 뒤 생김)
-- 패키지에 `AGENTS.md` 가 있으면 그 패키지 작업 규칙의 원천이다: services(테스트는 `Tests/AGENTS.md`), uiservice, gamesystems, core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max
+- 패키지에 `AGENTS.md` 가 있으면 그 패키지 작업 규칙의 원천이다: services(테스트는 `Tests/AGENTS.md`), uiservice, gamesystems, core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att
 
 ## 테스트
 
-Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode), 벤더 어댑터 4개(analytics.firebase·airbridge·appsflyer·facebook, 호스트에서는 컴파일되지 않아 SDK 를 넣은 별도 프로젝트에서 실행), iap, iap.unity(PlayMode 전 과정 테스트는 define `IAP_FAKE_STORE_DEFAULT` 필요), ads, ads.max(MAX 가 있을 때만 컴파일, 호스트에는 MAX 가 없어 SDK 를 넣은 별도 프로젝트에서 실행) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
+Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Test Runner** 에서 EditMode/PlayMode 로 실행한다. 테스트가 있는 패키지는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, gamedata, services, uiservice, statechart, googlesheetimporter, gamesystems, notificationservice(PlayMode), 벤더 어댑터 4개(analytics.firebase·airbridge·appsflyer·facebook, 호스트에서는 컴파일되지 않아 SDK 를 넣은 별도 프로젝트에서 실행), iap, iap.unity(PlayMode 전 과정 테스트는 define `IAP_FAKE_STORE_DEFAULT` 필요), ads, ads.max(MAX 가 있을 때만 컴파일, 호스트에는 MAX 가 없어 SDK 를 넣은 별도 프로젝트에서 실행), consent, consent.ump, consent.att(네이티브는 EDM4U 를 넣은 별도 프로젝트의 에뮬레이터·시뮬레이터 빌드로 확인) 이고, inputextensions, nativeui 에는 없다. 테스트 asmdef 이름은 `references/api.md` 의 패키지별 카드에 있다.
 
 ## 새 패키지 추가 절차
 
@@ -224,8 +232,9 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 분석 이벤트 로깅(Firebase·Airbridge·AppsFlyer·Facebook·자사 수집을 한 API 로), 구매·광고 수익 표준 이벤트, 실패 재전송, 이벤트 수집 서버 | analytics(+ 벤더 어댑터 패키지 analytics.firebase 등, 자사 수집은 http) |
 | 인앱 결제(서버 지급 뒤 확정, 미확정 주문 복구, 지급 누락 방지, 매출 기록) | iap + iap.unity(Unity IAP), 매출 기록은 analytics |
 | 보상형·전면 광고(결과 한 번, 닫힘 콜백 누락 시간 초과, 늦은 보상, 로드 재시도, 노출 수익 기록) | ads + ads.max(AppLovin MAX), 수익 기록은 analytics |
+| 앱 시작 동의(자사 약관 항목별 버전, GDPR 광고 동의 UMP, iOS ATT), SDK 초기화 전 동의 값 | consent + consent.ump, consent.att |
 
 ## 참조
 
 - `references/api.md`: 패키지별 상세 카드(의존성, asmdef, 네임스페이스, 문서 위치, 테스트), 구성 예시
-- 패키지 API 는 해당 패키지 스킬: `geuneda-gamedata`, `geuneda-services`, `geuneda-uiservice`, `geuneda-statechart`, `geuneda-inputextensions`, `geuneda-nativeui`, `geuneda-notificationservice`, `geuneda-googlesheetimporter`, `geuneda-gamesystems`, `geuneda-core`, `geuneda-http`, `geuneda-realtime`, `geuneda-account`, `geuneda-appsetting`, `geuneda-resource`, `geuneda-servertime`, `geuneda-analytics`, `geuneda-iap`, `geuneda-ads`
+- 패키지 API 는 해당 패키지 스킬: `geuneda-gamedata`, `geuneda-services`, `geuneda-uiservice`, `geuneda-statechart`, `geuneda-inputextensions`, `geuneda-nativeui`, `geuneda-notificationservice`, `geuneda-googlesheetimporter`, `geuneda-gamesystems`, `geuneda-core`, `geuneda-http`, `geuneda-realtime`, `geuneda-account`, `geuneda-appsetting`, `geuneda-resource`, `geuneda-servertime`, `geuneda-analytics`, `geuneda-iap`, `geuneda-ads`, `geuneda-consent`
