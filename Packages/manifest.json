@@ -24,6 +24,8 @@
     "com.geuneda.banword": "https://github.com/geuneda/geuneda-banword.git",
     "com.geuneda.notice": "https://github.com/geuneda/geuneda-notice.git",
     "com.geuneda.coupon": "https://github.com/geuneda/geuneda-coupon.git",
+    "com.geuneda.webview": "https://github.com/geuneda/geuneda-webview.git",
+    "com.geuneda.webview.gree": "https://github.com/geuneda/geuneda-webview-gree.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

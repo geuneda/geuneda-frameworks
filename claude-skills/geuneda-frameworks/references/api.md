@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, banword, notice, coupon, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, banword, notice, coupon, webview, webview.gree, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -331,6 +331,15 @@
 - **테스트**: EditMode `Geuneda.Coupon.Tests.EditMode`(호스트에서 실행됨, `SampleServerInteropTest` 는 명시 실행). .NET: `dotnet test Server~/Geuneda.Coupon.Server.slnx`(xUnit, Kestrel)
 - **문서**: `README.md`, `AGENTS.md`
 
+## 27. com.geuneda.webview / .webview.gree
+
+- **버전 / 최소 Unity**: webview 0.1.0, webview.gree 0.1.0 / 모두 2021.3
+- **package.json 의존성**: webview 는 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.ui` 1.0.0. webview.gree 는 `com.geuneda.webview` 0.1.0(gree unity-webview `net.gree.unity-webview` 와 uGUI 는 게임이 설치, 커밋 `20f14061` 으로 확인)
+- **어셈블리 / 네임스페이스**: `Geuneda.WebView`, 선택 `Geuneda.WebView.Notice`(com.geuneda.notice 가 있을 때, `GEUNEDA_WEBVIEW_NOTICE`), `Geuneda.WebView.Coupon`(com.geuneda.coupon 이 있을 때, `GEUNEDA_WEBVIEW_COUPON`), `Geuneda.WebView.Gree`(gree 가 있을 때, `GEUNEDA_WEBVIEW_GREE`, 참조 `unity-webview`)
+- **주요 기능**: `IWebViewService`/`WebViewService`/`WebViewServiceOptions`(`OpenAsync` 브리지 준비로 성공, `Close`·`Closed`, `HandleBack`, `AddCommand`, `Emit`), `WebViewCommandHandler`·`WebViewCommand`, `WebViewResultCodes`(12000 블록), 어댑터 계약 `IWebViewFactory`·`IWebViewNative`·`IWebViewNativeListener`·`WebViewNativeSettings`(이동 제한 정규식)·`WebViewMargins`, `NoticeWebViewCommands`(notice.list·read·refresh, notice.changed), `CouponWebViewCommands`(coupon.redeem), `GreeWebViewFactory`. 페이지 쪽 `Web~/geuneda-webview.js`, 샘플 `Web~/notice.html`·`coupon.html`
+- **테스트**: EditMode `Geuneda.WebView.Tests.EditMode`, `Geuneda.WebView.Notice.Tests.EditMode`, `Geuneda.WebView.Coupon.Tests.EditMode`(호스트에서 실행됨). JS `node --test "Web~/tests/*.test.mjs"`. PlayMode `Geuneda.WebView.Gree.Tests.PlayMode`(gree 가 있을 때만 컴파일, 호스트에는 gree 가 없음, `GreeWebViewInteropTest` 는 명시 실행)
+- **문서**: 각 `README.md`, `AGENTS.md`
+
 ---
 
 ## 호스트 프로젝트 manifest.json
@@ -364,6 +373,8 @@
     "com.geuneda.banword": "https://github.com/geuneda/geuneda-banword.git",
     "com.geuneda.notice": "https://github.com/geuneda/geuneda-notice.git",
     "com.geuneda.coupon": "https://github.com/geuneda/geuneda-coupon.git",
+    "com.geuneda.webview": "https://github.com/geuneda/geuneda-webview.git",
+    "com.geuneda.webview.gree": "https://github.com/geuneda/geuneda-webview-gree.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

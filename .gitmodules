@@ -97,3 +97,9 @@
 [submodule "Packages/com.geuneda.coupon"]
 	path = Packages/com.geuneda.coupon
 	url = https://github.com/geuneda/geuneda-coupon.git
+[submodule "Packages/com.geuneda.webview"]
+	path = Packages/com.geuneda.webview
+	url = https://github.com/geuneda/geuneda-webview.git
+[submodule "Packages/com.geuneda.webview.gree"]
+	path = Packages/com.geuneda.webview.gree
+	url = https://github.com/geuneda/geuneda-webview-gree.git

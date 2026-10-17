@@ -135,6 +135,7 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 | `Geuneda.BanWord` | `/geuneda-banword` |
 | `Geuneda.Notice`, `Geuneda.Notice.Server` | `/geuneda-notice` |
 | `Geuneda.Coupon`, `Geuneda.Coupon.Server` | `/geuneda-coupon` |
+| `Geuneda.WebView`, `Geuneda.WebView.Notice`, `Geuneda.WebView.Coupon`, `Geuneda.WebView.Gree` | `/geuneda-webview` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|

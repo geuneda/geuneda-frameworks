@@ -18,6 +18,7 @@ SKILLS=(
     "geuneda-consent"
     "geuneda-core"
     "geuneda-coupon"
+    "geuneda-webview"
     "geuneda-gamedata"
     "geuneda-gamesystems"
     "geuneda-frameworks"
