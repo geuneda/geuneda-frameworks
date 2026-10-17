@@ -5,7 +5,7 @@
 공통:
 - 레포: `https://github.com/geuneda/geuneda-<패키지>.git`(패키지 이름의 점은 `-`, 예: `account.apple` -> `geuneda-account-apple`)
 - 서브모듈 경로: `Packages/com.geuneda.<패키지>`
-- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, gamesystems 는 `main`, 나머지는 `master`
+- 기본 브랜치: core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, banword, gamesystems 는 `main`, 나머지는 `master`
 
 ---
 
@@ -304,6 +304,15 @@
 - **테스트**: EditMode `Geuneda.Consent.Tests.EditMode`, `Geuneda.Consent.Ump.Tests.EditMode`, `Geuneda.Consent.Att.Tests.EditMode`(호스트에서 실행됨). 네이티브는 EDM4U 를 넣은 별도 프로젝트에서 Android 에뮬레이터·iOS 시뮬레이터로 확인
 - **문서**: 각 `README.md`, `AGENTS.md`
 
+## 24. com.geuneda.banword
+
+- **버전 / 최소 Unity**: 0.1.0 / 2021.3
+- **package.json 의존성**: 없음
+- **어셈블리 / 네임스페이스**: `Geuneda.BanWord`(`noEngineReferences: true`), 선택 `Geuneda.BanWord.Resource`(com.geuneda.resource 가 있을 때만, `versionDefines` → `GEUNEDA_BANWORD_RESOURCE`, 네임스페이스는 `Geuneda.BanWord`). 서버는 `Server~/src/Geuneda.BanWord`(net10.0, `Runtime/*.cs` 링크)
+- **주요 기능**: `IBanWordFilter`/`BanWordFilter`(`Contains`, `Find`, `Mask`, 금칙·허용 표시를 가진 Aho-Corasick 오토마톤 하나, 허용어 하나가 완전히 덮으면 뺌, 불변·스레드 안전), `BanWordMatch`, `BanWordList.TryParse`(`[denied]`/`[allowed]` 단어장 파일), 대소문자 접기 표(유니코드 17.0 C·S, BMP, `Tools~/generate_case_folding.py` 로 생성). `BanWordResourceLoader`(resource 캐시에서 지금 항목 → 마지막 항목(PlayerPrefs) → 내장 단어장, 실패는 취소뿐)
+- **테스트**: EditMode `Geuneda.BanWord.Tests.EditMode`, `Geuneda.BanWord.Resource.Tests.EditMode`(호스트에서 실행됨). 같은 파일을 `Server~/tests/Geuneda.BanWord.Tests`(NUnit 3)가 .NET 10 에서 돌림: `dotnet test Server~/Geuneda.BanWord.Server.slnx`
+- **문서**: `README.md`, `AGENTS.md`
+
 ---
 
 ## 호스트 프로젝트 manifest.json
@@ -334,6 +343,7 @@
     "com.geuneda.consent": "https://github.com/geuneda/geuneda-consent.git",
     "com.geuneda.consent.ump": "https://github.com/geuneda/geuneda-consent-ump.git",
     "com.geuneda.consent.att": "https://github.com/geuneda/geuneda-consent-att.git",
+    "com.geuneda.banword": "https://github.com/geuneda/geuneda-banword.git",
     "com.geuneda.gamedata": "https://github.com/geuneda/geuneda-gamedata.git",
     "com.geuneda.services": "https://github.com/geuneda/geuneda-services.git",
     "com.geuneda.uiservice": "https://github.com/geuneda/geuneda-uiservice.git",

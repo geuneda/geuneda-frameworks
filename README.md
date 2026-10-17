@@ -1,6 +1,6 @@
 # Geuneda Frameworks (Unity)
 
-Geuneda Unity Package Manager(UPM) 패키지 30개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬, MAX 어댑터는 ads 스킬, UMP·ATT 어댑터는 consent 스킬이 함께 다룹니다).
+Geuneda Unity Package Manager(UPM) 패키지 31개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬, MAX 어댑터는 ads 스킬, UMP·ATT 어댑터는 consent 스킬이 함께 다룹니다).
 
 ## 어디부터 읽으면 되나
 
@@ -41,6 +41,7 @@ Geuneda Unity Package Manager(UPM) 패키지 30개를 개발, 테스트, 검증�
 | `com.geuneda.consent` | 0.1.0 | 2021.3 | 앱 시작 동의. 자사 약관 → 광고 동의(UMP) → 추적 허용(ATT) 순서로 등록한 단계만 실행, 취소·필수 약관 거절·진행 중이면 멈추고 그 밖의 실패는 다음 단계를 계속(결과 코드 9000 블록), 광고 요청 가능·개인화 광고(TCF 목적 1·3·4)·개인정보 옵션 버튼·추적 허용·약관 답 스냅샷. 자사 약관은 항목별 버전(버전이 바뀐 항목·거절한 필수 항목만 다시 물음), 동의 화면은 게임, 저장소는 PlayerPrefs 또는 게임 구현 | [README](Packages/com.geuneda.consent/README.md) |
 | `com.geuneda.consent.ump` | 0.1.0 | 2021.3 | consent 의 Google UMP 공급자. Android·iOS 네이티브 브리지, 동의 정보 10초 시간 제한, 동의 폼·개인정보 옵션 폼, 플랫폼별 상태·오류 숫자 맞춤, TCF 값 읽기. UMP SDK 는 EDM4U 가 받음 | [README](Packages/com.geuneda.consent.ump/README.md) |
 | `com.geuneda.consent.att` | 0.1.0 | 2021.3 | consent 의 iOS ATT 공급자. completion 콜백, 앱 활성 대기, 추적 설명 문구(언어별 InfoPlist.strings) 빌드 후처리, AppTrackingTransparency 약한 링크 | [README](Packages/com.geuneda.consent.att/README.md) |
+| `com.geuneda.banword` | 0.1.0 | 2021.3 | 금칙어 검사. 금칙어·허용어를 Aho-Corasick 오토마톤 하나로 찾고 허용어가 완전히 덮는 금칙어는 뺌, 포함 여부·위치·가리기. 대소문자만 무시(패키지에 넣은 유니코드 단순 대소문자 접기 표라 Mono·IL2CPP·.NET 판정이 같음). 단어장 파일(`[denied]`/`[allowed]`) 읽기. 의존성 없음(resource 가 있으면 지금 → 마지막 → 내장 단어장 순서로 읽는 로더가 켜짐), `Server~` 에 같은 소스를 링크한 .NET 라이브러리 | [README](Packages/com.geuneda.banword/README.md) |
 | `com.geuneda.gamedata` | 1.2.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](Packages/com.geuneda.gamedata/README.md) |
 | `com.geuneda.services` | 5.1.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](Packages/com.geuneda.services/README.md), [docs](Packages/com.geuneda.services/docs/README.md) |
 | `com.geuneda.uiservice` | 2.0.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단 | [README](Packages/com.geuneda.uiservice/README.md), [docs](Packages/com.geuneda.uiservice/docs/README.md) |
@@ -86,10 +87,10 @@ gamedata
   │     └── gamesystems
   └── googlesheetimporter
 
-uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Geuneda 패키지에 의존하지 않음
+uiservice, statechart, inputextensions, nativeui, notificationservice, banword: 다른 Geuneda 패키지에 의존하지 않음(banword 는 resource 가 있으면 로더 asmdef 가 켜짐)
 ```
 
-`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
+`core` 는 다른 패키지가 함께 쓰는 바닥 패키지이고 어떤 Geuneda 패키지에도 의존하지 않습니다. 지금은 services(빌드 환경 `AppEnv`, RNG 생성기 `Pcg32`, 단조 시계 `MonotonicClock`), http 와 realtime(결과 규약 `Result`), account 와 그 제공자 패키지(보안 저장소, 결과 규약), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처), banword 의 선택 로더(결과 규약, 로거)가 참조하며, 기존 패키지의 로그를 옮길 때 다른 패키지에도 의존성을 추가합니다.
 
 외부 의존성(`package.json` 에 선언된 최소 버전):
 
@@ -118,6 +119,7 @@ uiservice, statechart, inputextensions, nativeui, notificationservice: 다른 Ge
 | consent | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.modules.jsonserialize` |
 | consent.ump | `com.geuneda.consent` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. External Dependency Manager for Unity 필요(UMP SDK Android 3.2.0+, iOS 파드 ~> 3.0) |
 | consent.att | `com.geuneda.consent` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10 |
+| banword | 없음. 선택: `com.geuneda.resource` 0.1.0 이상(로더). 서버 라이브러리(`Server~`)는 .NET 10 |
 | nativeui | 없음 |
 | notificationservice | `com.unity.mobile.notifications` 2.4.2 |
 | googlesheetimporter | `com.unity.nuget.newtonsoft-json` 2.0.0, `com.geuneda.gamedata` 1.0.0 |
@@ -166,6 +168,7 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 | consent | core, UniTask |
 | consent.ump | consent, core, UniTask, EDM4U(UMP SDK) |
 | consent.att | consent, core, UniTask |
+| banword | 없음(로더를 쓰려면 resource, core, http, UniTask) |
 
 Unity 레지스트리에 있는 의존성(Addressables, Newtonsoft Json, Input System, Mobile Notifications 등)은 자동으로 설치됩니다.
 
@@ -209,7 +212,7 @@ geuneda-frameworks/
 
 ## Claude Code 스킬
 
-`claude-skills/` 에는 패키지별 스킬 20개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap`, MAX 어댑터는 `geuneda-ads`, UMP·ATT 어댑터는 `geuneda-consent` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
+`claude-skills/` 에는 패키지별 스킬 21개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap`, MAX 어댑터는 `geuneda-ads`, UMP·ATT 어댑터는 `geuneda-consent` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
 
 | 스킬 | 대상 |
 |------|------|
@@ -234,6 +237,7 @@ geuneda-frameworks/
 | `geuneda-iap` | com.geuneda.iap, com.geuneda.iap.unity |
 | `geuneda-ads` | com.geuneda.ads, com.geuneda.ads.max |
 | `geuneda-consent` | com.geuneda.consent, com.geuneda.consent.ump, com.geuneda.consent.att |
+| `geuneda-banword` | com.geuneda.banword |
 
 어떤 코드에서 어떤 스킬을 써야 하는지는 [CLAUDE.md](CLAUDE.md) 의 네임스페이스 매핑 표를 따릅니다.
 
@@ -242,9 +246,9 @@ geuneda-frameworks/
 스크립트는 자기 위치를 기준으로 동작하므로 어느 디렉터리에서 실행해도 됩니다.
 
 ```bash
-claude-skills/install.sh                     # 스킬 19개 모두 설치
+claude-skills/install.sh                     # 스킬 22개 모두 설치
 claude-skills/install.sh geuneda-services    # 하나만 설치
-claude-skills/uninstall.sh                   # 스킬 19개 모두 제거
+claude-skills/uninstall.sh                   # 스킬 22개 모두 제거
 claude-skills/uninstall.sh geuneda-services  # 하나만 제거
 ```
 

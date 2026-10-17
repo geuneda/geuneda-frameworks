@@ -88,3 +88,6 @@
 [submodule "Packages/com.geuneda.consent.att"]
 	path = Packages/com.geuneda.consent.att
 	url = https://github.com/geuneda/geuneda-consent-att.git
+[submodule "Packages/com.geuneda.banword"]
+	path = Packages/com.geuneda.banword
+	url = https://github.com/geuneda/geuneda-banword.git

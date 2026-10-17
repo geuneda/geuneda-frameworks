@@ -132,6 +132,7 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 | `Geuneda.Iap`, `Geuneda.Iap.Analytics`, `Geuneda.Iap.Unity` | `/geuneda-iap` |
 | `Geuneda.Ads`, `Geuneda.Ads.Analytics`, `Geuneda.Ads.Max` | `/geuneda-ads` |
 | `Geuneda.Consent`, `Geuneda.Consent.Ump`, `Geuneda.Consent.Att` | `/geuneda-consent` |
+| `Geuneda.BanWord` | `/geuneda-banword` |
 
 | 작업 유형 | 필수 스킬 |
 |----------|----------|

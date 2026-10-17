@@ -13,6 +13,7 @@ SKILLS=(
     "geuneda-ads"
     "geuneda-analytics"
     "geuneda-appsetting"
+    "geuneda-banword"
     "geuneda-consent"
     "geuneda-core"
     "geuneda-gamedata"
