@@ -206,14 +206,14 @@ geuneda-frameworks/
 ├── Assets/                 # 호스트 프로젝트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
 ├── Packages/
 │   ├── manifest.json       # 호스트 프로젝트 의존성
-│   └── com.geuneda.*/      # 패키지 25개, 각각 git 서브모듈 (.gitmodules)
+│   └── com.geuneda.*/      # 패키지 35개, 각각 git 서브모듈 (.gitmodules)
 ├── ProjectSettings/        # Unity 설정 (ProjectVersion.txt: 6000.3.2f1)
 ├── UserSettings/
 ├── claude-skills/
 │   ├── install.sh          # 스킬 설치
 │   ├── uninstall.sh        # 스킬 제거
 │   ├── geuneda-frameworks/ # 프레임워크 전체 스킬
-│   └── geuneda-<패키지>/    # 패키지별 스킬 18개
+│   └── geuneda-<패키지>/    # 패키지별 스킬 24개
 ├── .gitmodules
 ├── AGENTS.md               # AI 에이전트용 레포 가이드
 ├── CLAUDE.md               # 프레임워크를 쓰는 프로젝트의 공용 규칙
@@ -266,9 +266,9 @@ geuneda-frameworks/
 스크립트는 자기 위치를 기준으로 동작하므로 어느 디렉터리에서 실행해도 됩니다.
 
 ```bash
-claude-skills/install.sh                     # 스킬 22개 모두 설치
+claude-skills/install.sh                     # 스킬 25개 모두 설치
 claude-skills/install.sh geuneda-services    # 하나만 설치
-claude-skills/uninstall.sh                   # 스킬 22개 모두 제거
+claude-skills/uninstall.sh                   # 스킬 25개 모두 제거
 claude-skills/uninstall.sh geuneda-services  # 하나만 제거
 ```
 

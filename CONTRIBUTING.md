@@ -2,7 +2,7 @@
 
 Geuneda 패키지 개선에 참여해 주셔서 감사합니다.
 
-이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 25개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
+이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 35개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
 
 ## 기여 위치
 
@@ -29,7 +29,7 @@ git submodule update --init --recursive
 
 ## 서브모듈 워크플로우
 
-`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, gamesystems 가 `main` 이고 나머지 8개는 `master` 입니다.
+`git submodule update` 직후 서브모듈은 호스트가 기록한 커밋에 detached HEAD 상태로 있습니다. 패키지를 고치기 전에 브랜치로 전환합니다. 기본 브랜치는 core, http, realtime, account, account.apple, account.google, appsetting, resource, servertime, analytics, analytics.firebase, analytics.airbridge, analytics.appsflyer, analytics.facebook, iap, iap.unity, ads, ads.max, consent, consent.ump, consent.att, banword, notice, coupon, webview, webview.gree, gamesystems 가 `main` 이고 나머지 8개(gamedata, services, uiservice, statechart, inputextensions, nativeui, notificationservice, googlesheetimporter)는 `master` 입니다.
 
 ```bash
 cd Packages/com.geuneda.services
@@ -77,8 +77,18 @@ git commit -m "chore: services 포인터 갱신"
 | servertime | `Tests/EditMode` (`Geuneda.ServerTime.Tests.EditMode`, NTP 패킷 생성·검증·왕복 보정, 127.0.0.1 가짜 UDP 서버로 실제 소켓, 가짜 `IHttpClient` 와 로컬 HttpListener·실제 UnityWebRequest 로 `HEAD` 의 `Date`, 가짜 원천·시계·지연으로 원천 순서·백오프·재동기화·포그라운드 복귀). 실기 확인은 Android·iOS 빌드 |
 | analytics | `Tests/EditMode` (`Geuneda.Analytics.Tests.EditMode`, 가짜 단조 시계·수동 지연·기록 sink 로 맥락·팬아웃·준비 대기·재시도 저장·백오프·일시정지 저장·복귀·상한·손상 파일), `Tests/EditMode/Collector` (`Geuneda.Analytics.Collector.Tests.EditMode`, http 가 있을 때, 가짜 전송, `[Explicit]` 샘플 서버 상호 운용), `Tests/EditMode/Account` (`Geuneda.Analytics.Account.Tests.EditMode`, account 가 있을 때), `Tests/PlayMode` (`Geuneda.Analytics.Tests.PlayMode`, 숨은 수명 컴포넌트). 서버는 `dotnet test "Packages/com.geuneda.analytics/Server~/Geuneda.Analytics.Server.slnx"`(.NET 10 SDK) |
 | analytics.firebase·airbridge·appsflyer·facebook | `Tests/EditMode` (`Geuneda.Analytics.Firebase.Tests.EditMode` 등, SDK 호출을 기록하는 대역으로 변환 확인). 호스트에는 벤더 SDK 가 없어 `GEUNEDA_SKIP_VENDOR_ADAPTERS` define 으로 컴파일하지 않습니다. 벤더 SDK(Firebase, Airbridge, AppsFlyer 7.x, Facebook + uGUI)를 넣은 별도 프로젝트에서 테스트와 Android·iOS 플레이어 스크립트 컴파일로 확인합니다 |
-| iap | `Tests/EditMode` (`Geuneda.Iap.Tests.EditMode`, 가짜 스토어·지급자·수동 지연으로 지급 순서·재시도·늦은 결제·중복 거래·복구·종료), `Tests/EditMode/Analytics` (`Geuneda.Iap.Analytics.Tests.EditMode`, analytics 가 있을 때) |
+| iap | `Tests/EditMode` (`Geuneda.Iap.Tests.EditMode`, 가짜 스토어·지급자·수동 지연으로 지급 순서·재시도·늦은 결제·중복 거래·복구·종료), `Tests/EditMode/Analytics` (`Geuneda.Iap.Analytics.Tests.EditMode`, analytics 가 있을 때), `Tests/EditMode/Http` (`Geuneda.Iap.Http.Tests.EditMode`, http 가 있을 때, 가짜 전송, `[Explicit]` 샘플 서버 상호 운용). 결제 서버는 `dotnet test "Packages/com.geuneda.iap/Server~/Geuneda.Iap.Server.slnx"`(.NET 10 SDK) |
 | iap.unity | `Tests/EditMode` (`Geuneda.Iap.Unity.Tests.EditMode`, 대응표), `Tests/PlayMode` (`Geuneda.Iap.Unity.Tests.PlayMode`, Unity IAP 가짜 스토어로 전 과정. scripting define `IAP_FAKE_STORE_DEFAULT` 가 없으면 건너뜀) |
+| ads | `Tests/EditMode` (`Geuneda.Ads.Tests.EditMode`, 가짜 미디에이션·시계로 로드·재시도, 결과 판정, 시간 초과, 늦은 콜백, 수명 주기), `Tests/EditMode/Analytics` (`Geuneda.Ads.Analytics.Tests.EditMode`, analytics 가 있을 때), `Tests/PlayMode` (`Geuneda.Ads.Tests.PlayMode`, 수명 주기 컴포넌트, 다른 스레드 콜백) |
+| ads.max | `Tests/EditMode` (`Geuneda.Ads.Max.Tests.EditMode`, MAX 이벤트 입구에 네이티브 JSON), `Tests/PlayMode` (`Geuneda.Ads.Max.Tests.PlayMode`, MAX 에디터 스텁, uGUI 필요). MAX 가 있을 때만 컴파일되어 호스트에서는 돌지 않고 MAX 를 넣은 별도 프로젝트에서 확인합니다 |
+| consent | `Tests/EditMode` (`Geuneda.Consent.Tests.EditMode`, 가짜 공급자·동의 화면·저장소로 실행 순서와 실패 정책, 약관 다시 묻기, 저장 실패, 동시 실행, PlayerPrefs 형식) |
+| consent.ump | `Tests/EditMode` (`Geuneda.Consent.Ump.Tests.EditMode`, 가짜 네이티브와 프레임 대기). 네이티브는 EDM4U 를 넣은 별도 프로젝트의 Android 에뮬레이터·iOS 시뮬레이터로 확인합니다 |
+| consent.att | `Tests/EditMode` (`Geuneda.Consent.Att.Tests.EditMode`, 가짜 네이티브, 설정 검사, `InfoPlist.strings` 합치기). iOS 후처리와 네이티브는 별도 프로젝트의 시뮬레이터 빌드로 확인합니다 |
+| banword | `Tests/EditMode` (`Geuneda.BanWord.Tests.EditMode`), `Tests/EditMode/Resource` (`Geuneda.BanWord.Resource.Tests.EditMode`, resource 가 있을 때 로더). 같은 테스트 파일을 `dotnet test "Packages/com.geuneda.banword/Server~/Geuneda.BanWord.Server.slnx"`(.NET 10 SDK)로도 돌립니다 |
+| notice | `Tests/EditMode` (`Geuneda.Notice.Tests.EditMode`, 가짜 서버, `[Explicit]` 샘플 서버 상호 운용). 문서·서버 테스트는 `dotnet test "Packages/com.geuneda.notice/Server~/Geuneda.Notice.Server.slnx"`(.NET 10 SDK) |
+| coupon | `Tests/EditMode` (`Geuneda.Coupon.Tests.EditMode`, 가짜 서버, `[Explicit]` 샘플 서버 상호 운용). 서버는 `dotnet test "Packages/com.geuneda.coupon/Server~/Geuneda.Coupon.Server.slnx"`(.NET 10 SDK) |
+| webview | `Tests/EditMode` (`Geuneda.WebView.Tests.EditMode`, 가짜 어댑터), `Tests/EditMode/Notice`·`Coupon`·`Services` (`Geuneda.WebView.Notice.Tests.EditMode` 등, 그 패키지가 있을 때). 페이지 JS 는 패키지 루트에서 `node --test "Web~/tests/*.test.mjs"`(Node 21 이상) |
+| webview.gree | `Tests/PlayMode` (`Geuneda.WebView.Gree.Tests.PlayMode`, 실제 gree 웹뷰 상호 운용, 명시 실행, macOS 에디터 그래픽 장치 필요). gree 가 있을 때만 컴파일되어 호스트에서는 돌지 않고 gree 를 넣은 별도 프로젝트에서 확인합니다 |
 | gamedata | `Tests/Editor` (`Geuneda.GameData.Editor.Tests`), `Tests/PlayMode` (`Geuneda.GameData.PlayMode.Tests`) |
 | services | `Tests/EditMode` (`Geuneda.Services.Editor.Tests`), `Tests/PlayMode` (`Geuneda.Services.Tests.Playmode`) |
 | uiservice | `Tests/EditMode` (`Geuneda.UiService.Tests`), `Tests/PlayMode` (`Geuneda.UiService.Tests.PlayMode`) |
