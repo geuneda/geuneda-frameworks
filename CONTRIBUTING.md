@@ -113,14 +113,14 @@ gamedata, services, statechart, uiservice 테스트와 realtime 의 MessagePack 
 - `claude-skills/geuneda-<패키지>/` 스킬 (`SKILL.md`, `references/api.md`)
 - 패키지 버전, 의존성, 최소 Unity 버전이 바뀌면 루트 `README.md` 의 패키지 목록과 의존성 표
 
-루트 `README.md` 는 호스트 레포와 패키지 목록을 다루고, 패키지 사용법은 패키지 문서로 링크합니다.
+루트 `README.md` 는 호스트 레포와 패키지 목록을 다루고, 패키지 사용법은 패키지 문서로 링크합니다. 패키지는 서브모듈이라 `Packages/com.geuneda.<패키지>/README.md` 같은 상대 링크는 GitHub 에서 404 가 나므로, 패키지 레포 주소(`https://github.com/geuneda/geuneda-<패키지>/blob/HEAD/README.md`)로 링크합니다.
 
 ### 새 패키지 추가
 
 1. `geuneda-<패키지>` 레포(패키지 이름의 점은 `-`, 예: `com.geuneda.account.apple` -> `geuneda-account-apple`)를 만들고 표준 UPM 구조(`package.json`, `Runtime/`, `Editor/`, `Tests/`, `README.md`, `CHANGELOG.md`, `LICENSE.md`)로 작성합니다
 2. `git submodule add https://github.com/geuneda/geuneda-<패키지>.git Packages/com.geuneda.<패키지>`
 3. `Packages/manifest.json` 에 git URL 의존성을 추가합니다
-4. 루트 `README.md` 의 패키지 목록, 의존성, 스킬 표에 추가합니다
+4. 루트 `README.md` 의 패키지 목록, 의존성, 스킬 표에 추가합니다(문서 링크는 위의 패키지 레포 주소 형식)
 5. `claude-skills/geuneda-<패키지>/` 에 `SKILL.md` 와 `references/api.md` 를 만들고 `install.sh`, `uninstall.sh` 의 `SKILLS` 목록에 등록합니다. 기능 패키지의 플랫폼 연동만 따로 떼어 낸 패키지(D3, 예: account.apple·account.google)는 별도 스킬을 만들지 않고 기능 패키지 스킬에 넣습니다
 6. `CLAUDE.md` 의 네임스페이스 -> 스킬 표에 행을 추가합니다
 7. `claude-skills/geuneda-frameworks/` 스킬의 패키지 목록과 의존성을 갱신합니다
