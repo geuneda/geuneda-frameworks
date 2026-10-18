@@ -74,6 +74,7 @@
 | `UiService()` | `AddressablesUiAssetLoader` |
 | `UiService(IUiAssetLoader assetLoader)` | |
 | `Color DimColor { get; set; }` | 기본 (0,0,0,0.6) |
+| `int CanvasOrderStep { get; set; }` | 같은 레이어 uGUI 루트 Canvas 정렬값 간격(`레이어 + 순위 × 간격`). 기본 1, 1 미만은 `ArgumentOutOfRangeException`, 다음 열기·닫기부터 적용(3.2.0) |
 | `bool ReadsBackInput { get; set; }` | 기본 false. Input System 있으면 `<Keyboard>/escape` 액션, 없으면 레거시 |
 | `static readonly UnityEvent<DeviceOrientation, DeviceOrientation> OnOrientationChanged` | (이전, 현재) |
 | `static readonly UnityEvent<Vector2, Vector2> OnResolutionChanged` | (이전, 현재) |

@@ -9,7 +9,7 @@ UI 프레젠터의 로드, 열기, 닫기, 언로드를 `UiService` 한 곳에�
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.uiservice` 3.1.0 (`package.json` 기준). 3.1.0 은 uGUI 같은 레이어 정렬과 여러 큐의 로드 중 대기를 바꾼 동작 변경(API 동일)이고, 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 프로젝트는 `#v2.0.0`, `IUiService` 멤버가 추가되기 전 프로젝트는 `#v1.3.2` 로 고정한다
+- 패키지: `com.geuneda.uiservice` 3.2.0 (`package.json` 기준). 3.2.0 은 uGUI 정렬값 간격 `CanvasOrderStep` 추가(기본 1, 동작 동일)이고, 3.1.0 은 uGUI 같은 레이어 정렬과 여러 큐의 로드 중 대기를 바꾼 동작 변경(API 동일)이고, 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 프로젝트는 `#v2.0.0`, `IUiService` 멤버가 추가되기 전 프로젝트는 `#v1.3.2` 로 고정한다
 - 설치: `https://github.com/geuneda/geuneda-uiservice.git` (core 와 UniTask 는 manifest 에 직접 추가해야 함)
 - 의존성: `com.geuneda.core` 0.4.0(로거 `ModuleLogger`, 로그는 `[Geuneda.UiService]`·`[Geuneda.UiService.<기능>]` 로 시작), `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0. 헬퍼 뷰는 uGUI/TextMeshPro 사용. 선택: `com.unity.inputsystem`(있으면 `ReadsBackInput` 이 Input System 사용)
 - Unity 6000.0+ (`UiToolkitPanelRendererFeature` 는 6000.5+)
@@ -57,6 +57,7 @@ UniTask<UiPresenter> OpenUiAsync(Type type, string instanceAddress, Cancellation
 UniTask<UiPresenter> LoadUiAsync(Type type, string instanceAddress, bool openAfter = false, CancellationToken ct = default);
 Color DimColor { get; set; }                  // 기본 (0,0,0,0.6)
 bool ReadsBackInput { get; set; }             // Escape/Android 뒤로가기를 직접 읽음. 기본 false
+int CanvasOrderStep { get; set; }             // 같은 레이어 uGUI 루트 Canvas 정렬값 간격. 기본 1, 1 미만 예외 (3.2.0)
 ```
 
 ```csharp
@@ -236,7 +237,7 @@ using (queue.Hold("tutorial")) { await RunTutorialAsync(); }
 using (uiService.BlockInput("purchase")) { await BuyAsync(); }
 ```
 
-- 화면 맨 위 = 레이어가 높을수록, 같으면 나중에 연 프레젠터. 뒤로가기 대상과 dim 위치가 이 규칙을 쓴다. 열고 닫을 때마다 서비스가 UIDocument `sortingOrder` 를 `레이어 + 순번/1024`, uGUI 루트 `Canvas.sortingOrder` 를 `레이어 + 순번`(0 부터) 으로 매겨 화면도 이 순서다(닫기 전환 중인 것 포함). uGUI 값은 UiConfigs 의 다음 레이어 값보다 작게만 쓰므로 레이어를 띄워 둔다(예: 0, 10, 20). 간격이 모자라면 먼저 연 캔버스끼리 같은 값을 쓰고 레이어마다 한 번 경고(-32768~32766 밖 레이어는 경계 값부터, 경고). 자식 Canvas 와 PanelRenderer 는 다시 매기지 않는다. 루트 sortingOrder 로 레이어를 판단하지 않는다.
+- 화면 맨 위 = 레이어가 높을수록, 같으면 나중에 연 프레젠터. 뒤로가기 대상과 dim 위치가 이 규칙을 쓴다. 열고 닫을 때마다 서비스가 UIDocument `sortingOrder` 를 `레이어 + 순번/1024`, uGUI 루트 `Canvas.sortingOrder` 를 `레이어 + 순번 × CanvasOrderStep`(순번 0 부터, 간격 기본 1) 으로 매겨 화면도 이 순서다(닫기 전환 중인 것 포함). uGUI 값은 UiConfigs 의 다음 레이어 값보다 작게만 쓰므로 레이어를 띄워 둔다(예: 0, 10, 20). 간격이 모자라면 먼저 연 캔버스끼리 같은 값을 쓰고 레이어마다 한 번 경고(-32768~32766 밖 레이어는 경계 값부터, 경고). 자식 Canvas 와 PanelRenderer 는 다시 매기지 않는다. 자식 Canvas 를 루트 + 오프셋(+1~+8 등)으로 그리는 프리팹은 `CanvasOrderStep` 을 오프셋보다 크게(예: 10) 잡아야 아래 프레젠터의 자식이 위 프레젠터를 덮지 않는다. 루트 sortingOrder 로 레이어를 판단하지 않는다.
 - 큐는 팝업이 닫히고 닫기 전환까지 끝나야 다음을 띄운다(닫기 중 재열기는 계속 추적). `Hold` 가 남았거나 큐 밖에서 연 `HandlesBack` 프레젠터가 떠 있으면 기다린다. 같은 key 는 넣지 않는다(false). 팩토리가 null 이면 건너뛴다. 같은 UiService 의 큐끼리는 팩토리를 하나씩 돌린다: 먼저 시작한 큐가 이기고, 팩토리가 끝나면(실패·취소·null 포함) 그때 진행할 수 있는 대기 큐가 기다린 순서대로 그 큐의 다음 항목보다 먼저 진행, 팝업이 뜬 뒤에는 HandlesBack 대기 규칙(닫히면 큐를 만든 순서로 다시 확인). 큐 사이는 우선순위가 아니라 시작 순서이므로 우선순위로 정할 팝업은 한 큐에. IUiService 직접 구현 서비스의 큐끼리는 조정 없음.
 - `PresenterOpened/Closed` 는 `OnOpened/OnClosed` 보다 먼저 온다. 구독자와 열기·닫기 훅(OnOpened/OnClosed, 피처 시작·종료 콜백) 안에서 연 UI 의 알림과 훅은 지금 것이 끝난 뒤 실행된다(IsVisible 은 즉시). 전환 완료 훅(OnOpenTransitionCompleted/OnCloseTransitionCompleted)은 이 순서 밖이라 그 안에서 연 UI 의 훅은 곧바로 실행된다. 훅 예외는 전환 태스크를 같은 예외로 실패시키고 한 번 기록된다. `BlockInput` 은 포인터와 함께 EventSystem 선택·내비게이션, UIDocument 패널 키 입력도 막는다(막힌 동안 새 EventSystem·패널 포함, 선택은 복구 안 함). `RemoveUi`/`UnloadUi` 는 진행 중인 전환 태스크를 완료한다.
 - dim 은 루트 `Canvas`(첫 자식 `UiDim`) 또는 `UIDocument`(같은 PanelSettings, 모달 문서보다 1/2048 낮은 `UiDimDocument`)에만 깔린다.

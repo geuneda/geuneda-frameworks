@@ -50,7 +50,7 @@
 
 ## 3. com.geuneda.uiservice
 
-- **버전 / 최소 Unity**: 3.1.0 / 6000.0. 3.1.0 은 uGUI 같은 레이어 정렬(루트 Canvas `레이어 + 연 순위`)과 여러 팝업 큐의 로드 중 대기를 바꾼 동작 변경(API 동일)이고, 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며(core 를 넣지 않을 프로젝트는 `#v2.0.0`), 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이다(그 전 프로젝트는 `#v1.3.2`)
+- **버전 / 최소 Unity**: 3.2.0 / 6000.0. 3.2.0 은 uGUI 정렬값 간격 `UiService.CanvasOrderStep`(기본 1) 추가이고, 3.1.0 은 uGUI 같은 레이어 정렬(루트 Canvas `레이어 + 연 순위`)과 여러 팝업 큐의 로드 중 대기를 바꾼 동작 변경(API 동일)이고, 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며(core 를 넣지 않을 프로젝트는 `#v2.0.0`), 2.0.0 은 `IUiService` 에 멤버를 추가한 호환성 파괴 버전이다(그 전 프로젝트는 `#v1.3.2`)
 - **package.json 의존성**: `com.geuneda.core` 0.4.0(로거), `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0
 - **선택 의존성**(asmdef `versionDefines`): `com.unity.inputsystem` 1.0.0 이상 → `GEUNEDA_INPUT_SYSTEM`(`ReadsBackInput` 이 `<Keyboard>/escape` 액션 사용, 없으면 레거시 Input Manager)
 - **이 패키지에 의존하는 패키지**: 없음. gamedata/services 에도 의존하지 않는다.
