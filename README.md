@@ -54,7 +54,7 @@ Geuneda Unity Package Manager(UPM) 패키지 35개를 개발, 테스트, 검증�
 | `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](https://github.com/geuneda/geuneda-nativeui/blob/HEAD/README.md) |
 | `com.geuneda.notificationservice` | 0.3.0 | 2021.3 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](https://github.com/geuneda/geuneda-notificationservice/blob/HEAD/README.md) |
 | `com.geuneda.googlesheetimporter` | 0.10.0 | 6000.0 | Google 스프레드시트 데이터를 ScriptableObject 설정 데이터로 가져오는 에디터 도구 | [README](https://github.com/geuneda/geuneda-googlesheetimporter/blob/HEAD/README.md) |
-| `com.geuneda.gamesystems` | 0.3.1 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷: 일괄 변경, 늦은 바인딩 추적, 디버그 창) | [README](https://github.com/geuneda/geuneda-gamesystems/blob/HEAD/README.md) |
+| `com.geuneda.gamesystems` | 0.4.0 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷: 배지 종류와 우선순위 표시, 일괄 변경, 늦은 바인딩 추적, 디버그 창. 기능 개방: 조건 판정 결과로 잠금, 원격 차단, 잠금 표시 컴포넌트) | [README](https://github.com/geuneda/geuneda-gamesystems/blob/HEAD/README.md) |
 
 레포지토리 URL 은 모두 `https://github.com/geuneda/<레포>.git` 형식이고, 레포 이름은 패키지 이름의 `com.geuneda.` 를 `geuneda-` 로 바꾸고 나머지 점을 `-` 로 바꾼 것입니다(예: `com.geuneda.services` -> `geuneda-services`, `com.geuneda.account.apple` -> `geuneda-account-apple`).
 

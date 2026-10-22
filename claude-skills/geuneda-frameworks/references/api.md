@@ -125,11 +125,11 @@
 
 ## 9. com.geuneda.gamesystems
 
-- **버전 / 최소 Unity**: 0.3.1 / 6000.3
+- **버전 / 최소 Unity**: 0.4.0 / 6000.3
 - **package.json 의존성**: `com.geuneda.core` 0.4.0(로거), `com.geuneda.services` 5.1.0(`MainInstaller.BindingChanged`)
-- **어셈블리**: 기능마다 하나. 현재 `Geuneda.GameSystems.RedDot`(`Geuneda.Core`·`Geuneda.Services` 참조)와 에디터 `Geuneda.GameSystems.RedDot.Editor`(디버그 창)
-- **네임스페이스**: `Geuneda.GameSystems.<기능>`, 현재 `Geuneda.GameSystems.RedDot`
-- **주요 기능**: 레드닷. '/' 경로 트리 알림 배지, 리프 값의 조상 합산, 뮤트, 경로 단위 구독(`IRedDotService`, `RedDotService`, `RedDotBinding`, `RedDotView`), 일괄 변경(`BeginBatch`/`RedDotBatch`), MainInstaller 늦은 바인딩·교체 추적, 알림 순환 상한, `Tools > Geuneda > RedDot Debugger`
+- **어셈블리**: 기능마다 하나. 현재 `Geuneda.GameSystems.RedDot`(`Geuneda.Core`·`Geuneda.Services` 참조)와 에디터 `Geuneda.GameSystems.RedDot.Editor`(디버그 창), `Geuneda.GameSystems.FeatureUnlock`(`Geuneda.Core`·`Geuneda.Services` 참조)
+- **네임스페이스**: `Geuneda.GameSystems.<기능>`, 현재 `Geuneda.GameSystems.RedDot`, `Geuneda.GameSystems.FeatureUnlock`
+- **주요 기능**: 레드닷. '/' 경로 트리 알림 배지, 리프 값의 조상 합산, 뮤트, 경로 단위 구독(`IRedDotService`, `RedDotService`, `RedDotBinding`, `RedDotView`), 배지 종류(`RedDotService(kindCount)`, 종류별 합·구독)와 우선순위 표시(`RedDotPriorityGroup`), 일괄 변경(`BeginBatch`/`RedDotBatch`), MainInstaller 늦은 바인딩·교체 추적, 알림 순환 상한, `Tools > Geuneda > RedDot Debugger`. 기능 개방: 기능 ID별 판정 함수와 마지막 판정 결과, 상태가 바뀔 때만 `StateChanged`, 원격 차단, 개발용 조건 무시(`IFeatureUnlockService`, `FeatureUnlockService`, `FeatureUnlockBinding`, `FeatureLockView`)
 - **테스트**: `Geuneda.GameSystems.Tests.EditMode`(`Tests/EditMode`), `Geuneda.GameSystems.Tests.PlayMode`(`Tests/PlayMode`)
 - **문서**: `README.md`, `AGENTS.md`, `CLAUDE.md`
 
