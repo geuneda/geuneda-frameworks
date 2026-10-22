@@ -52,7 +52,7 @@ Geuneda UPM 패키지 35개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
 | `com.geuneda.notificationservice` | 0.3.0 | 2021.3 | 모바일 로컬 알림 예약/취소/해제, 앱 안 설정과 OS 권한 게이트 | `geuneda-notificationservice` |
 | `com.geuneda.googlesheetimporter` | 0.10.0 | 6000.0 | Google 스프레드시트 -> ScriptableObject 설정 데이터 임포트(에디터 도구) | `geuneda-googlesheetimporter` |
-| `com.geuneda.gamesystems` | 0.3.1 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷) | `geuneda-gamesystems` |
+| `com.geuneda.gamesystems` | 0.4.0 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷: 배지 종류·우선순위 표시, 기능 개방) | `geuneda-gamesystems` |
 
 레포 URL 규칙: `com.geuneda.<x>` -> `https://github.com/geuneda/geuneda-<x>.git`.
 
@@ -229,7 +229,7 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 네이티브 알림 팝업, 토스트 | nativeui |
 | 모바일 로컬 알림 | notificationservice |
 | Google 스프레드시트 데이터 임포트 | googlesheetimporter |
-| 레드닷(경로 트리 알림 배지) 등 공용 게임 시스템 | gamesystems |
+| 레드닷(경로 트리 알림 배지), 기능 개방(조건으로 기능 잠금, 원격 차단) 등 공용 게임 시스템 | gamesystems |
 | 모듈별 로깅(레벨 플래그, 출력 대상 교체) | core |
 | 실패를 코드로 돌려주는 결과 타입, 공용 결과 코드 | core |
 | 빌드 환경(DEV/QA/PROD) 분기, 운영 빌드에서 코드 빼기 | core |
