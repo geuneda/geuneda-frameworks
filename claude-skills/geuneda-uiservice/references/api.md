@@ -237,6 +237,22 @@ internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `Intern
 
 ---
 
+## Geuneda.UiService.Rendering (어셈블리 `Geuneda.UiService.Urp`, URP 17.0.1+ 가 있을 때만)
+
+### class UiCameraStackFeature : PresenterFeatureBase
+
+직렬화 필드 `_overlayCamera`, `_canvas`, `_planeDistance`(100), `_useCanvasSortingOrder`(true), `_stackPriority`. 공개 `bool IsStacked`, `int StackPriority`(캔버스 `sortingOrder` 또는 `_stackPriority`), `Func<Camera> BaseCameraResolver`(null 이면 `Camera.main`), 정적 `int InsertIndex(IReadOnlyList<int> existingPriorities, int priority)`(오름차순, 같은 값은 뒤). `OnPresenterInitialized` 에서 캔버스를 Screen Space - Camera 로, 카메라를 URP Overlay 로 바꾸고 캔버스 아래의 카메라를 꺼냄(프레젠터 파괴 때 함께 파괴). `OnPresenterOpening` 에서 스택에 넣고 `OnDisable` 에서 뺌. 카메라나 캔버스가 없으면 Error 로그.
+
+### class UiBackdropBlurRendererFeature : ScriptableRendererFeature
+
+URP Renderer 에셋에 추가. 직렬화 필드 `_blurShader`(에디터에서 자동 할당), `_downsample`(0~3, 1), `_iterations`(1~8, 2), `_spread`(1), `_tint`(white). 정적 `const int MinIterations = 1`, `MaxIterations = 8`, `int IterationsOverride { get; set; }`(0 이하 해제, 범위로 자름, 에셋에 쓰지 않음), `int AuthoredIterations`, `int EffectiveIterations`.
+
+### class UiBackdropBlurPresenterFeature : PresenterFeatureBase
+
+설정 없음. `OnPresenterOpening` 에서 흐림을 열고(렌더러 피처가 없으면 Error 로그) `OnDisable` 에서 닫음. 열린 프레젠터가 하나라도 있으면 Game 카메라(오버레이·렌더 텍스처 카메라 제외)에 블러 패스가 들어감.
+
+---
+
 ## Geuneda.UiService.Views
 
 | 타입 | 요구 컴포넌트 | 공개/직렬화 멤버 |
@@ -244,7 +260,7 @@ internal: `string InstanceAddress { get; }`, `Init(IUiService, string)`, `Intern
 | `SafeAreaHelperView : MonoBehaviour` | `RectTransform` | 직렬화 `_checkAreaBounds`, `_rectTransform`, `_ignoreHeight`, `_ignoreWidth`, `_onUpdate`, `_refResolution`. 에디터 전용 `SafeAreaHelperViewEditor`(같은 파일, `Update Anchored Data`/`Update Anchored View` 버튼) |
 | `NonDrawingView : Graphic` | `CanvasRenderer` | `SetMaterialDirty()`, `SetVerticesDirty()` 재정의(아무것도 안 함) |
 | `AdjustScreenSizeFitterView : UIBehaviour, ILayoutSelfController` | `RectTransform`, `LayoutElement` | `[ExecuteAlways]`, 메뉴 `Layout/Adjust Size Fitter`. 직렬화 `_padding`, `_canvasTransform`, `_rectTransform`. `SetLayoutHorizontal()`, `SetLayoutVertical()`(효과 없음) |
-| `InteractableTextView : MonoBehaviour, IPointerClickHandler` | `TMP_Text` | `UnityEvent<TMP_LinkInfo> OnLinkedInfoClicked`, `InteractableTextType InteractableType`(`IntersectingLink`, `NearestLink`), `TMP_Text Text`, `OnPointerClick(PointerEventData)`. 카메라 `null` 로 판정 |
+| `InteractableTextView : MonoBehaviour, IPointerClickHandler` | `TMP_Text` | `UnityEvent<TMP_LinkInfo> OnLinkedInfoClicked`, `InteractableTextType InteractableType`(`IntersectingLink`, `NearestLink`), `TMP_Text Text`, `OnPointerClick(PointerEventData)`. 부모 `Canvas` 의 `worldCamera` 로 판정(Overlay, 카메라 없는 Screen Space - Camera, Canvas 없음은 `null`, 3.3.0) |
 
 ---
 

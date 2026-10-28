@@ -229,14 +229,30 @@ public 필드 `Action OnUpdate`, `Action OnFixedUpdate`, `Action OnLateUpdate`. 
 
 | 멤버 | 설명 |
 |------|------|
-| `void SaveData<T>() where T : class` | `PlayerPrefs` 키 `typeof(T).FullName` 에 `{"version":n,"data":{...}}` 저장 후 `PlayerPrefs.Save()` |
+| `void SaveData<T>() where T : class` | 저장소 키(`GetStorageKey(typeof(T))`)에 `{"version":n,"data":{...}}` 를 `IDataStorage.Write` 로 저장(기본 저장소는 `PlayerPrefs` + `PlayerPrefs.Save()`) |
 | `void SaveAllData()` | 메모리의 모든 타입 저장 |
 | `T LoadData<T>() where T : class` | 저장값이 없으면 `Activator.CreateInstance<T>()`. 저장된 버전이 낮으면 등록된 마이그레이션 적용. 읽지 못하면 예외 대신 `{키}.corrupt` 백업·에러 로그·`OnDataLoadFailed` 후 새 인스턴스. 결과를 메모리에 등록 |
 | `void AddOrReplaceData<T>(T data) where T : class` | 메모리만 변경 |
 
 ### class DataService : IDataService
 
-생성자 `DataService()`. 확장 지점 `protected virtual void OnDataSaved(string key, object data, Type type)`, `protected virtual void OnDataLoadFailed(string key, string rawData, Exception exception)`, `protected virtual void SaveCorruptBackup(string key, string rawData)`(기본 `{키}.corrupt`). 백업·훅의 예외는 로그만 남기고 새 인스턴스로 계속한다. 더 새 버전 세이브를 읽은 타입은 `AddOrReplaceData` 전까지 `SaveData`/`SaveAllData` 에서 건너뛴다(경고). `void AddMigration<T>(int fromVersion, Func<JToken, JToken> migration)`(한 단계씩, 잘못된 인자면 `ArgumentNullException`/`ArgumentOutOfRangeException`/`ArgumentException`). 정적 `string GetSaveKey(Type)`(FullName), `int GetDataVersion(Type)`, `const string CorruptKeySuffix = ".corrupt"`. 직렬화는 Newtonsoft.Json.
+생성자 `DataService()`(= `PlayerPrefsDataStorage`, 접두사 없음), `DataService(IDataStorage storage, string keyPrefix = null)`(`storage` null 이면 `ArgumentNullException`). 인스턴스 `string GetStorageKey(Type)`(접두사가 있으면 `{접두사}.{FullName}`, 없으면 `GetSaveKey` 와 같음. 훅에 전달되는 키). 확장 지점 `protected virtual void OnDataSaved(string key, object data, Type type)`, `protected virtual void OnDataLoadFailed(string key, string rawData, Exception exception)`, `protected virtual void SaveCorruptBackup(string key, string rawData)`(기본 같은 저장소의 `{키}.corrupt`). 백업·훅의 예외는 로그만 남기고 새 인스턴스로 계속한다. 더 새 버전 세이브를 읽은 타입은 `AddOrReplaceData` 전까지 `SaveData`/`SaveAllData` 에서 건너뛴다(경고). `void AddMigration<T>(int fromVersion, Func<JToken, JToken> migration)`(한 단계씩, 잘못된 인자면 `ArgumentNullException`/`ArgumentOutOfRangeException`/`ArgumentException`). 정적 `string GetSaveKey(Type)`(FullName), `int GetDataVersion(Type)`, `const string CorruptKeySuffix = ".corrupt"`. 직렬화는 Newtonsoft.Json.
+
+### interface IDataStorage
+
+`bool HasKey(string key)`, `string Read(string key)`(없으면 `null`), `void Write(string key, string value)`(돌아오기 전에 영구 저장), `void Delete(string key)`(없으면 무시). 직접 구현해 다른 곳에 저장할 수 있다.
+
+### class PlayerPrefsDataStorage : IDataStorage
+
+`PlayerPrefs`. `Write`/`Delete` 마다 `PlayerPrefs.Save()`. `DataService()` 의 기본.
+
+### class FileDataStorage : IDataStorage
+
+생성자 `FileDataStorage()`(`Application.persistentDataPath`), `FileDataStorage(string directory)`(없으면 만듦, 비어 있으면 `ArgumentException`). 키마다 UTF-8 `{키}.json`. `Write` 는 `{키}.json.tmp` 에 쓰고 디스크에 내린 뒤 교체. 키가 파일 이름으로 쓸 수 없으면 모든 메서드가 `ArgumentException`.
+
+### class BrowserLocalDataStorage : IDataStorage
+
+WebGL 플레이어의 `localStorage`(페이지 출처 단위, 동기). 생성자가 WebGL 플레이어 밖(에디터 포함)에서 `PlatformNotSupportedException`, 브라우저가 막았으면 `InvalidOperationException`. `Write` 거부(용량 초과 등)는 `IOException`. jslib 는 `Runtime/Plugins/WebGL/`.
 
 ### sealed class DataVersionAttribute : Attribute
 

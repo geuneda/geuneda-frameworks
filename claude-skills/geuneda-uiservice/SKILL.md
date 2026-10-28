@@ -1,6 +1,6 @@
 ---
 name: geuneda-uiservice
-description: com.geuneda.uiservice 패키지(네임스페이스 Geuneda.UiService, Geuneda.UiService.Views)로 Unity UI 를 다루는 코드를 작성하거나 수정할 때 사용한다. UiPresenter/UiPresenter<T> 프레젠터 작성, IUiService 로 UI 로드/열기/닫기/언로드, UiConfigs 설정 에셋과 UI 세트 구성, 다중 인스턴스(UiInstanceId), PresenterFeatureBase/ITransitionFeature 피처, UI Toolkit 연동(UiToolkitPresenterFeature, UiToolkitPanelRendererFeature), IUiAssetLoader 로더, SafeAreaHelperView 등 헬퍼 뷰를 다루거나, 뒤로가기(HandlesBack, HandleBack, AddBackHandler, BackUnhandled, ReadsBackInput), 팝업 큐(UiPopupQueue, Hold), 모달 dim(IsModal, DimColor), 입력 차단(BlockInput), 표시 상태 이벤트(PresenterOpened/PresenterClosed)를 쓸 때 활성화한다.
+description: com.geuneda.uiservice 패키지(네임스페이스 Geuneda.UiService, Geuneda.UiService.Views)로 Unity UI 를 다루는 코드를 작성하거나 수정할 때 사용한다. UiPresenter/UiPresenter<T> 프레젠터 작성, IUiService 로 UI 로드/열기/닫기/언로드, UiConfigs 설정 에셋과 UI 세트 구성, 다중 인스턴스(UiInstanceId), PresenterFeatureBase/ITransitionFeature 피처, UI Toolkit 연동(UiToolkitPresenterFeature, UiToolkitPanelRendererFeature), URP 카메라 스택·뒤 배경 흐림(UiCameraStackFeature, UiBackdropBlurPresenterFeature, UiBackdropBlurRendererFeature), IUiAssetLoader 로더, SafeAreaHelperView 등 헬퍼 뷰를 다루거나, 뒤로가기(HandlesBack, HandleBack, AddBackHandler, BackUnhandled, ReadsBackInput), 팝업 큐(UiPopupQueue, Hold), 모달 dim(IsModal, DimColor), 입력 차단(BlockInput), 표시 상태 이벤트(PresenterOpened/PresenterClosed)를 쓸 때 활성화한다.
 ---
 
 # Geuneda UI Service
@@ -9,9 +9,9 @@ UI 프레젠터의 로드, 열기, 닫기, 언로드를 `UiService` 한 곳에�
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.uiservice` 3.2.0 (`package.json` 기준). 3.2.0 은 uGUI 정렬값 간격 `CanvasOrderStep` 추가(기본 1, 동작 동일)이고, 3.1.0 은 uGUI 같은 레이어 정렬과 여러 큐의 로드 중 대기를 바꾼 동작 변경(API 동일)이고, 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 프로젝트는 `#v2.0.0`, `IUiService` 멤버가 추가되기 전 프로젝트는 `#v1.3.2` 로 고정한다
+- 패키지: `com.geuneda.uiservice` 3.3.0 (`package.json` 기준). 3.3.0 은 URP 가 있을 때만 컴파일되는 카메라 스택·뒤 배경 흐림 피처(`Geuneda.UiService.Rendering`)와 `InteractableTextView` 의 카메라 판정 수정이고, 3.2.0 은 uGUI 정렬값 간격 `CanvasOrderStep` 추가(기본 1, 동작 동일)이고, 3.1.0 은 uGUI 같은 레이어 정렬과 여러 큐의 로드 중 대기를 바꾼 동작 변경(API 동일)이고, 3.0.0 은 core 의존성을 추가한 호환성 파괴 버전이며 core 를 넣지 않을 프로젝트는 `#v2.0.0`, `IUiService` 멤버가 추가되기 전 프로젝트는 `#v1.3.2` 로 고정한다
 - 설치: `https://github.com/geuneda/geuneda-uiservice.git` (core 와 UniTask 는 manifest 에 직접 추가해야 함)
-- 의존성: `com.geuneda.core` 0.4.0(로거 `ModuleLogger`, 로그는 `[Geuneda.UiService]`·`[Geuneda.UiService.<기능>]` 로 시작), `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0. 헬퍼 뷰는 uGUI/TextMeshPro 사용. 선택: `com.unity.inputsystem`(있으면 `ReadsBackInput` 이 Input System 사용)
+- 의존성: `com.geuneda.core` 0.4.0(로거 `ModuleLogger`, 로그는 `[Geuneda.UiService]`·`[Geuneda.UiService.<기능>]` 로 시작), `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0. 헬퍼 뷰는 uGUI/TextMeshPro 사용. 선택: `com.unity.inputsystem`(있으면 `ReadsBackInput` 이 Input System 사용), `com.unity.render-pipelines.universal` 17.0.1+(있으면 어셈블리 `Geuneda.UiService.Urp` 가 컴파일됨. 없어도 패키지는 동작하고 블러 셰이더 임포트 오류 로그만 한 번)
 - Unity 6000.0+ (`UiToolkitPanelRendererFeature` 는 6000.5+)
 - 소스: geuneda-frameworks 레포의 `Packages/com.geuneda.uiservice/` (`Runtime/`, `Editor/`, `docs/`)
 - 전체 공개 API: [references/api.md](references/api.md)
@@ -272,3 +272,4 @@ using (uiService.BlockInput("purchase")) { await BuyAsync(); }
 - `HandlesBack`/`IsModal` 등은 `protected virtual` 이다. 재정의는 `protected override`.
 - `BlockInput`/`Hold` 토큰은 `using` 으로 푼다. 같은 토큰을 두 번 풀면 경고만 남고, 남은 사유는 `InputBlockReasons`/`HoldReasons` 로 본다.
 - 런타임에 UIDocument 를 만들 때는 끈 GameObject 에 붙이고 `panelSettings` 를 넣은 뒤 켠다. 켠 채로 붙이고 설정하면 플레이어 빌드에서 `rootVisualElement` 가 null 이다.
+- **URP 피처**(3.3.0, `using Geuneda.UiService.Rendering;`, URP 가 있을 때만): `UiCameraStackFeature` 는 캔버스를 Screen Space - Camera 로 바꾸고 오버레이 카메라를 `Camera.main`(`BaseCameraResolver` 로 교체, 열기 전에 설정)의 카메라 스택에 열 때 넣고 비활성화될 때 뺀다. Overlay 캔버스 프레젠터와 섞이면 `UiConfig.Layer` 가 전체 순서가 아니다(스택 프레젠터는 레이어가 높아도 Overlay 아래). `UiBackdropBlurPresenterFeature` 는 URP **Renderer** 에셋(Pipeline 에셋 아님)에 `UiBackdropBlurRendererFeature` 를 추가해야 동작하고, 없으면 열 때 Error 로그만 남고 흐림이 없다. 모양은 렌더러 피처에서, 런타임 조절은 정적 `UiBackdropBlurRendererFeature.IterationsOverride`(0 이하 해제, 1~8). 2D Renderer 에서는 확인되지 않았다.
