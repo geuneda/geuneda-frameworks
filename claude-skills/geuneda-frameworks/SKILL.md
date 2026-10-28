@@ -45,8 +45,8 @@ Geuneda UPM 패키지 35개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.webview.gree` | 0.2.0 | 2021.3 | webview 의 gree unity-webview 어댑터(준비 전 값을 준비 뒤 이동 제한 → 여백 → 로드 순서로, 여백은 화면 비율, gree 가 있을 때만 컴파일, gree 는 `dist/package-nofragment` 로 설치) | `geuneda-webview` |
 | `com.geuneda.servertime` | 0.2.0 | 6000.3 | 서버 시간 동기화(NTP·HTTPS `Date`·직접 구현 원천을 순서대로, 왕복 지연 보정, 지수 백오프 재시도, 30분 재동기화, 포그라운드 복귀 재동기화). services 시간 서비스의 기준점을 맞춤 | `geuneda-servertime` |
 | `com.geuneda.gamedata` | 2.0.0 | 6000.0 | Observable 데이터, `ComputedField`, `ConfigsProvider`, 결정론적 `floatP`, 보안 값(`SecureInt` 등), 직렬화 헬퍼 | `geuneda-gamedata` |
-| `com.geuneda.services` | 5.2.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
-| `com.geuneda.uiservice` | 3.2.0 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit, 뒤로가기, 우선순위 팝업 큐, 모달 dim, 입력 차단 | `geuneda-uiservice` |
+| `com.geuneda.services` | 5.3.0 | 6000.3 | `MainInstaller` 서비스 로케이터, 메시지 브로커, 틱, 코루틴, 풀, 데이터(저장소 교체: PlayerPrefs·파일·브라우저 localStorage), RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전, Addressables 에셋 로딩/임포트 | `geuneda-services` |
+| `com.geuneda.uiservice` | 3.3.0 | 6000.0 | UI 프레젠터 생명주기, UI Set, 피처 조합, UI Toolkit, 뒤로가기, 우선순위 팝업 큐, 모달 dim, 입력 차단, URP 카메라 스택·뒤 배경 흐림(URP 가 있을 때만) | `geuneda-uiservice` |
 | `com.geuneda.statechart` | 0.11.0 | 2022.3 | 계층적 상태 머신(Statechart) | `geuneda-statechart` |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 포인터 드래그, 스와이프/탭, 게임패드 | `geuneda-inputextensions` |
 | `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
@@ -119,7 +119,7 @@ UPM 은 git 전용 의존성을 자동으로 받지 못하므로 직접 함께 �
 
 | 설치하는 패키지 | 같이 넣을 것 |
 |----------------|-------------|
-| gamedata, uiservice, statechart | core, UniTask |
+| gamedata, uiservice, statechart | core, UniTask (uiservice 는 URP 가 있으면 URP 피처 어셈블리 추가) |
 | services | UniTask, gamedata, core |
 | googlesheetimporter | gamedata, core, UniTask |
 | gamesystems | services, gamedata, core, UniTask |

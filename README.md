@@ -47,8 +47,8 @@ Geuneda Unity Package Manager(UPM) 패키지 35개를 개발, 테스트, 검증�
 | `com.geuneda.webview` | 0.2.1 | 2021.3 | 앱 안 웹뷰와 페이지 명령 브리지. 함께 주는 JS 파일의 `geuneda.call` 이 요청 ID 로 짝지은 결과를 Promise 로 받고 Unity 는 이벤트를 보냄. 허용 출처의 페이지만 열고 명령을 받으며(그 밖으로는 이동 막음, 다른 출처 링크는 외부 브라우저) 페이지에 토큰을 넘기지 않음. RectTransform 영역 추적, 뒤로가기(페이지 기록 → 닫기), 열기 성공은 페이지 브리지 준비. notice·coupon 이 있으면 공지·쿠폰 명령 asmdef 가 켜짐. `IWebViewService` 는 `IDisposable`(`MainInstaller.CleanDispose`), 페이지로 가는 스크립트는 ASCII | [README](https://github.com/geuneda/geuneda-webview/blob/HEAD/README.md) |
 | `com.geuneda.webview.gree` | 0.2.0 | 2021.3 | webview 의 gree unity-webview 어댑터. 준비 전 값은 준비 뒤 이동 제한 → 여백 → 로드 순서로 적용, 여백은 화면 비율, Android 강제 다크 모드 끔. gree 가 있을 때만 컴파일(`versionDefines`). gree 는 `dist/package-nofragment` 로 설치(기본 package 는 사진·동영상·오디오 권한을 넣음) | [README](https://github.com/geuneda/geuneda-webview-gree/blob/HEAD/README.md) |
 | `com.geuneda.gamedata` | 2.0.0 | 6000.0 | Observable 데이터(필드/리스트/딕셔너리 등), `ComputedField`, `ConfigsProvider` 설정 저장소, 결정론적 부동소수점 `floatP`, 메모리 변조 감지 보안 값(`SecureInt` 등), 직렬화 헬퍼 | [README](https://github.com/geuneda/geuneda-gamedata/blob/HEAD/README.md) |
-| `com.geuneda.services` | 5.2.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장, RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](https://github.com/geuneda/geuneda-services/blob/HEAD/README.md), [docs](https://github.com/geuneda/geuneda-services/blob/HEAD/docs/README.md) |
-| `com.geuneda.uiservice` | 3.2.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단 | [README](https://github.com/geuneda/geuneda-uiservice/blob/HEAD/README.md), [docs](https://github.com/geuneda/geuneda-uiservice/blob/HEAD/docs/README.md) |
+| `com.geuneda.services` | 5.3.0 | 6000.3 | 서비스 로케이터(`MainInstaller`), 메시지 브로커, 틱, 코루틴, 오브젝트 풀, 데이터 저장(저장소 교체: PlayerPrefs·파일·브라우저 localStorage, 키 접두사), RNG(PCG32), 시간(단조 시계 기준점, 서버 시각 기준), 커맨드, 버전 정보, Addressables 에셋 로딩/임포트 | [README](https://github.com/geuneda/geuneda-services/blob/HEAD/README.md), [docs](https://github.com/geuneda/geuneda-services/blob/HEAD/docs/README.md) |
+| `com.geuneda.uiservice` | 3.3.0 | 6000.0 | UI 열기/닫기/로드/언로드, UI Set, 프레젠터 피처 조합, UI Toolkit 지원, 다중 인스턴스, 뒤로가기, 팝업 큐, 모달 dim, 입력 차단, URP 가 있으면 카메라 스택·뒤 배경 흐림 피처 | [README](https://github.com/geuneda/geuneda-uiservice/blob/HEAD/README.md), [docs](https://github.com/geuneda/geuneda-uiservice/blob/HEAD/docs/README.md) |
 | `com.geuneda.statechart` | 0.11.0 | 2022.3 | 계층적 상태 머신(Statechart) | [README](https://github.com/geuneda/geuneda-statechart/blob/HEAD/README.md) |
 | `com.geuneda.inputextensions` | 1.0.4 | 2019.4 | Input System 기반 포인터 드래그, 스와이프/탭 제스처, 게임패드 입력 | [README](https://github.com/geuneda/geuneda-inputextensions/blob/HEAD/README.md) |
 | `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](https://github.com/geuneda/geuneda-nativeui/blob/HEAD/README.md) |
@@ -106,7 +106,7 @@ inputextensions, banword: 다른 Geuneda 패키지에 의존하지 않음(banwor
 |--------|-------------|
 | gamedata | `com.geuneda.core` 0.4.0, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 |
 | services | `com.geuneda.core` 0.4.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10 |
-| uiservice | `com.geuneda.core` 0.4.0, `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 (선택: `com.unity.inputsystem`) |
+| uiservice | `com.geuneda.core` 0.4.0, `com.unity.addressables` 2.6.0, `com.cysharp.unitask` 2.5.10, `com.unity.ugui` 2.0.0 (선택: `com.unity.inputsystem`, `com.unity.render-pipelines.universal` 17.0.1+) |
 | statechart | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10 |
 | inputextensions | `com.unity.inputsystem` 1.1.1, `com.unity.ugui` 1.0.0 |
 | core | 없음 |
