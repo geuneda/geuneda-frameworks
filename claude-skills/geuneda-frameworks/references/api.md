@@ -137,7 +137,7 @@
 
 ## 10. com.geuneda.core
 
-- **버전 / 최소 Unity**: 0.5.1 / 2021.3
+- **버전 / 최소 Unity**: 0.5.2 / 2021.3
 - **package.json 의존성**: 없음
 - **이 패키지에 의존하는 패키지**: services, http, realtime, account, appsetting, resource, servertime, analytics, iap, ads, consent, notice, coupon, webview, gamedata, statechart, uiservice, nativeui, notificationservice, gamesystems(banword 는 선택 로더만)
 - **어셈블리**: `Geuneda.Core`, `Geuneda.Core.Editor`(Editor, 빌드 가드, Android R8 keep 규칙 훅)

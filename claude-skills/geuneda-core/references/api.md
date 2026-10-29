@@ -159,7 +159,7 @@
 
 ### Geuneda.Core.Editor.UserConfigAssetBuildGuard (internal, IPreprocessBuildWithReport)
 
-`이름.user.확장자`(대소문자 무시) 에셋이 경로에 `Editor` 세그먼트가 없거나 `Assets/StreamingAssets/` 아래에 있으면 `BuildFailedException`. Resources 뿐 아니라 씬 참조·Addressables·StreamingAssets(원본 복사) 경로도 막기 위해서다. `internal static FindUserAssetsThatCanShip(IEnumerable<string>)`.
+`이름.user.확장자`(대소문자 무시) 에셋이 경로에 `Editor` 세그먼트가 없거나 `Assets/StreamingAssets/` 아래에 있으면 `BuildFailedException`. StreamingAssets 밖의 `.cs` 스크립트는 뺀다(0.5.2, Quantum `*.User.cs` 오탐). Resources 뿐 아니라 씬 참조·Addressables·StreamingAssets(원본 복사) 경로도 막기 위해서다. `internal static FindUserAssetsThatCanShip(IEnumerable<string>)`.
 
 ---
 
