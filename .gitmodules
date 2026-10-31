@@ -1,0 +1,105 @@
+[submodule "Packages/com.geuneda.inputextensions"]
+	path = Packages/com.geuneda.inputextensions
+	url = https://github.com/geuneda/geuneda-inputextensions.git
+[submodule "Packages/com.geuneda.services"]
+	path = Packages/com.geuneda.services
+	url = https://github.com/geuneda/geuneda-services.git
+[submodule "Packages/com.geuneda.statechart"]
+	path = Packages/com.geuneda.statechart
+	url = https://github.com/geuneda/geuneda-statechart.git
+[submodule "Packages/com.geuneda.uiservice"]
+	path = Packages/com.geuneda.uiservice
+	url = https://github.com/geuneda/geuneda-uiservice.git
+[submodule "Packages/com.geuneda.googlesheetimporter"]
+	path = Packages/com.geuneda.googlesheetimporter
+	url = https://github.com/geuneda/geuneda-googlesheetimporter.git
+[submodule "Packages/com.geuneda.notificationservice"]
+	path = Packages/com.geuneda.notificationservice
+	url = https://github.com/geuneda/geuneda-notificationservice.git
+[submodule "Packages/com.geuneda.nativeui"]
+	path = Packages/com.geuneda.nativeui
+	url = https://github.com/geuneda/geuneda-nativeui.git
+[submodule "Packages/com.geuneda.gamedata"]
+	path = Packages/com.geuneda.gamedata
+	url = https://github.com/geuneda/geuneda-gamedata.git
+[submodule "Packages/com.geuneda.gamesystems"]
+	path = Packages/com.geuneda.gamesystems
+	url = https://github.com/geuneda/geuneda-gamesystems.git
+[submodule "Packages/com.geuneda.core"]
+	path = Packages/com.geuneda.core
+	url = https://github.com/geuneda/geuneda-core.git
+[submodule "Packages/com.geuneda.http"]
+	path = Packages/com.geuneda.http
+	url = https://github.com/geuneda/geuneda-http.git
+[submodule "Packages/com.geuneda.realtime"]
+	path = Packages/com.geuneda.realtime
+	url = https://github.com/geuneda/geuneda-realtime.git
+[submodule "Packages/com.geuneda.account"]
+	path = Packages/com.geuneda.account
+	url = https://github.com/geuneda/geuneda-account.git
+[submodule "Packages/com.geuneda.account.apple"]
+	path = Packages/com.geuneda.account.apple
+	url = https://github.com/geuneda/geuneda-account-apple.git
+[submodule "Packages/com.geuneda.account.google"]
+	path = Packages/com.geuneda.account.google
+	url = https://github.com/geuneda/geuneda-account-google.git
+[submodule "Packages/com.geuneda.appsetting"]
+	path = Packages/com.geuneda.appsetting
+	url = https://github.com/geuneda/geuneda-appsetting.git
+[submodule "Packages/com.geuneda.resource"]
+	path = Packages/com.geuneda.resource
+	url = https://github.com/geuneda/geuneda-resource.git
+[submodule "Packages/com.geuneda.servertime"]
+	path = Packages/com.geuneda.servertime
+	url = https://github.com/geuneda/geuneda-servertime.git
+[submodule "Packages/com.geuneda.analytics"]
+	path = Packages/com.geuneda.analytics
+	url = https://github.com/geuneda/geuneda-analytics.git
+[submodule "Packages/com.geuneda.analytics.firebase"]
+	path = Packages/com.geuneda.analytics.firebase
+	url = https://github.com/geuneda/geuneda-analytics-firebase.git
+[submodule "Packages/com.geuneda.analytics.airbridge"]
+	path = Packages/com.geuneda.analytics.airbridge
+	url = https://github.com/geuneda/geuneda-analytics-airbridge.git
+[submodule "Packages/com.geuneda.analytics.appsflyer"]
+	path = Packages/com.geuneda.analytics.appsflyer
+	url = https://github.com/geuneda/geuneda-analytics-appsflyer.git
+[submodule "Packages/com.geuneda.analytics.facebook"]
+	path = Packages/com.geuneda.analytics.facebook
+	url = https://github.com/geuneda/geuneda-analytics-facebook.git
+[submodule "Packages/com.geuneda.iap"]
+	path = Packages/com.geuneda.iap
+	url = https://github.com/geuneda/geuneda-iap.git
+[submodule "Packages/com.geuneda.iap.unity"]
+	path = Packages/com.geuneda.iap.unity
+	url = https://github.com/geuneda/geuneda-iap-unity.git
+[submodule "Packages/com.geuneda.ads"]
+	path = Packages/com.geuneda.ads
+	url = https://github.com/geuneda/geuneda-ads.git
+[submodule "Packages/com.geuneda.ads.max"]
+	path = Packages/com.geuneda.ads.max
+	url = https://github.com/geuneda/geuneda-ads-max.git
+[submodule "Packages/com.geuneda.consent"]
+	path = Packages/com.geuneda.consent
+	url = https://github.com/geuneda/geuneda-consent.git
+[submodule "Packages/com.geuneda.consent.ump"]
+	path = Packages/com.geuneda.consent.ump
+	url = https://github.com/geuneda/geuneda-consent-ump.git
+[submodule "Packages/com.geuneda.consent.att"]
+	path = Packages/com.geuneda.consent.att
+	url = https://github.com/geuneda/geuneda-consent-att.git
+[submodule "Packages/com.geuneda.banword"]
+	path = Packages/com.geuneda.banword
+	url = https://github.com/geuneda/geuneda-banword.git
+[submodule "Packages/com.geuneda.notice"]
+	path = Packages/com.geuneda.notice
+	url = https://github.com/geuneda/geuneda-notice.git
+[submodule "Packages/com.geuneda.coupon"]
+	path = Packages/com.geuneda.coupon
+	url = https://github.com/geuneda/geuneda-coupon.git
+[submodule "Packages/com.geuneda.webview"]
+	path = Packages/com.geuneda.webview
+	url = https://github.com/geuneda/geuneda-webview.git
+[submodule "Packages/com.geuneda.webview.gree"]
+	path = Packages/com.geuneda.webview.gree
+	url = https://github.com/geuneda/geuneda-webview-gree.git
