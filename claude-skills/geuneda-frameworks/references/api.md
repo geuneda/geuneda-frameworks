@@ -282,10 +282,10 @@
 
 ---
 
-## 22. com.geuneda.ads / .ads.max
+## 22. com.geuneda.ads / .ads.max / .ads.admob
 
 - **버전 / 최소 Unity**: ads 0.1.0, ads.max 0.1.0 / 둘 다 2021.3
-- **package.json 의존성**: ads 는 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. ads.max 는 `com.geuneda.ads` 0.1.0(AppLovin MAX `com.applovin.mediation.ads` 는 AppLovin 레지스트리 패키지라 의존성 아님)
+- **package.json 의존성**: ads 는 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. ads.admob 은 `com.geuneda.ads` 0.1.0(Google Mobile Ads `com.google.ads.mobile` 11.5.0 이상은 OpenUPM, versionDefines → `GEUNEDA_ADS_ADMOB`, 최소 Unity 2022.3). ads.max 는 `com.geuneda.ads` 0.1.0(AppLovin MAX `com.applovin.mediation.ads` 는 AppLovin 레지스트리 패키지라 의존성 아님)
 - **선택 의존성**(asmdef `versionDefines`): `com.geuneda.analytics` 0.2.0 이상 → `Geuneda.Ads.Analytics`. ads.max 의 `Geuneda.Ads.Max` 는 `com.applovin.mediation.ads` 8.6.3 이상 → `GEUNEDA_ADS_MAX`(Assets 설치면 직접 define), 없으면 컴파일되지 않음(호스트에 MAX 없음)
 - **어셈블리 / 네임스페이스**: `Geuneda.Ads`, `Geuneda.Ads.Analytics`, `Geuneda.Ads.Max`
 - **주요 기능**: `IAdService`/`AdService`/`AdServiceOptions`(`ShowRewardedAsync`, `ShowInterstitialAsync`, `IsReady`), 이벤트 `ShowingChanged`·`Displayed`·`Clicked`·`ShowSettled`(`AdShowReport`)·`LateRewarded`(`AdLateReward`)·`RevenuePaid`(`AdRevenue`)·`LoadFailed`, `AdsResultCodes`(8000 블록), 미디에이션 계약 `IAdMediation`, `MaxAdMediation`(MAX 8.6.3+), `AdRevenueLogger`(노출 수익 → `LogAdImpression`)
@@ -367,6 +367,7 @@
     "com.geuneda.iap.unity": "https://github.com/geuneda/geuneda-iap-unity.git",
     "com.geuneda.ads": "https://github.com/geuneda/geuneda-ads.git",
     "com.geuneda.ads.max": "https://github.com/geuneda/geuneda-ads-max.git",
+    "com.geuneda.ads.admob": "https://github.com/geuneda/geuneda-ads-admob.git",
     "com.geuneda.consent": "https://github.com/geuneda/geuneda-consent.git",
     "com.geuneda.consent.ump": "https://github.com/geuneda/geuneda-consent-ump.git",
     "com.geuneda.consent.att": "https://github.com/geuneda/geuneda-consent-att.git",

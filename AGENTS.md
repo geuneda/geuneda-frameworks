@@ -30,7 +30,7 @@ Geuneda UPM 패키지 35개를 개발, 테스트, 검증하는 Unity 6000.3 호�
    - `Packages/com.geuneda.analytics/AGENTS.md`
    - `Packages/com.geuneda.analytics.firebase/AGENTS.md`, `.airbridge`, `.appsflyer`, `.facebook` 의 `AGENTS.md`
    - `Packages/com.geuneda.iap/AGENTS.md`, `Packages/com.geuneda.iap.unity/AGENTS.md`
-   - `Packages/com.geuneda.ads/AGENTS.md`, `Packages/com.geuneda.ads.max/AGENTS.md`
+   - `Packages/com.geuneda.ads/AGENTS.md`, `Packages/com.geuneda.ads.max/AGENTS.md`, `Packages/com.geuneda.ads.admob/AGENTS.md`
    - `Packages/com.geuneda.consent/AGENTS.md`, `Packages/com.geuneda.consent.ump/AGENTS.md`, `Packages/com.geuneda.consent.att/AGENTS.md`
    - `Packages/com.geuneda.banword/AGENTS.md`
    - `Packages/com.geuneda.notice/AGENTS.md`

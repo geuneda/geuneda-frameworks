@@ -38,6 +38,7 @@ Geuneda Unity Package Manager(UPM) 패키지 35개를 개발, 테스트, 검증�
 | `com.geuneda.iap.unity` | 0.1.0 | 2022.3 | iap 의 Unity IAP 5.4.4(`StoreController`) 어댑터. 자동 재전달·조회 재시도 끄기, 실패 이유 멤버별 대응, App Store 거래 서명(JWS) 전달 | [README](https://github.com/geuneda/geuneda-iap-unity/blob/HEAD/README.md) |
 | `com.geuneda.ads` | 0.1.0 | 2021.3 | 보상형·전면 광고. 표시 요청마다 결과 하나(보상 받음은 성공, 보상 없이 닫음·표시 실패·시간 초과·준비 안 됨은 결과 코드 8000 블록), 닫힘 콜백이 없으면 앱이 앞에 있는 시간으로 시간 초과 판정(표시 콜백 없음, 광고가 앱을 멈추는 미디에이션의 복귀 뒤, 절대 5분), 시간 초과 뒤 늦은 보상 이벤트, 앞 광고의 늦은 콜백을 광고 식별 값으로 거름, 로드 실패 2초→30초 백오프. analytics 가 있으면 노출 수익 기록 | [README](https://github.com/geuneda/geuneda-ads/blob/HEAD/README.md) |
 | `com.geuneda.ads.max` | 0.1.0 | 2021.3 | ads 의 AppLovin MAX(8.6.3 이상) 어댑터. 단위 거르기, 만료 광고 재로드를 새 로드로, 광고 식별 값, 모르는 수익(-1)은 null. MAX 가 있을 때만 컴파일(`versionDefines`) | [README](https://github.com/geuneda/geuneda-ads-max/blob/HEAD/README.md) |
+| `com.geuneda.ads.admob` | 0.1.0 | 2022.3 | ads 의 Google AdMob(Google Mobile Ads 11.5.0 이상) 어댑터. 동의 뒤 `InitializeSdk`, 응답 ID 식별 값, 마이크로 단위 수익 변환, 샘플 광고 단위 `AdMobTestUnits`. 플러그인이 있을 때만 컴파일 |
 | `com.geuneda.consent` | 0.1.0 | 2021.3 | 앱 시작 동의. 자사 약관 → 광고 동의(UMP) → 추적 허용(ATT) 순서로 등록한 단계만 실행, 취소·필수 약관 거절·진행 중이면 멈추고 그 밖의 실패는 다음 단계를 계속(결과 코드 9000 블록), 광고 요청 가능·개인화 광고(TCF 목적 1·3·4)·개인정보 옵션 버튼·추적 허용·약관 답 스냅샷. 자사 약관은 항목별 버전(버전이 바뀐 항목·거절한 필수 항목만 다시 물음), 동의 화면은 게임, 저장소는 PlayerPrefs 또는 게임 구현 | [README](https://github.com/geuneda/geuneda-consent/blob/HEAD/README.md) |
 | `com.geuneda.consent.ump` | 0.1.0 | 2021.3 | consent 의 Google UMP 공급자. Android·iOS 네이티브 브리지, 동의 정보 10초 시간 제한, 동의 폼·개인정보 옵션 폼, 플랫폼별 상태·오류 숫자 맞춤, TCF 값 읽기. UMP SDK 는 EDM4U 가 받음 | [README](https://github.com/geuneda/geuneda-consent-ump/blob/HEAD/README.md) |
 | `com.geuneda.consent.att` | 0.1.0 | 2021.3 | consent 의 iOS ATT 공급자. completion 콜백, 앱 활성 대기, 추적 설명 문구(언어별 InfoPlist.strings) 빌드 후처리, AppTrackingTransparency 약한 링크 | [README](https://github.com/geuneda/geuneda-consent-att/blob/HEAD/README.md) |
@@ -85,6 +86,7 @@ core
         └── iap.unity (Unity IAP 5.4.4)
   └── ads (analytics 는 선택: 있으면 노출 수익 기록 asmdef 가 켜짐)
         └── ads.max (AppLovin MAX 가 있을 때만 컴파일)
+        └── ads.admob (Google Mobile Ads 플러그인이 있을 때만 컴파일)
   └── consent
         └── consent.ump (UMP SDK 는 EDM4U), consent.att (iOS ATT)
   └── webview (notice·coupon 은 선택: 있으면 공지·쿠폰 명령 asmdef 가 켜짐)
@@ -124,6 +126,7 @@ inputextensions, banword: 다른 Geuneda 패키지에 의존하지 않음(banwor
 | iap.unity | `com.geuneda.iap` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.purchasing` 5.4.4 |
 | ads | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. 선택: `com.geuneda.analytics` 0.2.0 이상(노출 수익 기록) |
 | ads.max | `com.geuneda.ads` 0.1.0. AppLovin MAX(`com.applovin.mediation.ads` 8.6.3 이상)는 게임이 AppLovin 레지스트리로 설치(의존성 아님) |
+| ads.admob | `com.geuneda.ads` 0.1.0. Google Mobile Ads(`com.google.ads.mobile` 11.5.0 이상)는 게임이 OpenUPM 으로 설치(의존성 아님) |
 | consent | `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10, `com.unity.modules.jsonserialize` |
 | consent.ump | `com.geuneda.consent` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10. External Dependency Manager for Unity 필요(UMP SDK Android 3.2.0+, iOS 파드 ~> 3.0) |
 | consent.att | `com.geuneda.consent` 0.1.0, `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10 |
@@ -178,6 +181,7 @@ UPM 은 git URL 로만 받을 수 있는 의존성을 자동으로 설치하지 
 | iap.unity | iap, core, UniTask(Unity IAP 는 레지스트리에서 자동 설치) |
 | ads | core, UniTask(노출 수익 기록을 쓰면 analytics) |
 | ads.max | ads, core, UniTask, AppLovin MAX |
+| ads.admob | ads, core, UniTask, Google Mobile Ads(동의는 consent, consent.ump) |
 | consent | core, UniTask |
 | consent.ump | consent, core, UniTask, EDM4U(UMP SDK) |
 | consent.att | consent, core, UniTask |
@@ -252,7 +256,7 @@ geuneda-frameworks/
 | `geuneda-servertime` | com.geuneda.servertime |
 | `geuneda-analytics` | com.geuneda.analytics, com.geuneda.analytics.firebase·airbridge·appsflyer·facebook |
 | `geuneda-iap` | com.geuneda.iap, com.geuneda.iap.unity |
-| `geuneda-ads` | com.geuneda.ads, com.geuneda.ads.max |
+| `geuneda-ads` | com.geuneda.ads, com.geuneda.ads.max, com.geuneda.ads.admob |
 | `geuneda-consent` | com.geuneda.consent, com.geuneda.consent.ump, com.geuneda.consent.att |
 | `geuneda-banword` | com.geuneda.banword |
 | `geuneda-notice` | com.geuneda.notice |

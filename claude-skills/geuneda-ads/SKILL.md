@@ -9,7 +9,7 @@ description: com.geuneda.ads 패키지(네임스페이스 Geuneda.Ads, 선택 �
 
 ## 패키지 정보
 
-- **버전**: ads 0.1.0, ads.max 0.1.0
+- **버전**: ads 0.1.0, ads.max 0.1.0, ads.admob 0.1.0
 - **네임스페이스 / 어셈블리**: `Geuneda.Ads`. 선택 어셈블리 `Geuneda.Ads.Analytics`(analytics 0.2.0 이상, `versionDefines` 로 켜짐). 어댑터 `Geuneda.Ads.Max`(MAX `com.applovin.mediation.ads` 8.6.3 이상이 있을 때만 컴파일, Assets 설치는 define `GEUNEDA_ADS_MAX`)
 - **설치**: `https://github.com/geuneda/geuneda-ads.git`, `https://github.com/geuneda/geuneda-ads-max.git` (core, UniTask git URL 도 함께). MAX 는 게임이 AppLovin 레지스트리(Integration Manager)로 설치한다(의존성 아님)
 - **의존성**: ads 는 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10(Unity 2021.3+). ads.max 는 `com.geuneda.ads` 0.1.0
@@ -27,6 +27,7 @@ description: com.geuneda.ads 패키지(네임스페이스 Geuneda.Ads, 선택 �
 - 이벤트: `ShowingChanged(bool)`, `Displayed(AdShowEvent)`, `Clicked(AdShowEvent)`(표시마다 한 번), `ShowSettled(AdShowReport)`(거절 포함 요청마다 한 번, `Reason`: Rejected·Closed·DisplayFailed·DisplayTimeout·ForegroundTimeout·AbsoluteTimeout·Disposed), `LateRewarded(AdLateReward)`, `RevenuePaid(AdRevenue)`(`Amount` 모르면 null, `Currency`, `Platform`), `LoadFailed(AdLoadFailure)`.
 - `AdServiceOptions`: `RetryDelay` 2초(최소 100ms), `MaxRetryDelay` 30초, `LoadTimeout` 60초, `ForegroundGrace` 20초, `AbsoluteTimeout` 5분, `RewardGrace` 2초(0 이면 닫힘에서 바로 실패), `AdPausesApp` null(미디에이션의 `PausesApp`, MAX 는 Android·iOS 기기에서 true).
 - MAX: `new MaxAdMediation(new MaxAdMediationOptions { RewardedAdUnitId, InterstitialAdUnitId })`(`IDisposable`). 플랫폼별 ID 는 게임이 `#if UNITY_IOS` 로 고른다. `PlatformName` "AppLovin", `RevenueCurrency` "USD".
+- AdMob: `new AdMobMediation(new AdMobMediationOptions { RewardedAdUnitId, InterstitialAdUnitId })`(`IDisposable`, 네임스페이스 `Geuneda.Ads.AdMob`). 동의 뒤 `InitializeSdk()` 를 부른다(MAX 와 달리 어댑터가 초기화). 개발 중 단위는 `AdMobTestUnits.Rewarded`·`Interstitial`. `PlatformName` "AdMob". 플러그인 `com.google.ads.mobile` 11.5.0(OpenUPM)이 있을 때만 컴파일. Firebase EDM 과 함께 쓰면 11.6.0 은 쓰지 않는다.
 - `new AdRevenueLogger(IAdService ads, IAnalyticsService analytics, AnalyticsSinks? sinks = null)`: 노출 수익 → `LogAdImpression`(형식 `rewarded`/`interstitial`, 모르는 금액·잘못된 통화는 건너뜀).
 
 ## 사용 패턴
@@ -86,6 +87,7 @@ void OnLateRewarded(AdLateReward reward)
 
 ## 함정
 
+- AdMob 은 앱 ID 를 `Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset`(메뉴 `Assets > Google Mobile Ads > Settings`)에 넣어야 빌드된다. 동의는 `com.geuneda.consent.ump` 로 받는다. 플러그인의 UMP 를 `MobileAds` 를 쓰기 전에 직접 부르면 메인 스레드 설정에서 콜백이 오지 않는다. 절차와 코드는 패키지 README 를 따른다.
 - SDK 초기화는 어댑터가 하지 않는다. `MaxSdk.InitializeSdk()` 를 부르지 않으면 표시 요청은 계속 `NotInitialized` 다. 동의(UMP·ATT)는 초기화 전에 게임이 처리한다.
 - `Timeout` 결과에 "보상 없음"을 단정해 띄우지 않는다. 사용자가 끝까지 봤을 수 있고 늦은 보상은 `LateRewarded` 로 온다. `LateRewarded` 를 구독하지 않으면 그 보상은 지급되지 않는다.
 - `LateRewarded` 는 서비스가 살아 있는 동안만 온다. 앱을 다시 시작하면 이전 실행의 광고 콜백은 오지 않는다.

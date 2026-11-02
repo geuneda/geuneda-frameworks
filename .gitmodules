@@ -103,3 +103,6 @@
 [submodule "Packages/com.geuneda.webview.gree"]
 	path = Packages/com.geuneda.webview.gree
 	url = https://github.com/geuneda/geuneda-webview-gree.git
+[submodule "Packages/com.geuneda.ads.admob"]
+	path = Packages/com.geuneda.ads.admob
+	url = https://github.com/geuneda/geuneda-ads-admob.git
