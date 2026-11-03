@@ -81,6 +81,7 @@ await consent.Terms.SetAgreedAsync("push.marketing", isOn, ct);
 - **UMP 는 앱을 시작할 때마다 요청한다**(SDK 권장). 요청이 실패해도 상태는 지난 실행의 결과다. 첫 요청 전의 상태는 모른다(Android `Unknown`, 광고 요청 불가). 상태는 `RunAsync` 뒤에 읽는다.
 - **개인정보 옵션 버튼**: `PrivacyOptionsRequired` 일 때만 설정 화면에 둔다(GDPR 필수 요건). 누른 뒤 바뀐 스냅샷을 SDK 에 다시 넘긴다.
 - **한 번에 작업 하나**: 서비스, 약관, UMP 공급자 각각 겹치면 `InProgress`. UMP 폼이 떠 있는 동안 취소하면 기다리기만 그만두고, 폼이 닫힐 때까지 다음 작업은 `InProgress`.
+- **여러 곳이 결과를 기다리면 한 번 실행을 공유한다**: `RunAsync` 를 한 번 부르고 `ToAsyncLazy()` 로 감싸 `.Task` 를 나눠 준다(광고·분석·어트리뷰션 초기화가 같이 기다릴 때). `Preserve()` 는 끝나기 전에는 대기자를 하나만 받아 둘째부터 `InvalidOperationException`(Already continuation registered)이 난다. 다시 `RunAsync` 를 부르면 `InProgress` 다.
 - **오용은 예외**: 모르는 약관 ID, 저장소를 읽기 전 `IsAgreed`·`Agreements`, 동의 화면이 묻지 않은 항목에 답함·null 답, 공급자 없이 `ShowPrivacyOptionsAsync`, 작업 중 UMP `Reset`.
 
 ## 함정

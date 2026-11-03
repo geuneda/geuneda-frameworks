@@ -9,7 +9,7 @@ Unity 게임용 기반 서비스 모음이다. 전체 공개 API 는 [references
 
 ## 패키지 정보
 
-- 패키지: `com.geuneda.services` (현재 5.3.0), 설치 URL `https://github.com/geuneda/geuneda-services.git`
+- 패키지: `com.geuneda.services` (현재 5.5.1), 설치 URL `https://github.com/geuneda/geuneda-services.git`
 - Unity 6000.3 이상
 - 의존성: `com.geuneda.core` 0.4.0, `com.geuneda.gamedata` 1.0.0, `com.unity.addressables` 1.21.20, `com.cysharp.unitask` 2.5.10. core, gamedata, UniTask 는 Unity 레지스트리에 없으므로 `manifest.json` 에 git URL 로 직접 추가해야 한다.
 - 에셋 로딩/임포트는 v2.0.0 에서 예전 `com.geuneda.assetsimporter` 를 흡수한 것이다. `com.geuneda.assetsimporter` 를 따로 추가하지 않는다.
