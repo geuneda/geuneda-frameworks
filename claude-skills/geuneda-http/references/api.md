@@ -55,7 +55,7 @@
 
 ## 버퍼 전송 (0.2.0)
 
-- `interface IHttpBufferTransport { UniTask<Result> SendAsync(HttpBufferRequest request, HttpBufferResponse response, CancellationToken ct); }` — 응답이 오면(4xx·5xx 포함) `Ok` 이고 `response` 에 상태 코드·본문. 응답 없음은 `NetworkError`/`Timeout`/`Cancelled`. 미들웨어·기본 주소·재시도 없음. 끝날 때까지 두 객체를 바꾸지 않는다. `IDisposable`(만든 쪽이 메인 스레드에서 닫음). 잘못된 주소·헤더는 두 구현 모두 `ArgumentException`.
+- `interface IHttpBufferTransport { UniTask<Result> SendAsync(HttpBufferRequest request, HttpBufferResponse response, CancellationToken ct); void Reserve(int requestBytes) /* 기본: 아무것도 안 함, 0.2.1 */; }` — 응답이 오면(4xx·5xx 포함) `Ok` 이고 `response` 에 상태 코드·본문. 응답 없음은 `NetworkError`/`Timeout`/`Cancelled`. 미들웨어·기본 주소·재시도 없음. 끝날 때까지 두 객체를 바꾸지 않는다. `IDisposable`(만든 쪽이 메인 스레드에서 닫음). 잘못된 주소·헤더는 두 구현 모두 `ArgumentException`. `Reserve` 는 요청 하나(주소·헤더·본문)를 그 크기까지 할당 없이 보내도록 버퍼를 미리 키운다(네이티브는 요청 프레임, 줄이지 않음). 본문이 조금씩 커지는 반복 요청에서 앞서 부른다. 버퍼를 키울 때는 필요량의 1.5배 이상.
 - `sealed class HttpBufferRequest`(바뀌는 객체): `Method`(기본 POST), `Url`(http(s) 절대 주소), `Timeout`(null = 없음), `SetHeader/RemoveHeader/ClearHeaders`, `HeaderCount`, `GetHeaderName/Value(i)`, `SetBody(ReadOnlySpan<byte>, contentType)`(복사), `ClearBody`, `HasBody`, `Body`, `ContentType`.
 - `sealed class HttpBufferResponse(initialCapacity = 16KB)`: `StatusCode`(응답 없으면 0), `IsSuccessStatusCode`, `Length`, `Body`(ReadOnlySpan, 다음 요청에서 덮임), `Buffer`, `ReadText()`(할당).
 - `NativeHttpTransport`(안드로이드 플레이어, `#if UNITY_ANDROID` 공개 생성자): Java `com.geuneda.http.NativeHttpChannel` 의 `HttpURLConnection`. 데워진 뒤 요청마다 C# 할당 없음(Release 컴파일). 제한 시간은 전체 시간, 넘거나 취소하면 네이티브 요청을 끊는다. PATCH·본문 있는 GET/HEAD 는 `NotSupportedException`. 응답 헤더 없음.
