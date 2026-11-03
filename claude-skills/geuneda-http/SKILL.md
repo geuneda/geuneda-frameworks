@@ -11,7 +11,7 @@ UnityWebRequest 기반 HTTP 클라이언트다. 공통 처리는 미들웨어 �
 
 - **네임스페이스 / 어셈블리**: `Geuneda.Http`
 - **설치**: `https://github.com/geuneda/geuneda-http.git` (core, UniTask git URL 도 함께)
-- **의존성**: `com.geuneda.core` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.unitywebrequest` 1.0.0
+- **의존성**: `com.geuneda.core` 0.1.0, `com.cysharp.unitask` 2.5.10, `com.unity.nuget.newtonsoft-json` 3.2.1, `com.unity.modules.unitywebrequest` 1.0.0, `com.unity.modules.androidjni` 1.0.0
 - **최소 Unity 버전**: 2021.3
 - **기여 가이드**: 패키지 루트의 `AGENTS.md`
 
@@ -58,6 +58,8 @@ public sealed class AuthHeaderMiddleware : IHttpMiddleware
 }
 ```
 
+- 반복 요청(주기 동기화 등)의 C# 할당을 없애려면 `HttpBufferTransports.CreateDefault()` + 다시 쓰는 `HttpBufferRequest`/`HttpBufferResponse`(`IHttpBufferTransport.SendAsync` → `UniTask<Result>`). 안드로이드 플레이어는 Java `HttpURLConnection` 네이티브 전송, 에디터·iOS 는 UnityWebRequest 대체(할당함). 미들웨어·재시도는 거치지 않는다.
+
 ## 함정
 
 - 4xx, 5xx 는 **성공한** `Result` 의 응답이다(`IsSuccessStatusCode` 로 구분). 실패 `Result` 는 응답이 없을 때(연결 실패 `NetworkError`, 타임아웃 `Timeout`, 취소 `Cancelled`)뿐이다. JSON 편의 메서드만 2xx 가 아니면 `HttpError` 로 실패한다.
@@ -73,3 +75,4 @@ public sealed class AuthHeaderMiddleware : IHttpMiddleware
 - 공백뿐인 본문은 `InvalidResponse`. JSON 리터럴 `null` 은 참조 형식·nullable 값 형식이면 성공에 값 null, `int` 같은 nullable 이 아닌 값 형식이면 `InvalidResponse` 다.
 - 헤더 사전은 읽기 전용이다. 정의되지 않은 `HttpMethod` 값은 생성자에서 `ArgumentOutOfRangeException`.
 - 테스트에서는 `WithTransport` 로 가짜 `IHttpTransport` 를 넣는다.
+- 버퍼 전송의 `HttpBufferResponse.Body` 는 다음 요청에서 덮인다. 남겨야 하면 복사한다. 무할당은 Release 컴파일(플레이어) 기준이고 에디터 Debug 컴파일에서는 async 상태 기계가 할당한다.
