@@ -1,6 +1,6 @@
 # Geuneda IAP API 레퍼런스
 
-네임스페이스 `Geuneda.Iap`(선택 어셈블리 `Geuneda.Iap.Analytics`·`Geuneda.Iap.Http`, 어댑터 `Geuneda.Iap.Unity`, .NET 서버 `Geuneda.Iap.Server`). iap 0.3.0(결제 서버·HTTP 지급자 포함), iap.unity 0.1.0.
+네임스페이스 `Geuneda.Iap`(선택 어셈블리 `Geuneda.Iap.Analytics`·`Geuneda.Iap.Http`, 어댑터 `Geuneda.Iap.Unity`, .NET 서버 `Geuneda.Iap.Server`). iap 0.3.1(결제 서버·HTTP 지급자 포함), iap.unity 0.1.1.
 
 ## 서비스
 
@@ -13,12 +13,12 @@
 | `IReadOnlyList<IapProduct> Products` | 스토어에서 받은 상품(정의에 있는 것만) |
 | `bool IsStoreUiOpen` | 결제창·복원 요청이 열려 있는지 |
 | `bool TryGetProduct(string productId, out IapProduct product)` | |
-| `UniTask<Result> InitializeAsync(CancellationToken ct = default)` | single-flight. 연결 실패 `StoreUnavailable`, 상품 없음 `NoProducts`, 시간 초과 `Timeout`. 성공하면 뒤에서 복구를 시작한다. 실패 뒤 포그라운드 복귀 때 다시 한다 |
-| `UniTask<Result<PurchaseSettlement>> PurchaseAsync(string productId, string payload = null, CancellationToken ct = default)` | 정의에 없거나 빈 ID 는 `ArgumentException`(태스크 예외). 코드는 `IapResultCodes` 와 `Cancelled`·`Timeout`·`InProgress` |
+| `UniTask<Result> InitializeAsync(CancellationToken ct = default)` | single-flight. 연결 실패 `StoreUnavailable`, 상품 없음 `NoProducts`, 시간 초과 `Timeout`. 성공하면 뒤에서 복구를 시작한다. 실패 뒤 포그라운드 복귀와 구매 때 다시 한다 |
+| `UniTask<Result<PurchaseSettlement>> PurchaseAsync(string productId, string payload = null, CancellationToken ct = default)` | 정의에 없거나 빈 ID 는 `ArgumentException`(태스크 예외). 코드는 `IapResultCodes` 와 `Cancelled`·`Timeout`·`InProgress`. 초기화를 시도했는데 안 됐으면 다시 초기화하고(실패는 원인을 메시지에 담은 `NotInitialized`), 받지 못한 상품은 결제창 전에 한 번 다시 조회한다(없으면 `ProductNotFound`). 0.3.1 |
 | `UniTask<Result<RecoverySummary>> RecoverAsync(CancellationToken ct = default)` | 재조회 후 미확정 주문 지급(거절했던 것 포함). 조회 실패 코드 그대로 |
 | `UniTask<Result<IReadOnlyList<IapOrder>>> RestoreAsync(CancellationToken ct = default)` | 스토어 복원(App Store) → 재조회·지급 → 보유 비소모성·구독(`Origin` Restored). 구매 중이면 `InProgress` |
 | `UniTask<Result<IapEntitlementStatus>> CheckEntitlementAsync(string productId, CancellationToken ct = default)` | 스토어 계정 기준 보유 상태 |
-| `event Action ProductsUpdated` | 초기화 성공 때 |
+| `event Action ProductsUpdated` | 초기화 성공 때, 구매 때 재조회로 빠졌던 상품을 더했을 때(0.3.1) |
 | `event Action<bool> StoreUiChanged` | 결제창·복원 열림(true)/닫힘(false) |
 | `event Action<PurchaseSettlement> OrderSettled` | 지급이 끝난 주문마다 한 번 |
 | `event Action<IapOrderFailure> OrderFailed` | 지급 재시도 예정, 거절, 확정 실패, 종류 모르는 주문 |

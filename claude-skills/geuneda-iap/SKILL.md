@@ -9,7 +9,7 @@ description: com.geuneda.iap 패키지(네임스페이스 Geuneda.Iap, 선택 �
 
 ## 패키지 정보
 
-- **버전**: iap 0.3.0(결제 서버 `Server~`, HTTP 지급자), iap.unity 0.1.0
+- **버전**: iap 0.3.1(결제 서버 `Server~`, HTTP 지급자), iap.unity 0.1.1
 - **네임스페이스 / 어셈블리**: `Geuneda.Iap`. 선택 어셈블리 `Geuneda.Iap.Analytics`(analytics 0.2.0 이상), `Geuneda.Iap.Http`(http 0.1.0 이상, `versionDefines` 로 켜짐). 어댑터 `Geuneda.Iap.Unity`. .NET 서버 `Geuneda.Iap.Server`(`Server~`, .NET 10, Google.Apis.Auth 1.77.0)
 - **설치**: `https://github.com/geuneda/geuneda-iap.git`, `https://github.com/geuneda/geuneda-iap-unity.git` (core, UniTask git URL 도 함께)
 - **의존성**: iap 은 `com.geuneda.core` 0.4.0, `com.cysharp.unitask` 2.5.10(Unity 2021.3+). iap.unity 는 여기에 `com.unity.purchasing` 5.4.4(Unity 2022.3+, UPM 의존성이라 함께 설치)
@@ -113,6 +113,7 @@ app.MapGeunedaIap("/iap", async ctx => (await validator.ValidateAsync(BearerToke
 - **결제 서버 처리**: 원장 확인(지급 기록이 있으면 스토어 안 부름, 계정 없는 지급 전 환불 기록뿐이면 검증으로, 같은 계정 `Duplicate`+처음 응답, 다른 계정 `OwnedByOtherAccount`, 둘 다 `AlreadyGranted`) → 스토어 검증 → 원장 트랜잭션 안에서 지급자 → 커밋 뒤 Google 확인(acknowledge, 소비는 안 함). 확인 실패·서버 종료는 원장의 `AcknowledgementDueAt` 으로 확인 작업자가 다시 한다(실패는 뒤로 미뤄 다음 배치, 3일 기한). App Store·Mac App Store 는 원장 스토어 하나(`AppleAppStore`).
 - **확실하지 않으면 닫지 않는다**: 서버는 모르는 상태·네트워크·401/403/429/5xx·상품 목록 없는 응답·OCSP 미도달을 `RetryLater`, 클라이언트 변환도 5xx·본문 오류·모르는 상태를 `RetryLater` 로 둔다. 지급 없이 닫는 것(`Revoked`)은 스토어가 환불·취소라고 분명히 답할 때만.
 - **재조회**: 초기화, 포그라운드 복귀, `RecoverAsync`, 중복 거래 때 스토어를 다시 조회한다. 조회 실패는 실패 코드다(빈 목록 아님).
+- **구매 때 재시도(0.3.1)**: 시작 초기화가 실패했으면 구매가 다시 초기화하고(한 번도 안 불렀으면 안 함), 초기화 때 빠진 상품은 결제창 전에 한 번 다시 조회한다.
 - **늦은 결제**: 결제창 시간 초과(`Timeout`)·호출자 취소(`Cancelled`)·승인 대기(`Deferred`) 뒤 온 결제는 그 구매의 `Payload` 로 뒤에서 지급하고 `OrderSettled(IsAwaited false)` 로 알린다. 같은 상품을 다시 사면 먼저 재조회해 그 결제가 와 있으면 그것을 지급해 돌려주고, 없을 때만 이전 페이로드를 버리고 결제창을 연다.
 - **결제창과 조회 경합**: 결제창이 열린 동안 조회가 찾은 같은 상품의 새 주문은 결제창의 답이 올 때까지 보류한다(그 구매의 것일 수 있음).
 - **재조회·재연결**: 조회가 실패하면 백오프로 다시 조회하고, 확정 전에는 끊긴 스토어를 다시 연결한다.
