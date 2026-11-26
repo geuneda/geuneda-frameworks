@@ -53,7 +53,7 @@ Geuneda UPM 패키지 37개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
 | `com.geuneda.notificationservice` | 0.3.0 | 2021.3 | 모바일 로컬 알림 예약/취소/해제, 앱 안 설정과 OS 권한 게이트 | `geuneda-notificationservice` |
 | `com.geuneda.googlesheetimporter` | 0.10.0 | 6000.0 | Google 스프레드시트 -> ScriptableObject 설정 데이터 임포트(에디터 도구) | `geuneda-googlesheetimporter` |
-| `com.geuneda.adcapture` | 0.1.0 | 6000.0 | 광고 촬영 에디터 도구(JSON 촬영 스크립트로 줌·흔들림·시간 배율·HUD 숨기기·손가락 탭·게임 동작, Unity Recorder MP4 녹화, 배치 모드) | `geuneda-adcapture` |
+| `com.geuneda.adcapture` | 0.1.1 | 6000.0 | 광고 촬영 에디터 도구(JSON 촬영 스크립트로 줌·흔들림·시간 배율·HUD 숨기기·손가락 탭·게임 동작, Unity Recorder MP4 녹화, 배치 모드) | `geuneda-adcapture` |
 | `com.geuneda.gamesystems` | 0.4.0 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷: 배지 종류·우선순위 표시, 기능 개방) | `geuneda-gamesystems` |
 
 레포 URL 규칙: `com.geuneda.<x>` -> `https://github.com/geuneda/geuneda-<x>.git`.

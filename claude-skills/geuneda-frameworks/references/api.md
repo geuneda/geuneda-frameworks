@@ -442,7 +442,7 @@ UniTask 와 git 전용 Geuneda 의존성은 자동으로 설치되지 않으므�
 
 ## 28. com.geuneda.adcapture
 
-- **버전 / 최소 Unity**: 0.1.0 / 6000.0
+- **버전 / 최소 Unity**: 0.1.1 / 6000.0
 - **package.json 의존성**: `com.unity.recorder` 5.1.8, `com.unity.ugui` 2.0.0
 - **어셈블리**: `Geuneda.AdCapture.Editor`(Editor 전용, `Unity.Recorder.Editor`·`UnityEngine.UI` 참조)
 - **네임스페이스**: `Geuneda.AdCapture`
