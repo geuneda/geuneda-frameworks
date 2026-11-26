@@ -2,7 +2,7 @@
 
 Geuneda 패키지 개선에 참여해 주셔서 감사합니다.
 
-이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 35개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
+이 레포는 `Packages/` 아래에 Geuneda UPM 패키지 37개를 git 서브모듈로 포함하는 Unity 호스트 프로젝트입니다. 패키지 목록과 의존성은 [README.md](README.md) 를 보세요.
 
 ## 기여 위치
 

@@ -437,3 +437,15 @@ UniTask 와 git 전용 Geuneda 의존성은 자동으로 설치되지 않으므�
   "com.geuneda.googlesheetimporter": "https://github.com/geuneda/geuneda-googlesheetimporter.git"
 }
 ```
+
+---
+
+## 28. com.geuneda.adcapture
+
+- **버전 / 최소 Unity**: 0.1.0 / 6000.0
+- **package.json 의존성**: `com.unity.recorder` 5.1.8, `com.unity.ugui` 2.0.0
+- **어셈블리**: `Geuneda.AdCapture.Editor`(Editor 전용, `Unity.Recorder.Editor`·`UnityEngine.UI` 참조)
+- **네임스페이스**: `Geuneda.AdCapture`
+- **주요 기능**: `AdCapture.Run/Status/Abort/Register`, JSON 촬영 스크립트 op(wait, waitfor, record, stop, zoom, shake, timescale, hide, show, tap, action), PlayerLoop `PostLateUpdate` 실행기, Recorder Game 뷰 MP4(H.264, AAC) 녹화
+- **테스트**: 없음(게임 프로젝트의 배치 모드 에디터에서 실제 촬영으로 확인)
+- **문서**: `README.md`

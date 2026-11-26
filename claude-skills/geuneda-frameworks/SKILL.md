@@ -5,7 +5,7 @@ description: Geuneda Unity 패키지 프레임워크 전체의 구조, 의존성
 
 # Geuneda Frameworks
 
-Geuneda UPM 패키지 36개와 그것을 개발, 테스트, 검증하는 Unity 호스트 레포(`https://github.com/geuneda/geuneda-frameworks.git`). 각 패키지는 독립 git 레포이고 호스트 레포의 `Packages/com.geuneda.<패키지>/` 에 서브모듈로 들어 있다. 원본은 GameLovers Frameworks by Miguel Tomas, 라이선스는 MIT.
+Geuneda UPM 패키지 37개와 그것을 개발, 테스트, 검증하는 Unity 호스트 레포(`https://github.com/geuneda/geuneda-frameworks.git`). 각 패키지는 독립 git 레포이고 호스트 레포의 `Packages/com.geuneda.<패키지>/` 에 서브모듈로 들어 있다. 원본은 GameLovers Frameworks by Miguel Tomas, 라이선스는 MIT.
 
 ## 활성화 시점
 
@@ -15,7 +15,7 @@ Geuneda UPM 패키지 36개와 그것을 개발, 테스트, 검증하는 Unity �
 - 새 패키지를 프레임워크에 추가할 때
 - Unity 버전 변경처럼 여러 패키지에 영향을 주는 변경을 할 때
 
-## 패키지 (36개)
+## 패키지 (37개)
 
 버전과 최소 Unity 는 2026-10-14 시점 `package.json` 값이다. 작업 전에 `package.json` 으로 다시 확인한다.
 
@@ -53,6 +53,7 @@ Geuneda UPM 패키지 36개와 그것을 개발, 테스트, 검증하는 Unity �
 | `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업, 토스트 | `geuneda-nativeui` |
 | `com.geuneda.notificationservice` | 0.3.0 | 2021.3 | 모바일 로컬 알림 예약/취소/해제, 앱 안 설정과 OS 권한 게이트 | `geuneda-notificationservice` |
 | `com.geuneda.googlesheetimporter` | 0.10.0 | 6000.0 | Google 스프레드시트 -> ScriptableObject 설정 데이터 임포트(에디터 도구) | `geuneda-googlesheetimporter` |
+| `com.geuneda.adcapture` | 0.1.0 | 6000.0 | 광고 촬영 에디터 도구(JSON 촬영 스크립트로 줌·흔들림·시간 배율·HUD 숨기기·손가락 탭·게임 동작, Unity Recorder MP4 녹화, 배치 모드) | `geuneda-adcapture` |
 | `com.geuneda.gamesystems` | 0.4.0 | 6000.3 | 공용 게임 시스템, 기능별 asmdef(현재 레드닷: 배지 종류·우선순위 표시, 기능 개방) | `geuneda-gamesystems` |
 
 레포 URL 규칙: `com.geuneda.<x>` -> `https://github.com/geuneda/geuneda-<x>.git`.
@@ -92,7 +93,7 @@ core
   │     └── googlesheetimporter
   └── uiservice, statechart, nativeui, notificationservice
 
-독립(다른 Geuneda 패키지에 의존하지 않음): inputextensions, banword(resource 는 선택: 있으면 로더 asmdef `Geuneda.BanWord.Resource` 가 켜짐)
+독립(다른 Geuneda 패키지에 의존하지 않음): inputextensions, adcapture(Unity Recorder·uGUI 만), banword(resource 는 선택: 있으면 로더 asmdef `Geuneda.BanWord.Resource` 가 켜짐)
 ```
 
 core 는 다른 패키지가 함께 쓰는 바닥 패키지다(결정 D1: gamedata 아래). 지금은 services(빌드 환경 `AppEnv`, `Pcg32`, 단조 시계, 로거), http 와 realtime(결과 규약 `Result`), account 와 제공자 패키지(보안 저장소), appsetting 과 resource(결과 규약, 로거), servertime(결과 규약, 로거, 단조 시계), analytics(로거, 설치 ID, 빌드 환경, 단조 시계), iap 과 ads(결과 규약, 로거, 단조 시계, 메인 스레드 디스패처), consent 와 그 어댑터(결과 규약, 로거, 메인 스레드 디스패처), banword 의 선택 로더(결과 규약, 로거), notice·coupon(결과 규약, 로거), webview(결과 규약, 로거, 메인 스레드 디스패처), gamedata·statechart·uiservice·notificationservice·gamesystems(로거), nativeui(로거, 메인 스레드 디스패처)가 참조한다. 에디터 전용 코드와 googlesheetimporter 는 `Debug.Log*` 를 그대로 쓴다. core 는 어떤 Geuneda 패키지도 참조하지 않는다.
@@ -143,6 +144,7 @@ UPM 은 git 전용 의존성을 자동으로 받지 못하므로 직접 함께 �
 | consent | core, UniTask |
 | consent.ump | consent, core, UniTask, EDM4U(UMP SDK) |
 | consent.att | consent, core, UniTask |
+| adcapture | 없음(Unity Recorder·uGUI 는 레지스트리에서 자동) |
 | banword | 없음(로더를 쓰려면 resource, core, http, UniTask) |
 | notice | core, http, UniTask |
 | coupon | core, http, UniTask |
@@ -156,14 +158,14 @@ geuneda-frameworks/
   Assets/                 # 호스트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
   Packages/
     manifest.json         # 호스트 의존성 (Geuneda 패키지는 git URL 로 선언)
-    com.geuneda.*/        # 패키지 36개, 각각 서브모듈
+    com.geuneda.*/        # 패키지 37개, 각각 서브모듈
   ProjectSettings/        # ProjectVersion.txt: 6000.3.2f1
   UserSettings/
   claude-skills/
     install.sh            # ~/.claude/skills/ 로 스킬 복사
     uninstall.sh          # ~/.claude/skills/<스킬> 삭제
     geuneda-frameworks/   # 이 스킬
-    geuneda-<패키지>/     # 패키지별 스킬 24개(애플·구글 제공자는 geuneda-account, 분석 어댑터는 geuneda-analytics, Unity IAP 어댑터는 geuneda-iap, MAX 어댑터는 geuneda-ads, UMP·ATT 어댑터는 geuneda-consent, gree 웹뷰 어댑터는 geuneda-webview 가 함께 다룸)
+    geuneda-<패키지>/     # 패키지별 스킬 25개(애플·구글 제공자는 geuneda-account, 분석 어댑터는 geuneda-analytics, Unity IAP 어댑터는 geuneda-iap, MAX 어댑터는 geuneda-ads, UMP·ATT 어댑터는 geuneda-consent, gree 웹뷰 어댑터는 geuneda-webview 가 함께 다룸)
   .gitmodules
   AGENTS.md               # 에이전트용 레포 가이드
   CLAUDE.md               # 프레임워크를 쓰는 프로젝트의 공용 규칙, 네임스페이스 -> 스킬 표
@@ -232,6 +234,7 @@ Unity Test Framework 로 작성하고 Unity 에디터의 **Window > General > Te
 | 네이티브 알림 팝업, 토스트 | nativeui |
 | 모바일 로컬 알림 | notificationservice |
 | Google 스프레드시트 데이터 임포트 | googlesheetimporter |
+| 광고용 플레이 영상 촬영(스크립트 연출, 손가락 탭, MP4 녹화) | adcapture(광고 기획·편집은 game-ad-creative 스킬) |
 | 레드닷(경로 트리 알림 배지), 기능 개방(조건으로 기능 잠금, 원격 차단) 등 공용 게임 시스템 | gamesystems |
 | 모듈별 로깅(레벨 플래그, 출력 대상 교체) | core |
 | 실패를 코드로 돌려주는 결과 타입, 공용 결과 코드 | core |

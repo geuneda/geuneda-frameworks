@@ -1,6 +1,6 @@
 # Geuneda Frameworks (Unity)
 
-Geuneda Unity Package Manager(UPM) 패키지 35개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬, MAX 어댑터는 ads 스킬, UMP·ATT 어댑터는 consent 스킬, gree 웹뷰 어댑터는 webview 스킬이 함께 다룹니다).
+Geuneda Unity Package Manager(UPM) 패키지 37개를 개발, 테스트, 검증하는 Unity 호스트 프로젝트입니다. 각 패키지는 별도 git 레포지토리이고, 이 레포에는 `Packages/com.geuneda.*` 아래 git 서브모듈로 들어 있습니다. 패키지별 Claude Code 스킬이 `claude-skills/` 에 함께 있습니다(애플·구글 제공자 패키지는 account 스킬, 분석 벤더 어댑터는 analytics 스킬, Unity IAP 어댑터는 iap 스킬, MAX 어댑터는 ads 스킬, UMP·ATT 어댑터는 consent 스킬, gree 웹뷰 어댑터는 webview 스킬이 함께 다룹니다).
 
 ## 어디부터 읽으면 되나
 
@@ -55,6 +55,7 @@ Geuneda Unity Package Manager(UPM) 패키지 35개를 개발, 테스트, 검증�
 | `com.geuneda.nativeui` | 0.3.0 | 2021.3 | iOS/Android 네이티브 알림 팝업과 토스트 메시지 | [README](https://github.com/geuneda/geuneda-nativeui/blob/HEAD/README.md) |
 | `com.geuneda.notificationservice` | 0.3.0 | 2021.3 | Unity Mobile Notifications 기반 모바일 로컬 알림 예약/취소/해제 | [README](https://github.com/geuneda/geuneda-notificationservice/blob/HEAD/README.md) |
 | `com.geuneda.googlesheetimporter` | 0.10.0 | 6000.0 | Google 스프레드시트 데이터를 ScriptableObject 설정 데이터로 가져오는 에디터 도구 | [README](https://github.com/geuneda/geuneda-googlesheetimporter/blob/HEAD/README.md) |
+| `com.geuneda.adcapture` | 0.1.0 | 6000.0 | 광고 촬영 에디터 도구. JSON 촬영 스크립트로 카메라 줌·흔들림, 시간 배율, HUD 숨기기, 손가락 탭(실제 uGUI 클릭), 게임 동작 호출을 연출하고 Unity Recorder 로 MP4(게임 오디오 포함)를 녹화. 배치 모드 지원, 다른 Geuneda 패키지 의존 없음 | [README](https://github.com/geuneda/geuneda-adcapture/blob/HEAD/README.md) |
 | `com.geuneda.gamesystems` | 0.4.0 | 6000.3 | 여러 게임에서 반복되는 게임 시스템 모음. 기능마다 asmdef 가 나뉨(현재 레드닷: 배지 종류와 우선순위 표시, 일괄 변경, 늦은 바인딩 추적, 디버그 창. 기능 개방: 조건 판정 결과로 잠금, 원격 차단, 잠금 표시 컴포넌트) | [README](https://github.com/geuneda/geuneda-gamesystems/blob/HEAD/README.md) |
 
 레포지토리 URL 은 모두 `https://github.com/geuneda/<레포>.git` 형식이고, 레포 이름은 패키지 이름의 `com.geuneda.` 를 `geuneda-` 로 바꾸고 나머지 점을 `-` 로 바꾼 것입니다(예: `com.geuneda.services` -> `geuneda-services`, `com.geuneda.account.apple` -> `geuneda-account-apple`).
@@ -210,14 +211,14 @@ geuneda-frameworks/
 ├── Assets/                 # 호스트 프로젝트 에셋 (Addressables 설정, TextMesh Pro 리소스, 테스트용 에셋)
 ├── Packages/
 │   ├── manifest.json       # 호스트 프로젝트 의존성
-│   └── com.geuneda.*/      # 패키지 35개, 각각 git 서브모듈 (.gitmodules)
+│   └── com.geuneda.*/      # 패키지 37개, 각각 git 서브모듈 (.gitmodules)
 ├── ProjectSettings/        # Unity 설정 (ProjectVersion.txt: 6000.3.2f1)
 ├── UserSettings/
 ├── claude-skills/
 │   ├── install.sh          # 스킬 설치
 │   ├── uninstall.sh        # 스킬 제거
 │   ├── geuneda-frameworks/ # 프레임워크 전체 스킬
-│   └── geuneda-<패키지>/    # 패키지별 스킬 24개
+│   └── geuneda-<패키지>/    # 패키지별 스킬 25개
 ├── .gitmodules
 ├── AGENTS.md               # AI 에이전트용 레포 가이드
 ├── CLAUDE.md               # 프레임워크를 쓰는 프로젝트의 공용 규칙
@@ -233,7 +234,7 @@ geuneda-frameworks/
 
 ## Claude Code 스킬
 
-`claude-skills/` 에는 패키지별 스킬 24개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap`, MAX 어댑터는 `geuneda-ads`, UMP·ATT 어댑터는 `geuneda-consent`, gree 웹뷰 어댑터는 `geuneda-webview` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
+`claude-skills/` 에는 패키지별 스킬 25개와 프레임워크 전체 스킬 `geuneda-frameworks` 가 있습니다. 애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터는 `geuneda-analytics`, Unity IAP 어댑터는 `geuneda-iap`, MAX 어댑터는 `geuneda-ads`, UMP·ATT 어댑터는 `geuneda-consent`, gree 웹뷰 어댑터는 `geuneda-webview` 스킬이 함께 다룹니다. 스킬을 설치하면 Claude Code 가 패키지 API, 사용 패턴, 주의사항을 참고해 코드를 작성합니다.
 
 | 스킬 | 대상 |
 |------|------|
@@ -244,6 +245,7 @@ geuneda-frameworks/
 | `geuneda-statechart` | com.geuneda.statechart |
 | `geuneda-inputextensions` | com.geuneda.inputextensions |
 | `geuneda-nativeui` | com.geuneda.nativeui |
+| `geuneda-adcapture` | com.geuneda.adcapture |
 | `geuneda-notificationservice` | com.geuneda.notificationservice |
 | `geuneda-googlesheetimporter` | com.geuneda.googlesheetimporter |
 | `geuneda-gamesystems` | com.geuneda.gamesystems |

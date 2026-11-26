@@ -118,6 +118,7 @@ Geuneda API 코드를 작성하거나 고치기 전에 해당 스킬을 invoke �
 | `Geuneda.StatechartMachine` | `/geuneda-statechart` |
 | `Input`, `Input.Controls` (inputextensions, 어셈블리 이름은 `Geuneda.InputExtensions`) | `/geuneda-inputextensions` |
 | `Geuneda.NativeUi` | `/geuneda-nativeui` |
+| `Geuneda.AdCapture` | `/geuneda-adcapture` |
 | `Geuneda.NotificationService` | `/geuneda-notificationservice` |
 | `Geuneda.GoogleSheetImporter`, `GeunedaEditor.GoogleSheetImporter` | `/geuneda-googlesheetimporter` |
 | `Geuneda.GameSystems.*` (예: `Geuneda.GameSystems.RedDot`) | `/geuneda-gamesystems` |

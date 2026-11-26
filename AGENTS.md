@@ -2,7 +2,7 @@
 
 ## 1. 레포 개요
 
-Geuneda UPM 패키지 35개를 개발, 테스트, 검증하는 Unity 6000.3 호스트 프로젝트다. 패키지는 `Packages/com.geuneda.*` 아래에 git 서브모듈로 들어 있고(`.gitmodules`), 각각 독립 레포다. `claude-skills/` 에는 패키지별 Claude Code 스킬 24개와 프레임워크 전체 스킬이 있다(애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터 패키지는 `geuneda-analytics`, Unity IAP 어댑터 패키지는 `geuneda-iap`, MAX 어댑터 패키지는 `geuneda-ads`, UMP·ATT 어댑터 패키지는 `geuneda-consent`, gree 웹뷰 어댑터 패키지는 `geuneda-webview` 스킬이 함께 다룬다).
+Geuneda UPM 패키지 37개를 개발, 테스트, 검증하는 Unity 6000.3 호스트 프로젝트다. 패키지는 `Packages/com.geuneda.*` 아래에 git 서브모듈로 들어 있고(`.gitmodules`), 각각 독립 레포다. `claude-skills/` 에는 패키지별 Claude Code 스킬 25개와 프레임워크 전체 스킬이 있다(애플·구글 제공자 패키지는 `geuneda-account`, 분석 벤더 어댑터 패키지는 `geuneda-analytics`, Unity IAP 어댑터 패키지는 `geuneda-iap`, MAX 어댑터 패키지는 `geuneda-ads`, UMP·ATT 어댑터 패키지는 `geuneda-consent`, gree 웹뷰 어댑터 패키지는 `geuneda-webview` 스킬이 함께 다룬다).
 
 - 패키지 목록, 버전, 의존성, 설치, 레포 구조: [README.md](README.md)
 - 설정, 서브모듈 워크플로우, 코딩 표준, 테스트, 문서화 요구 사항: [CONTRIBUTING.md](CONTRIBUTING.md)
